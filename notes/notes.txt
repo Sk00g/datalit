@@ -1,0 +1,30 @@
+Example Applications (SPA) to Build:
+1. Work Timesheet
+2. Ultra-Basic inventory APP
+3. Codebits
+
+Waterfall Approach:
+- core application structure
+- core 'control' and 'element' base classes
+- primitive elements (building blocks)
+- text display
+- main controls
+- events
+- text editor
+- scrollable areas
+
+Systems To Design:
+* responsive layout handling (mobile as well as re-size)
+- JSON markup language available
+- easy to use editor that generates markup
+- data binding
+- event management
+- themes + styling system
+
+Systems To Build:
+
+Topics to Learn:
+- canvas optimization
+- advanced javascript OOP concepts
+- javascript event handling in modern browsers
+

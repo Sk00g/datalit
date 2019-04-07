@@ -1,0 +1,13 @@
+Info Locations:
+ - Google drive: file sharing, handwritten pages, etc.
+ - Chrome bookmarks: 
+ - Github repo:
+    - Design docs: Documents explaining the design concepts of specific systems after they are completed. Should not hold 'in progress' designs or todo lists. Should be very modular like the code it describes
+    - Reference notes: Any little tidbits or gotchas related to the technologies and APIs used to build datalit. Basically anything I didn't create
+    - Activity record: Keep track of ongoing work, current system. Completed systems list, etc. This should always have a 'recent work' section that stays up to date. However, git commits are still used to keep track of code added
+
+Workflow:
+1. Design -> Research -> Prototype -> Write -> Test -> Document
+
+
+This workflow should always be followed, and should always have a clear concept of which step you are in

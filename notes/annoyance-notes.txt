@@ -1,0 +1,4 @@
+- Have to do script="module" if you want to have imports in javascript...
+
+- Have to host an actual server instead of visiting file:// url for javascript to work in chrome, otherwise CORS blocks it and doesn't even mention anything
+

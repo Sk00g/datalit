@@ -1,0 +1,9 @@
+Responsive Layout:
+
+* Properly designed GUIs should be displayed logically and predictably on any reasonably sized viewport
+* GUIs should be re-aligned on any screen resize event without significantly altering the layout of an ongoing application
+* The only type of application considered is an SPA style
+
+Ideas:
+- could have a very easy 'hide' feature which would hide an element and then have the previously occupied space available for bordering controls
+- could stick with what we know well and use nested grid for the base of everything

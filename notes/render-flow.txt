@@ -1,0 +1,15 @@
+Page Render Steps:
+
+1. Calculate element view sizes (except for elements with align == Align.Fill)
+
+2. Determine section requested sizes
+
+3. Page determines allocated sizes for sections
+  -> When a section has its size allocated, it then allocates appropriate size to child sections
+
+4. Elements with Align.Fill use allocated parent section size to determine final size
+
+
+Rules to enforce:
+* Level 1 Section elements (direct children of a Page) cannot have align.CENTER?
+* If a Section has alignment == FILL, then its targetSize property is ignored
