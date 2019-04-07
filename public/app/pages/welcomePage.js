@@ -1,9 +1,9 @@
-import core from "../core/core.js";
-import { Page } from "../core/page.js";
-import { Rect } from "../core/rect.js";
-import { Label } from "../core/label.js";
-import { Icon } from "../core/icon.js";
-import { Section } from "../core/section.js";
+import core from "../../lib/core/core.js";
+import { Page } from "../../lib/core/page.js";
+import { Rect } from "../../lib/core/rect.js";
+import { Label } from "../../lib/core/label.js";
+import { Icon } from "../../lib/core/icon.js";
+import { Section } from "../../lib/core/section.js";
 
 export class WelcomePage extends Page {
   constructor(context) {
@@ -33,7 +33,7 @@ export class WelcomePage extends Page {
     this.leftSection.contentAlignment = core.Align.TOP;
     this.leftSection.addChildren([testLabel, label2, line, label3]);
     // this.rightSection.addChildren([testLabel, label2, label3]);
-    
+
     this.addSection(this.mainSection);
     this.addSection(this.topSection);
     this.addSection(this.botSection);
@@ -42,7 +42,6 @@ export class WelcomePage extends Page {
 
     console.log(`left section top: ${this.leftSection.position}`);
     console.log(`testLabel top: ${testLabel.position}`);
-    
 
     window.addEventListener("keydown", e => this.handleKeypress(e));
   }
