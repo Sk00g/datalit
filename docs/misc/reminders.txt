@@ -1,0 +1,12 @@
+
+
+- Use getters and setters within classes for awesomeness
+
+
+
+Useful Extensions:
+* ESLint
+* Prettier
+* Debugger for Chrome
+* vscode-icons
+* Auto Import

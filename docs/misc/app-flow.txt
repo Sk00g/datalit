@@ -1,7 +1,7 @@
 Application Workflow:
 
 * The editor compiles JSON markup superset into actual Javascript code, which is referenced 
-by the framework libraries. This is considered a 'build' step, not an actual app run-time step 
+by the framework libraries. This is considered a 'build' step, not an actual app run-time step ?
 
 1. index.html, is pulled by the browser, has a single <canvas> element in <body> 
     2. Add a <script type=module src=index.js> tag under <body> element to pull in code

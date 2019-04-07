@@ -1,0 +1,26 @@
+-----------------------
+CURRENT ACTIVITY REPORT
+-----------------------
+
+LAST UPDATE:      10:44 PM 2019-04-06
+SYSTEM:           Miscellaneous
+STAGE:            N/A                     (Design -> Research -> Prototype -> Write -> Test -> Document)
+
+IMMEDIATE:        
+- Prepare IDE for optimal efficiency and backup settings to Drive
+
+
+----------
+TASK LIST
+----------
+
+- Establish sample apps, inspiration GUIs, write out basic operation, GUI wireframes, etc.
+- Gather good resource links on Chrome for javascript, express, node.js, npm, icon resource, js cheat sheet, HTML5 canvas API, color matcher / resources 
+
+
+----------
+COMPLETED
+----------
+
+- Centralize files, repo, design workflow
+- Clarify design tools and organization

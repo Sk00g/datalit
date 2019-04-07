@@ -19,20 +19,20 @@ console.log(`... initialized application (${[window.innerWidth, window.innerHeig
 
 let lastTick = 0;
 function main(currentTime) {
-  let elapsed = currentTime - lastTick;
-  lastTick = currentTime;
+    let elapsed = currentTime - lastTick;
+    lastTick = currentTime;
 
-  // eventManager.update()
-  pageManager.update(elapsed);
+    // eventManager.update()
+    pageManager.update(elapsed);
 
-  if (core.GlobalState.RedrawRequired) {
-    core.GlobalState.RedrawRequired = false;
+    if (core.GlobalState.RedrawRequired) {
+        core.GlobalState.RedrawRequired = false;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    pageManager.draw(context);
-  }
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        pageManager.draw(context);
+    }
 
-  window.requestAnimationFrame(main);
+    window.requestAnimationFrame(main);
 }
 
 main();

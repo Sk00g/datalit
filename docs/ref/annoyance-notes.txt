@@ -1,4 +1,7 @@
 - Have to do script="module" if you want to have imports in javascript...
 
 - Have to host an actual server instead of visiting file:// url for javascript to work in chrome, otherwise CORS blocks it and doesn't even mention anything
+    * Good solution for this is static-server (npm package), it by default just servers the files in the dir it's run in
+
+- Keep in mind that an index.html CAN NOT import scripts that are higher up than it's parent folder
 

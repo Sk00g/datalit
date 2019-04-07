@@ -1,0 +1,17 @@
+---------------------------
+ONGOING BUG TRACKING REPORT
+---------------------------
+
+* Record in format used by snippet 'bugTracker' (prefix 'bugr') Ex//
+
+------------------------------
+DATE: 209/04/06	|	CONTEXT: Fake Bug
+------------------------------
+This is the description of the bug that doesn't exit
+
+
+
+
+
+
+

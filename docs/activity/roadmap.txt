@@ -1,0 +1,27 @@
+------------------------------------
+Example Applications (SPA) to Build:
+------------------------------------
+1. Work Timesheet
+2. Ultra-Basic inventory APP
+3. Codebits
+
+------------------------------------
+Overarching Systems
+------------------------------------
+* Core Library
+* Event Handling
+* Data Binding
+* Special Elements
+* Editor
+* Animation
+* Optimization
+* Back-End
+* Miscellaneous
+
+------------------------------------
+Topics to Learn:
+------------------------------------
+- canvas optimization
+- advanced javascript OOP concepts
+- javascript event handling in modern browsers
+
