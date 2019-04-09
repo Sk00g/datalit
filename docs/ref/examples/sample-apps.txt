@@ -1,0 +1,49 @@
+---------------
+Custom Applications
+---------------
+
+https://drive.google.com/drive/folders/1KoebrOj--9Ys3bNcPVTPqZL91Jsn5_hi
+
+1. Codebits
+    * Front-end: Simple, swap between search + enter
+        # Enter -> Swap mode button, sign in, show topics, main edit section, suggestions
+        # Search -> Main search text thing, results beneath, filters above, details beside results
+    * Interactivity:
+        # Text should have popup badges and suggestions etc.
+        # Entering a codebit should generate a popup somewhere when back-end returns
+        # Drop-down menus for account / settings
+        # Search results need to be a sorted, selectable, list
+        # Action options to existing code bits
+    * Back-end:
+        # Store codebits, account details, settings, do some sorting / searching maybe?
+    * Overall UX pattern:
+        # Two main pages + accounts + settings, one page at a time 
+
+2. Work Sheet
+    * Front-end: Home page should have a few main buttons. Either viewing results + history or managing a current entry
+    * Interactivity: Super straight forward actions -> Start/end shift, start/end break, view shifts
+    * Back-end: manage settings, record entries, everything else can be derived from entries on the client side 
+    * Overall UX pattern:
+        # Large trendy 'actions' page to start at. Swaps to single-focus entry manager or shift viewer
+        # Shift viewer is classic search / results table / master-slave details
+        # Maybe a third page showing results with graphics and analytics (super basic)
+
+3. Parts Inventory
+    * Front-end: Everything manageable from a single page
+    * Interactivity: 
+        # create / edit part details, search / sort parts
+        # flag parts that are low, do basic cost analysis
+        # CRUD company list
+    * Back-end:
+        # store orders, companies
+    * Overall UX pattern:
+        # main area split between details (CRUD for selected) and table results (view / filter / search / sort)
+
+
+---------------
+Inspirations
+---------------
+
+- Asana
+- Gmail
+- Spotify

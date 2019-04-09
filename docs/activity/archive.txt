@@ -1,0 +1,9 @@
+
+
+
+Miscellaneous: 2019/04/08
+- Gather good resource links on Chrome for javascript, express, node.js, npm, icon resource, js cheat sheet, HTML5 canvas API, color matcher / resources 
+- Establish sample apps, inspiration GUIs, write out basic operation, GUI wireframes, etc.
+- Prepare IDE for optimal efficiency and backup settings to Drive
+- Centralize files, repo, design workflow
+- Clarify design tools and organization
