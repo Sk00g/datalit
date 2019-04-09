@@ -2,19 +2,23 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/04/08 22:19
+LAST UPDATE:		2019/04/08 22:32
 SYSTEM:				Core Library
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Design
 
 IMMEDIATE:
-Need to build list of items to design and in what order
+- Learn how to make an NPM package
 
 ----------
 TASK LIST
 ----------
 
-
+- Research and design general structure of library, including file locations, asset management, etc.
+- Build main application loop
+- Build core element, page, section 
+- Build rect / icon / label / circle / button / edit / list / table / dropdown / checkbox
+- Responsive layout and alignment system with multiple sections, pages, elements, etc.
 
 ----------
 COMPLETED

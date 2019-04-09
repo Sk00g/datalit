@@ -10,6 +10,7 @@ Overarching Systems
 ------------------------------------
 * Core Library
 * Event Handling
+* Styles & Themes
 * Data Binding
 * Special Elements
 * Editor
