@@ -1,0 +1,27 @@
+{
+    "name": "datalit",
+    "version": "1.0.0",
+    "description": "Javascript GUI Framework that utilizes HTML5 Canvas API to bypass HTML and CSS",
+    "main": "public/lib/core/core.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "test": ""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Sk00g/datalit.git"
+    },
+    "keywords": [
+        "Canvas",
+        "framework",
+        "GUI"
+    ],
+    "author": "Scott Kemperman",
+    "license": "",
+    "bugs": {
+        "url": "https://github.com/Sk00g/datalit/issues"
+    },
+    "homepage": "https://github.com/Sk00g/datalit#readme"
+}
