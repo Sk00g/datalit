@@ -1,9 +1,10 @@
 "use strict";
 
-import core from "../lib/core/core.js";
-import { EventManager } from "../lib/events/events.js";
-import { PageManager } from "../lib/core/pageManager.js";
-import { WelcomePage } from "./pages/welcomePage.js";
+import _ from "lodash";
+import core from "../public/src/lib/datalit/core.js";
+import { EventManager } from "../public/src/lib/datalit/events/events.js";
+import { PageManager } from "../public/src/lib/datalit/pageManager.js";
+import { WelcomePage } from "../public/src/pages/welcomePage.js";
 
 let canvas = document.getElementById("canvas");
 let context = canvas.getContext("2d");

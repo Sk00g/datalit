@@ -1,9 +1,9 @@
-import core from "../../lib/core/core.js";
-import { Page } from "../../lib/core/page.js";
-import { Rect } from "../../lib/core/rect.js";
-import { Label } from "../../lib/core/label.js";
-import { Icon } from "../../lib/core/icon.js";
-import { Section } from "../../lib/core/section.js";
+import core from "../lib/datalit/core.js";
+import { Page } from "../lib/datalit/controls/page.js";
+import { Rect } from "../lib/datalit/controls/rect.js";
+import { Label } from "../lib/datalit/controls/label.js";
+import { Section } from "../lib/datalit/controls/section.js";
+import { Icon } from "../lib/datalit/controls/icon.js";
 
 export class WelcomePage extends Page {
     constructor(context) {
@@ -40,8 +40,8 @@ export class WelcomePage extends Page {
         this.addSection(this.leftSection);
         this.addSection(this.rightSection);
 
-        console.log(`left section top: ${this.leftSection.position}`);
-        console.log(`testLabel top: ${testLabel.position}`);
+        // this.testImage = new Icon([32, 32], core.Align.LEFT, "../../../assets/images/search-purple.png");
+        // this.mainSection.addChildren(this.testImage);
 
         window.addEventListener("keydown", e => this.handleKeypress(e));
     }

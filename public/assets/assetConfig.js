@@ -1,0 +1,1 @@
+export default {"baseDir": "assets", "imageDir": "images", "imagePaths": ["char.png", "search-purple.png", "login-teal.png"], "imageCount": 3}

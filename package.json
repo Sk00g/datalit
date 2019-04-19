@@ -2,12 +2,12 @@
     "name": "datalit",
     "version": "1.0.0",
     "description": "Javascript GUI Framework that utilizes HTML5 Canvas API to bypass HTML and CSS",
-    "main": "public/lib/core/core.js",
+    "private": true,
     "directories": {
         "doc": "docs"
     },
     "scripts": {
-        "test": ""
+        "build": "cd public && python3 ../tools/asset_loader.py assets && webpack --mode=development"
     },
     "repository": {
         "type": "git",
@@ -23,5 +23,10 @@
     "bugs": {
         "url": "https://github.com/Sk00g/datalit/issues"
     },
-    "homepage": "https://github.com/Sk00g/datalit#readme"
+    "homepage": "https://github.com/Sk00g/datalit#readme",
+    "dependencies": {
+        "lodash": "^4.17.11",
+        "webpack": "^4.30.0",
+        "webpack-cli": "^3.3.0"
+    }
 }
