@@ -8,9 +8,9 @@ SYSTEM:				Core Library
 STAGE:				Design
 
 IMMEDIATE: 
-- Build core element, page, section 
-    * Needs to get started
-
+- Build core control, page, section 
+    * Built control
+    
 ----------
 TASK LIST
 ----------

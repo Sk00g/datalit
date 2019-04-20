@@ -8,7 +8,7 @@ class DatalitApp {
         this.Context = this.Canvas.getContext("2d");
         this.GlobalState = {
             DefaultBackground: enums.Colors.OFFWHITE,
-            DefaultMargin: 10,
+            DefaultMargin: [10, 10, 10, 10],
             RedrawRequired: true,
             ClearRegions: []
         };

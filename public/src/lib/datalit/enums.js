@@ -7,32 +7,32 @@ export const Colors = Object.freeze({
 });
 
 export const ControlState = Object.freeze({
-    DISABLED: 0,
-    ENABLED: 1,
-    HOVERED: 2,
-    FOCUSED: 3,
-    DEPRESSED: 4,
-    DRAGGED: 5
+    DISABLED: "DISABLED",
+    ENABLED: "ENABLED",
+    HOVERED: "HOVERED",
+    FOCUSED: "FOCUSED",
+    DEPRESSED: "DEPRESSED",
+    DRAGGED: "DRAGGED"
 });
 
 export const Align = Object.freeze({
-    TOP: 0,
-    BOTTOM: 1,
-    CENTER: 2,
-    FREE: 3,
-    FILL: 4,
-    RIGHT: 5,
-    LEFT: 6
+    TOP: "TOP",
+    BOTTOM: "BOTTOM",
+    CENTER: "CENTER",
+    FREE: "FREE",
+    FILL: "FILL",
+    RIGHT: "RIGHT",
+    LEFT: "LEFT"
 });
 
 export const PageState = Object.freeze({
-    READY: 0,
-    ACTIVE: 1
+    READY: "READY",
+    ACTIVE: "ACTIVE"
 });
 
 export const FlowType = Object.freeze({
-    HORIZONTAL: 0,
-    VERTICAL: 1
+    HORIZONTAL: "HORIZONTAL",
+    VERTICAL: "VERTICAL"
 });
 
 export const SizeTarget = Object.freeze({

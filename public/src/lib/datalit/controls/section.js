@@ -12,6 +12,8 @@ export class Section extends Control {
     ) {
         super();
 
+        this.isArranger = true;
+
         // console.log("Section constructor");
         if (targetSize != enums.SizeTarget.MINIMUM && (targetSize < 0 || targetSize >= 1.0)) {
             throw new Error("Invalid targetSize for Section. Must be between 0 and 1.0");

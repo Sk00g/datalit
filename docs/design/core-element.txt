@@ -1,0 +1,27 @@
+---------------
+CORE ELEMENT
+---------------
+
+* Want to use getters and setters to encapsulate internal calculations, private properties, and property change event handling for data binding and animation purposes
+* Need to establish clear conventions for consistency across polymorphic constructs
+* Elements should be unaware and decoupled from their parent structure (Page or Section)
+
+
+Core Properties (common to all controls):
+- viewingRect: Returns the exact area of the canvas this control is displayed on. Used for clearing optimization
+- hitRect: Returns area considered for hitboxing for mouse events
+- size: Explicit for some controls, derived in others (label)
+- localPosition: The position within its parent structure (Page or Section). This can be get/set directly, but is only relevant when align = Align.FREE
+- visible: True or False, taken into account by parent structure
+- zValue: Z-axis value, affects which controls are 'on top' of others. Get/set directly, but only has relevance within immediate tier of controls (ie. applies within it's Parent Section, which has its own zValue relevant to its parent Page)
+- margin: Exactly what it sounds like. Blank space that is considered part of a control's viewing Rect, but not hitRect. It is used for arrangement and alignment calculations. There is no 'padding', each element has its own margin
+- align: Specifies alignment for this control, this value is used by parent structure to perform arrangement and final location calculations. This property can be checked for validity to throw helpful errors (ie. Align.RIGHT doesn't work when within a FlowType.HORIZONTAL parent Section)
+
+
+---------------
+CONVENTIONS
+---------------
+
+* properties wrapped by getter/setter are always be preceded by  '_' (_position)
+* enums use CamelCase for the type, and ALL_CAPS for the values
+* all other properties use regular camelCase, including methods

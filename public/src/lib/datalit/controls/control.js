@@ -1,49 +1,118 @@
 import enums from "../enums.js";
 import { App } from "../app.js";
+import { datalitError } from "../errors.js";
 
 export class Control {
-    constructor() {
-        this.position = [0, 0];
-        this.size = [1, 1];
-        this.visible = true;
-        this.alignment = enums.Align.CENTER;
-
-        this.margin = [0, 0, 0, 0];
-        for (let i = 0; i < 4; i++) this.margin[i] = App.GlobalState.DefaultMargin;
+    constructor(initialProperties = null) {
+        this._margin = App.GlobalState.DefaultMargin;
+        this._size = [1, 1];
+        this._localPosition = [0, 0];
+        this._visible = true;
+        this._align = enums.Align.CENTER;
+        this._arrangedPosition = [0, 0];
+        this._zValue = 0;
 
         // console.log("Control Constructor - 1");
-    }
 
-    get height() {
-        return this.size[1];
-    }
-    set height(newHeight) {
-        this.size[1] = newHeight;
-    }
-    get width() {
-        return this.size[0];
-    }
+        for (let prop of initialProperties) {
+            if (!this.hasOwnProperty(prop)) datalitError("propertyNotFound", ["Control", prop]);
 
-    setPosition(newPosition) {
-        if (newPosition[0] == -1) {
-            this.position[1] = newPosition[1];
-        } else if (newPosition[1] == -1) {
-            this.position[0] = newPosition[0];
-        } else {
-            this.position = newPosition;
+            this[prop] = initialProperties[prop];
         }
     }
 
-    setSize(newSize) {
-        this.size = newSize;
+    arrangePosition(arranger, newPosition) {
+        if (!arranger.isArranger) datalitError("arrangeAuthority", [String(arranger.constructor.name)]);
+
+        this._arrangedPosition = newPosition;
     }
 
-    calculateViewsize() {
-        if (this.alignment == enums.Align.FILL) {
-            return null;
-        } else {
-            return size;
-        }
+    get zValue() {
+        return this._zValue;
+    }
+    set zValue(newValue) {
+        if (typeof newValue != "number" || newValue < 0)
+            datalitError("propertySet", ["Control.zValue", String(newValue), "int 0 or greater"]);
+
+        this._zValue = newValue;
+    }
+
+    get margin() {
+        return this._margin;
+    }
+    set margin(newMargin) {
+        if (typeof newMargin != "object" || newMargin.length != 4)
+            datalitError("propertySet", ["Control.margin", String(newMargin), "LIST of 4 int"]);
+        for (let i = 0; i < 4; i++)
+            if (!Number.isInteger(newMargin[i]))
+                datalitError("propertySet", ["Control.margin", String(newMargin), "LIST of 4 int"]);
+
+        this._margin = newMargin;
+    }
+
+    // Default implementation, can be overriden
+    get viewingRect() {
+        return [...this._arrangedPosition, ...this._size];
+    }
+    // Default implementation, can be overriden
+    get hitRect() {
+        return [
+            this._arrangedPosition[0] + this._margin[0],
+            this._arrangedPosition[1] + this._margin[1],
+            Math.max(0, this._size[0] - this.margin[0] - this.margin[2]),
+            Math.max(0, this._size[1] - this.margin[1] - this.margin[3])
+        ];
+    }
+
+    get align() {
+        return this._align;
+    }
+    set align(newAlign) {
+        if (!enums.Align.hasOwnProperty(newAlign))
+            datalitError("propertySet", ["Control.align", String(newAlign), "enums.Align"]);
+
+        this._align = newAlign;
+    }
+
+    get visible() {
+        return this._visible;
+    }
+    set visible(flag) {
+        if (typeof flag != "boolean") datalitError("propertySet", ["Control.visible", String(flag), "BOOL"]);
+
+        this._visible = flag;
+    }
+
+    get localPosition() {
+        return this._localPosition;
+    }
+
+    set localPosition(newPosition) {
+        if (
+            typeof newPosition != "object" ||
+            newPosition.length != 2 ||
+            !Number.isInteger(newPosition[0]) ||
+            !Number.isInteger(newPosition[1])
+        )
+            datalitError("propertySet", ["Control.localPosition", String(newPosition), "LIST of 2 int"]);
+
+        this._localPosition = newPosition;
+    }
+
+    get size() {
+        return this._size;
+    }
+
+    set size(newSize) {
+        if (
+            typeof newSize != "object" ||
+            newSize.length != 2 ||
+            !Number.isInteger(newSize[0]) ||
+            !Number.isInteger(newSize[1])
+        )
+            datalitError("propertySet", ["Control.size", String(newSize), "LIST of 2 int"]);
+
+        this._size = newSize;
     }
 
     update(elapsed) {}

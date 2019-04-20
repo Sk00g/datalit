@@ -6,16 +6,26 @@ export class Page extends Control {
     constructor(margins = [0, 0, 0, 0]) {
         super();
 
+        this.isArranger = true;
+
         // console.log("Page Constructor - 2");
 
-        this._sectionList = [];
-        this._state = enums.PageState.READY;
-
-        this.margin = margins;
+        this.sectionList = [];
+        this.state = enums.PageState.READY;
 
         // These private variables are used to simplify the render 'arrangement' process
         this._origin = [margins[0], margins[1]];
         this._freeOrigins = [0, 0, 0, 0];
+    }
+
+    get position() {
+        console.log("getting position from Page");
+        return super.position;
+    }
+
+    set position(newPosition) {
+        console.log("set new position from Page");
+        super.position = newPosition;
     }
 
     _prerenderCheck() {
