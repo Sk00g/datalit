@@ -1,0 +1,16 @@
+---------------
+MAIN LOOP DESIGN
+---------------
+
+* Goal is to encapsulate as much as possible in the main loop, to simplify application code
+* DO NOT pre-optimize, the only optimization to start with is a flag to redraw from core.GlobalState
+* Should separate arrangement from redraw
+* Events are already set up as asychronous with callbacks, so this may not need to be part of the main loop
+
+* General loop idea:
+    - clear screen
+    - draw pageManager -> draw current page
+    - current page draws its children (sections and controls)
+    - udpate pageManager -> updates current page
+    - current page updates its children (sections and controls)
+

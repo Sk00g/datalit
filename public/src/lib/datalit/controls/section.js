@@ -1,25 +1,26 @@
-import core from "../core.js";
-import { Element } from "./element.js";
+import { App } from "../app.js";
+import enums from "../enums.js";
+import { Control } from "./control.js";
 import { Rect } from "./rect.js";
 
-export class Section extends Element {
+export class Section extends Control {
     constructor(
-        flowType = core.FlowType.VERTICAL,
-        alignment = core.Align.LEFT,
-        targetSize = core.SizeTarget.MINIMUM,
-        background = core.GlobalState.DefaultBackground
+        flowType = enums.FlowType.VERTICAL,
+        alignment = enums.Align.LEFT,
+        targetSize = enums.SizeTarget.MINIMUM,
+        background = App.GlobalState.DefaultBackground
     ) {
         super();
 
         // console.log("Section constructor");
-        if (targetSize != core.SizeTarget.MINIMUM && (targetSize < 0 || targetSize >= 1.0)) {
+        if (targetSize != enums.SizeTarget.MINIMUM && (targetSize < 0 || targetSize >= 1.0)) {
             throw new Error("Invalid targetSize for Section. Must be between 0 and 1.0");
         }
 
         this.children = [];
         this.flowType = flowType;
         this.alignment = alignment;
-        this.contentAlignment = core.Align.CENTER;
+        this.contentAlignment = enums.Align.CENTER;
         this.targetSize = targetSize;
         this.margin = [0, 0, 0, 0];
 
@@ -32,8 +33,8 @@ export class Section extends Element {
     render() {
         if (this.children.length < 1) return;
 
-        if (this.flowType == core.FlowType.HORIZONTAL) {
-        } else if (this.flowType == core.FlowType.VERTICAL) {
+        if (this.flowType == enums.FlowType.HORIZONTAL) {
+        } else if (this.flowType == enums.FlowType.VERTICAL) {
             // All horizontal positions are the same regardless of alignment
             for (let child of this.children) {
                 if (child.fillWidth) {
@@ -45,13 +46,13 @@ export class Section extends Element {
                 }
 
                 switch (child.alignment) {
-                    case core.Align.RIGHT:
+                    case enums.Align.RIGHT:
                         child.setPosition([
                             this.position[0] + this.size[0] - Math.min(child.calculateViewsize()[0], this.size[0]),
                             -1
                         ]);
                         break;
-                    case core.Align.CENTER:
+                    case enums.Align.CENTER:
                         let space = Math.max(this.position[0] + this.size[0] - child.calculateViewsize()[0], 0);
                         child.setPosition([Math.floor(space / 2), -1]);
                         break;
@@ -59,14 +60,14 @@ export class Section extends Element {
             }
 
             switch (this.contentAlignment) {
-                case core.Align.TOP:
+                case enums.Align.TOP:
                     var origin = 0;
                     for (let child of this.children) {
                         child.setPosition([-1, this.position[1] + origin]);
                         origin += child.calculateViewsize()[1];
                     }
                     break;
-                case core.Align.BOTTOM:
+                case enums.Align.BOTTOM:
                     var origin = 0;
                     for (let child of this.children) {
                         let childPosition = [
@@ -77,7 +78,7 @@ export class Section extends Element {
                         origin += child.calculateViewsize()[1];
                     }
                     break;
-                case core.Align.CENTER:
+                case enums.Align.CENTER:
                     let heights = this.children.map(ch => ch.calculateViewsize()[1]);
                     let totalHeight = heights.reduce((total, amount) => total + amount);
                     var origin = this.position[1] + Math.floor((this.size[1] - totalHeight) / 2);
@@ -95,8 +96,8 @@ export class Section extends Element {
     calculateViewsize(availableSpace) {
         let requestedSize = [0, 0];
 
-        if (this.flowType == core.FlowType.HORIZONTAL) {
-            if (this.targetSize == core.SizeTarget.MINIMUM) {
+        if (this.flowType == enums.FlowType.HORIZONTAL) {
+            if (this.targetSize == enums.SizeTarget.MINIMUM) {
                 let largestHeight = 0;
                 for (let child of this.children) {
                     if (child.height > largestHeight) {
@@ -108,8 +109,8 @@ export class Section extends Element {
                 // targetSize is a float value between 0 and 1
                 requestedSize = [availableSpace[0], Math.floor(this.targetSize * availableSpace[1])];
             }
-        } else if (this.flowType == core.FlowType.VERTICAL) {
-            if (this.targetSize == core.SizeTarget.MINIMUM) {
+        } else if (this.flowType == enums.FlowType.VERTICAL) {
+            if (this.targetSize == enums.SizeTarget.MINIMUM) {
                 let largestWidth = 0;
                 for (let child of this.children) {
                     if (child.width() > largestWidth) {

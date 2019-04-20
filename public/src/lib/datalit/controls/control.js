@@ -1,16 +1,17 @@
-import core from "../core.js";
+import enums from "../enums.js";
+import { App } from "../app.js";
 
-export class Element {
+export class Control {
     constructor() {
         this.position = [0, 0];
         this.size = [1, 1];
         this.visible = true;
-        this.alignment = core.Align.CENTER;
+        this.alignment = enums.Align.CENTER;
 
         this.margin = [0, 0, 0, 0];
-        for (let i = 0; i < 4; i++) this.margin[i] = core.GlobalState.DefaultMargin;
+        for (let i = 0; i < 4; i++) this.margin[i] = App.GlobalState.DefaultMargin;
 
-        // console.log("Element Constructor - 1");
+        // console.log("Control Constructor - 1");
     }
 
     get height() {
@@ -38,7 +39,7 @@ export class Element {
     }
 
     calculateViewsize() {
-        if (this.alignment == core.Align.FILL) {
+        if (this.alignment == enums.Align.FILL) {
             return null;
         } else {
             return size;

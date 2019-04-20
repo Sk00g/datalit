@@ -1,7 +1,7 @@
-import { Element } from "./element.js";
-import core from "../core.js";
+import { App } from "../app.js";
+import { Control } from "./control.js";
 
-export class Icon extends Element {
+export class Icon extends Control {
     constructor(size, alignment, sourceFile, sourceRect = null) {
         super();
 
@@ -14,7 +14,7 @@ export class Icon extends Element {
         this.image.src = sourceFile;
         this.image.onload = () => {
             this.visible = true;
-            core.GlobalState.RedrawRequired = true;
+            App.GlobalState.RedrawRequired = true;
         };
     }
 

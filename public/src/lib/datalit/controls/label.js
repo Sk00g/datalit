@@ -1,7 +1,7 @@
-import core from "../core.js";
-import { Element } from "./element.js";
+import enums from "../enums.js";
+import { Control } from "./control.js";
 
-export class Label extends Element {
+export class Label extends Control {
     constructor(alignment, context, text, fontColor = "rgb(0, 0, 0)", fontSize = 12) {
         super();
 
@@ -14,7 +14,7 @@ export class Label extends Element {
         this.context.font = this.fontSize + "pt sans-serif";
         this.size = [this.context.measureText(text).width, this.fontSize];
 
-        if (this.alignment == core.Align.FILL) {
+        if (this.alignment == enums.Align.FILL) {
             throw new Error("Text-based elements cannot have a FILL alignment");
         }
     }

@@ -2,22 +2,19 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/04/19 00:44
+LAST UPDATE:		2019-04-19 23:46
 SYSTEM:				Core Library
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Prototype
+STAGE:				Design
 
 IMMEDIATE: 
-- Research and design general structure of library, including file locations, asset management, etc.
-    * Working on asset management basics, trying to figure out how to manage JSON data assets in browser JS
-
+- Build core element, page, section 
+    * Needs to get started
 
 ----------
 TASK LIST
 ----------
 
-- Build main application loop
-- Build core element, page, section 
 - Build rect / icon / label / circle / button / edit / list / table / dropdown / checkbox
 - Responsive layout and alignment system with multiple sections, pages, elements, etc.
 
@@ -26,6 +23,9 @@ TASK LIST
 COMPLETED
 ----------
 
+- Asset Management
+- Research and implement main library file structure 
+- Build main application loop
 - Learn how to make an NPM package
 
 

@@ -1,8 +1,8 @@
-import core from "../core.js";
-import { Element } from "./element.js";
+import enums from "../enums.js";
+import { Control } from "./control.js";
 
-export class Rect extends Element {
-    constructor(size, fillColor, alignment = core.Align.FILL) {
+export class Rect extends Control {
+    constructor(size, fillColor, alignment = enums.Align.FILL) {
         super();
 
         this.size = size;

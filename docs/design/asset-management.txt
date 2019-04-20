@@ -5,9 +5,8 @@ ASSET MANAGEMENT
 Strategy for handling image, video, audio, and data assets  
 
 * Have a main asset manager class
-    - On init, it loads everything from the ./assets folder into the appropriate type
     - Lazy load might be better for optimization
-    - everything should be accessible via the 'getAsset', returns an object based on the type
+    - everything should be accessible via the 'get[ASSET_TYPE]', returns an object based on the given resource name
         # Type could be specified in the call or just the name
         # Throw smart errors for easy debugging
     - the only export from assetManager.js is the static AssetManager class, used for everything
@@ -15,5 +14,6 @@ Strategy for handling image, video, audio, and data assets
         # Image: HTMLImageElement
         # Video: TBA
         # Audio: TBA
-        # data: regular Python object (load the data as JSON)
+        # data: regular JS object (load the data as JSON?)
     - If asset metadata is ever required, this could be implement through other functions of the static class
+* Python tool does the work of finding files under public/assets/ and writing them to a .js file so our main JS code can pre-load these on startup. See tools/asset_loader.py

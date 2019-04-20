@@ -1,16 +1,15 @@
-import { Element } from "./element.js";
-import core from "../core.js";
+import { App } from "../app.js";
+import enums from "../enums.js";
+import { Control } from "./control.js";
 
-export class Page extends Element {
-    constructor(context, margins = [0, 0, 0, 0]) {
+export class Page extends Control {
+    constructor(margins = [0, 0, 0, 0]) {
         super();
 
         // console.log("Page Constructor - 2");
 
-        this.context = context;
-
         this._sectionList = [];
-        this._state = core.PageState.READY;
+        this._state = enums.PageState.READY;
 
         this.margin = margins;
 
@@ -20,8 +19,8 @@ export class Page extends Element {
     }
 
     _prerenderCheck() {
-        if (this._sectionList.filter(sec => sec.alignment == core.Align.FILL).length > 1) {
-            throw new Error("Can only have one Section with alignment == core.Align.FILL");
+        if (this._sectionList.filter(sec => sec.alignment == enums.Align.FILL).length > 1) {
+            throw new Error("Can only have one Section with alignment == enums.Align.FILL");
         }
     }
 
@@ -36,32 +35,32 @@ export class Page extends Element {
         ];
         let totalSpace = [this._freeOrigins[2] - this._freeOrigins[0], this._freeOrigins[3] - this._freeOrigins[1]];
 
-        let viewableSections = this._sectionList.filter(sec => sec.visible && sec.alignment != core.Align.FILL);
+        let viewableSections = this._sectionList.filter(sec => sec.visible && sec.alignment != enums.Align.FILL);
         for (let i = 0; i < viewableSections.length; i++) {
             let sec = viewableSections[i];
             let requestedSize = sec.calculateViewsize(totalSpace);
             // console.log(`Requested size: ${requestedSize}`);
-            if (sec.flowType == core.FlowType.HORIZONTAL) {
+            if (sec.flowType == enums.FlowType.HORIZONTAL) {
                 switch (sec.alignment) {
-                    case core.Align.TOP:
+                    case enums.Align.TOP:
                         sec.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
                         sec.setSize([this._freeOrigins[2] - this._freeOrigins[0], requestedSize[1]]);
                         this._freeOrigins[1] = requestedSize[1];
                         break;
-                    case core.Align.BOTTOM:
+                    case enums.Align.BOTTOM:
                         sec.setPosition([this._freeOrigins[0], this._freeOrigins[3] - requestedSize[1]]);
                         sec.setSize([this._freeOrigins[2] - this._freeOrigins[0], requestedSize[1]]);
                         this._freeOrigins[3] -= requestedSize[1];
                         break;
                 }
-            } else if (sec.flowType == core.FlowType.VERTICAL) {
+            } else if (sec.flowType == enums.FlowType.VERTICAL) {
                 switch (sec.alignment) {
-                    case core.Align.LEFT:
+                    case enums.Align.LEFT:
                         sec.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
                         sec.setSize([requestedSize[0], this._freeOrigins[3] - this._freeOrigins[1]]);
                         this._freeOrigins[0] = requestedSize[0];
                         break;
-                    case core.Align.RIGHT:
+                    case enums.Align.RIGHT:
                         sec.setPosition([this._freeOrigins[2] - requestedSize[0], this._freeOrigins[1]]);
                         sec.setSize([requestedSize[0], this._freeOrigins[3] - this._freeOrigins[1]]);
                         this._freeOrigins[2] -= requestedSize[0];
@@ -71,7 +70,7 @@ export class Page extends Element {
         }
 
         // Arrange the align.FILL section
-        let fillSection = this._sectionList.find(sec => sec.alignment == core.Align.FILL);
+        let fillSection = this._sectionList.find(sec => sec.alignment == enums.Align.FILL);
         fillSection.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
         fillSection.setSize([this._freeOrigins[2] - this._freeOrigins[0], this._freeOrigins[3] - this._freeOrigins[1]]);
 
@@ -82,7 +81,7 @@ export class Page extends Element {
     addSection(section) {
         this._sectionList.push(section);
 
-        if (this._sectionList.find(sec => sec.alignment == core.Align.FILL) == undefined) {
+        if (this._sectionList.find(sec => sec.alignment == enums.Align.FILL) == undefined) {
             throw new Error("A page must have at least one section with alignment == FILL");
         }
 
@@ -96,13 +95,13 @@ export class Page extends Element {
 
     // Extending classes should implement the following methods
     activate() {
-        this._state = core.PageState.ACTIVE;
+        this._state = enums.PageState.ACTIVE;
 
         this.render();
     }
 
     deactivate() {
-        this._state = core.PageState.READY;
+        this._state = enums.PageState.READY;
     }
 
     // Called by PageManager (think FSM)
