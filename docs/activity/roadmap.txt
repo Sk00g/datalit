@@ -26,3 +26,11 @@ Topics to Learn:
 - advanced javascript OOP concepts
 - javascript event handling in modern browsers
 
+
+------------------------------------
+IMPROVEMENTS WHEN APPLICABLE
+------------------------------------
+- Make custom validations (throw nice errors) for font types, asset names, colors, etc.
+- Make a definitive list of properties and an associated compatbility matrix matching controls with their relevant properties for easy lookup
+- Improve the asset-loader.py script to do error checking on asset names (no '-' char), and also build in a nesting system to handle directories and such
+- Add in custom fonts feature by local file or URL

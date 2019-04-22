@@ -40,9 +40,9 @@ export class PageManager {
         this.peek().update(elapsed);
     }
 
-    draw(context) {
+    draw() {
         if (this.pageStack.length < 1) throw new Error("Cannot draw empty pageManager!");
 
-        this.peek().draw(context);
+        this.peek().draw();
     }
 }

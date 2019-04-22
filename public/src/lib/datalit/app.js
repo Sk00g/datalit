@@ -9,6 +9,7 @@ class DatalitApp {
         this.GlobalState = {
             DefaultBackground: enums.Colors.OFFWHITE,
             DefaultMargin: [0, 0, 0, 0],
+            DefaultFontSize: 12,
             RedrawRequired: true,
             ClearRegions: []
         };
@@ -43,14 +44,14 @@ class DatalitApp {
         let elapsed = currentTime - this.lastTick;
         this.lastTick = currentTime;
 
+        this.pageManager.update(elapsed);
+
         if (this.GlobalState.RedrawRequired) {
             this.GlobalState.RedrawRequired = false;
             this.Context.clearRect(0, 0, this.Canvas.width, this.Canvas.height);
 
-            this.pageManager.draw(this.Context);
+            this.pageManager.draw();
         }
-
-        this.pageManager.update(elapsed);
 
         window.requestAnimationFrame(ct => this.run(ct));
     }

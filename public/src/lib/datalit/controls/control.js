@@ -27,8 +27,21 @@ export class Control {
 
     arrangePosition(arranger, newPosition) {
         if (!arranger.isArranger) datalitError("arrangeAuthority", [String(arranger.constructor.name)]);
+        if (
+            typeof newPosition != "object" ||
+            newPosition.length != 2 ||
+            !Number.isInteger(newPosition[0]) ||
+            !Number.isInteger(newPosition[1])
+        )
+            datalitError("propertySet", ["Control.arrangePosition()", String(newPosition), "LIST of 2 int"]);
 
-        this._arrangedPosition = newPosition;
+        if (newPosition[0] == -1) {
+            this._arrangedPosition[1] = newPosition[1];
+        } else if (newPosition[1] == -1) {
+            this._arrangedPosition[0] = newPosition[0];
+        } else {
+            this._arrangedPosition = newPosition;
+        }
     }
 
     get zValue() {
@@ -45,13 +58,19 @@ export class Control {
         return this._margin;
     }
     set margin(newMargin) {
-        if (typeof newMargin != "object" || newMargin.length != 4)
-            datalitError("propertySet", ["Control.margin", String(newMargin), "LIST of 4 int"]);
-        for (let i = 0; i < 4; i++)
-            if (!Number.isInteger(newMargin[i]))
-                datalitError("propertySet", ["Control.margin", String(newMargin), "LIST of 4 int"]);
+        if (typeof newMargin == "number") {
+            if (!Number.isInteger(newMargin))
+                datalitError("propertySet", ["Control.margin", String(newMargin), "int or LIST of 4 int"]);
+            this._margin = [newMargin, newMargin, newMargin, newMargin];
+        } else {
+            if (typeof newMargin != "object" || newMargin.length != 4)
+                datalitError("propertySet", ["Control.margin", String(newMargin), "int LIST of 4 int"]);
+            for (let i = 0; i < 4; i++)
+                if (!Number.isInteger(newMargin[i]))
+                    datalitError("propertySet", ["Control.margin", String(newMargin), "int LIST of 4 int"]);
 
-        this._margin = newMargin;
+            this._margin = newMargin;
+        }
     }
 
     // Default implementation, can be overriden
@@ -59,19 +78,21 @@ export class Control {
         return this.viewingRect[2];
     }
     get viewHeight() {
+        console.log("returning height: " + this.viewingRect[3]);
         return this.viewingRect[3];
     }
     get viewingRect() {
-        return [...this._arrangedPosition, ...this._size];
+        return [
+            this._arrangedPosition[0] - this.margin[0],
+            this._arrangedPosition[1] - this.margin[1],
+            Math.max(0, this.size[0] + this.margin[0] + this.margin[2]),
+            Math.max(0, this.size[1] + this.margin[1] + this.margin[3])
+        ];
     }
+
     // Default implementation, can be overriden
     get hitRect() {
-        return [
-            this._arrangedPosition[0] + this._margin[0],
-            this._arrangedPosition[1] + this._margin[1],
-            Math.max(0, this._size[0] - this.margin[0] - this.margin[2]),
-            Math.max(0, this._size[1] - this.margin[1] - this.margin[3])
-        ];
+        return [...this._arrangedPosition, ...this.size];
     }
 
     get align() {

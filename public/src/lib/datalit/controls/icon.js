@@ -1,30 +1,34 @@
 import { App } from "../app.js";
 import { Control } from "./control.js";
+import { Assets } from "../assetManager.js";
 
 export class Icon extends Control {
-    constructor(size, alignment, sourceFile, sourceRect = null) {
+    constructor(imageName, initialProperties = {}) {
         super();
 
-        this.size = size;
-        this.alignment = alignment;
-        this.image = new Image();
-        this.sourceRect = sourceRect;
-        this.visible = false;
+        // Unique properties
+        this._sourceRect = null;
 
-        this.image.src = sourceFile;
-        this.image.onload = () => {
-            this.visible = true;
-            App.GlobalState.RedrawRequired = true;
-        };
+        this.image = Assets.getImage(imageName);
+
+        this.updateProperties(initialProperties);
     }
 
-    draw(context) {
-        if (this.visible) {
-            if (this.sourceRect) {
-                context.drawImage(this.image, ...this.sourceRect, ...this.position, ...this.size);
-            } else {
-                context.drawImage(this.image, ...this.position, ...this.size);
-            }
+    get sourceRect() {
+        return this._sourceRect;
+    }
+    set sourceRect(rect) {
+        if (typeof rect != "object" || rect.length != 4)
+            datalitError("propertySet", ["Icon.sourceRect", String(rect), "LIST of 4 int"]);
+
+        this._sourceRect = rect;
+    }
+
+    draw() {
+        if (this.sourceRect) {
+            App.Context.drawImage(this.image, ...this.sourceRect, ...this._arrangedPosition, ...this.size);
+        } else {
+            App.Context.drawImage(this.image, ...this._arrangedPosition, ...this.size);
         }
     }
 }

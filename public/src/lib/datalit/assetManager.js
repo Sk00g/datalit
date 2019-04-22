@@ -1,4 +1,5 @@
 import configData from "../../../assets/assetConfig.js";
+import assetMap from "../../../assets/assetMap.js";
 
 // Handles all assets for the application.
 class AssetManager {
@@ -12,6 +13,9 @@ class AssetManager {
             this._images[key] = new Image();
             this._images[key].src = "../" + configData.baseDir + "/" + configData.imageDir + "/" + file;
         }
+
+        // Public map so intellisense is awesome
+        this.Map = assetMap;
     }
 
     getImage(name) {

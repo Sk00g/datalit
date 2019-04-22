@@ -8,20 +8,20 @@ SYSTEM:				Core Library
 STAGE:				Prototype
 
 IMMEDIATE: 
-    - Build rect / icon / label 
+- build base controls circle / button / edit / list / table / dropdown / checkbox
 
 ----------
 TASK LIST
 ----------
 
-- Responsive layout and alignment system with multiple sections, pages, elements, etc.
-- build base controls circle / button / edit / list / table / dropdown / checkbox
 
 
 ----------
 COMPLETED
 ----------
 
+- Responsive layout and alignment system with multiple sections, pages, elements, etc.
+- Build rect / icon / label 
 - Build core control, page, section 
 - Asset Management
 - Research and implement main library file structure 

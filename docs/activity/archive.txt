@@ -7,3 +7,5 @@ Miscellaneous: 2019/04/08
 - Prepare IDE for optimal efficiency and backup settings to Drive
 - Centralize files, repo, design workflow
 - Clarify design tools and organization
+
+

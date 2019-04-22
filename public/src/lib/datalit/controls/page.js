@@ -1,4 +1,3 @@
-import { App } from "../app.js";
 import enums from "../enums.js";
 import { Control } from "./control.js";
 
@@ -11,6 +10,7 @@ export class Page extends Control {
         this._state = enums.PageState.READY;
 
         this.isArranger = true;
+        this.requiresRender = true;
         this.sectionList = [];
 
         // This is used internally to simplify the render 'arrangement' process
@@ -35,8 +35,15 @@ export class Page extends Control {
         }
     }
 
+    scheduleRender() {
+        this.requiresRender = true;
+    }
+
     render() {
         this.prerenderCheck();
+
+        console.log("rendering page...");
+        this.requiresRender = false;
 
         this.freeOrigins = [
             this.margin[0],
@@ -90,19 +97,19 @@ export class Page extends Control {
     addSection(section) {
         this.sectionList.push(section);
 
-        this.render();
+        this.scheduleRender();
     }
 
     removeSection(section) {
         this.sectionList.splice(this.sectionList.indexOf(section), 1);
-        this.render();
+        this.scheduleRender();
     }
 
     // Extending classes should implement the following methods
     activate() {
         this.state = enums.PageState.ACTIVE;
 
-        this.render();
+        this.scheduleRender();
     }
 
     deactivate() {
@@ -111,15 +118,18 @@ export class Page extends Control {
 
     // Called by PageManager (think FSM)
     update(elapsed) {
+        // Only render once per update loop
+        if (this.requiresRender) this.render();
+
         for (let section of this.sectionList) {
             section.update(elapsed);
         }
     }
 
-    draw(context) {
+    draw() {
         for (let section of this.sectionList) {
             if (section.visible) {
-                section.draw(context);
+                section.draw();
             }
         }
     }

@@ -15,6 +15,7 @@ export class Section extends Control {
         this._backgroundColor = App.GlobalState.DefaultBackground;
 
         this.isArranger = true;
+        this.requiresRender = true;
         this.children = [];
 
         // Sections default differently than regular controls
@@ -66,23 +67,76 @@ export class Section extends Control {
     }
     //#endregion
 
+    scheduleRender() {
+        this.requiresRender = true;
+    }
+
     render() {
         if (this.children.length < 1) return;
 
+        console.log("rendering section...");
+        this.requiresRender = false;
+
         if (this.flowType == enums.FlowType.HORIZONTAL) {
+            for (let child of this.children) {
+                switch (child.align) {
+                    case enums.Align.TOP:
+                        child.arrangePosition(this, [-1, this._arrangedPosition[1]]);
+                        break;
+                    case enums.Align.BOTTOM:
+                        child.arrangePosition(this, [
+                            -1,
+                            this._arrangedPosition[1] + this.size[1] - Math.min(child.viewHeight, this.size[1])
+                        ]);
+                        break;
+                    case enums.Align.CENTER:
+                        let space = Math.max(this.size[1] - child.viewHeight, 0);
+                        child.arrangePosition(this, [-1, Math.floor(space / 2)]);
+                        break;
+                }
+            }
+
+            switch (this.contentAlignment) {
+                case enums.Align.LEFT:
+                    var origin = 0;
+                    for (let child of this.children) {
+                        child.arrangePosition(this, [this._arrangedPosition[0] + origin, -1]);
+                        origin += child.viewWidth;
+                    }
+                    break;
+                case enums.Align.RIGHT:
+                    var origin = 0;
+                    for (let child of this.children) {
+                        let childPosition = [this._arrangedPosition[0] + this.size[0] - origin - child.viewWidth, -1];
+                        child.arrangePosition(this, childPosition);
+                        origin += child.viewWidth;
+                    }
+                    break;
+                case enums.Align.CENTER:
+                    let widths = this.children.map(ch => ch.viewWidth);
+                    let totalWidth = widths.reduce((total, amount) => total + amount);
+                    var origin = this._arrangedPosition[0] + Math.floor((this.size[0] - totalWidth) / 2);
+
+                    for (let child of this.children) {
+                        child.arrangePosition(this, [origin, -1]);
+                        origin += child.viewWidth;
+                    }
+                    break;
+            }
         } else if (this.flowType == enums.FlowType.VERTICAL) {
             for (let child of this.children) {
                 switch (child.align) {
                     case enums.Align.LEFT:
-                        child.arrangePosition(this, this._arrangedPosition[0], -1);
+                        child.arrangePosition(this, [this._arrangedPosition[0], -1]);
+                        break;
                     case enums.Align.RIGHT:
                         child.arrangePosition(this, [
-                            this.position[0] + this.size[0] - Math.min(child.calculateViewsize()[0], this.size[0]),
+                            this._arrangedPosition[0] + this.size[0] - Math.min(child.viewWidth, this.size[0]),
                             -1
                         ]);
                         break;
                     case enums.Align.CENTER:
-                        let space = Math.max(this.position[0] + this.size[0] - child.calculateViewsize()[0], 0);
+                        let space = Math.max(this.size[0] - child.viewWidth, 0);
                         child.arrangePosition(this, [Math.floor(space / 2), -1]);
                         break;
                 }
@@ -92,29 +146,26 @@ export class Section extends Control {
                 case enums.Align.TOP:
                     var origin = 0;
                     for (let child of this.children) {
-                        child.arrangePosition(this, [-1, this.position[1] + origin]);
-                        origin += child.calculateViewsize()[1];
+                        child.arrangePosition(this, [-1, this._arrangedPosition[1] + origin]);
+                        origin += child.viewHeight;
                     }
                     break;
                 case enums.Align.BOTTOM:
                     var origin = 0;
                     for (let child of this.children) {
-                        let childPosition = [
-                            -1,
-                            this.position[1] + this.size[1] - origin - child.calculateViewsize()[1]
-                        ];
+                        let childPosition = [-1, this._arrangedPosition[1] + this.size[1] - origin - child.viewHeight];
                         child.arrangePosition(this, childPosition);
-                        origin += child.calculateViewsize()[1];
+                        origin += child.viewHeight;
                     }
                     break;
                 case enums.Align.CENTER:
-                    let heights = this.children.map(ch => ch.calculateViewsize()[1]);
+                    let heights = this.children.map(ch => ch.viewHeight);
                     let totalHeight = heights.reduce((total, amount) => total + amount);
-                    var origin = this.position[1] + Math.floor((this.size[1] - totalHeight) / 2);
+                    var origin = this._arrangedPosition[1] + Math.floor((this.size[1] - totalHeight) / 2);
 
                     for (let child of this.children) {
                         child.arrangePosition(this, [-1, origin]);
-                        origin += child.calculateViewsize()[1];
+                        origin += child.viewHeight;
                     }
                     break;
             }
@@ -162,41 +213,40 @@ export class Section extends Control {
         this.background.size = newSize;
 
         // This render can now determine the size and alignment of nested sections and elements
-        this.render();
+        this.scheduleRender();
     }
 
     arrangePosition(arranger, newPosition) {
         super.arrangePosition(arranger, newPosition);
         this.background.arrangePosition(arranger, newPosition);
 
-        this.render();
+        this.scheduleRender();
     }
 
     addChild(newChild) {
         this.children.push(newChild);
-        this.render();
+        this.scheduleRender();
     }
     removeChild(child) {
         this.children.splice(this.children.indexOf(child), 1);
-        this.render();
+        this.scheduleRender();
     }
 
     update(elapsed) {
+        // Only render once per update loop
+        if (this.requiresRender) this.render();
+
         for (let child of this.children) {
             child.update(elapsed);
         }
     }
 
-    draw(context) {
-        if (!this.visible) {
-            throw new Error("Cannot draw invisible elements!");
-        }
-
-        if (this.background) this.background.draw(context);
+    draw() {
+        this.background.draw();
 
         for (let child of this.children) {
             if (child.visible) {
-                child.draw(context);
+                child.draw();
             }
         }
     }
