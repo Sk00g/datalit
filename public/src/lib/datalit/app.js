@@ -8,7 +8,7 @@ class DatalitApp {
         this.Context = this.Canvas.getContext("2d");
         this.GlobalState = {
             DefaultBackground: enums.Colors.OFFWHITE,
-            DefaultMargin: [10, 10, 10, 10],
+            DefaultMargin: [0, 0, 0, 0],
             RedrawRequired: true,
             ClearRegions: []
         };
@@ -52,7 +52,7 @@ class DatalitApp {
 
         this.pageManager.update(elapsed);
 
-        window.requestAnimationFrame(this.run);
+        window.requestAnimationFrame(ct => this.run(ct));
     }
 }
 

@@ -5,5 +5,5 @@ import { WelcomePage } from "./pages/welcomePage.js";
 
 console.log(`... initialized application (${[window.innerWidth, window.innerHeight]})`);
 
-App.addPage(new WelcomePage(App.Context), { default: true });
+App.addPage(new WelcomePage(), { default: true });
 App.run();

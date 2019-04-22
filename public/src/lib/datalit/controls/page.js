@@ -3,126 +3,121 @@ import enums from "../enums.js";
 import { Control } from "./control.js";
 
 export class Page extends Control {
-    constructor(margins = [0, 0, 0, 0]) {
+    constructor(initialProperties = {}) {
         super();
-
-        this.isArranger = true;
-
         // console.log("Page Constructor - 2");
 
+        // Unique property fields
+        this._state = enums.PageState.READY;
+
+        this.isArranger = true;
         this.sectionList = [];
-        this.state = enums.PageState.READY;
 
-        // These private variables are used to simplify the render 'arrangement' process
-        this._origin = [margins[0], margins[1]];
-        this._freeOrigins = [0, 0, 0, 0];
+        // This is used internally to simplify the render 'arrangement' process
+        this.freeOrigins = [0, 0, 0, 0];
+
+        this.updateProperties(initialProperties);
     }
 
-    get position() {
-        console.log("getting position from Page");
-        return super.position;
+    get state() {
+        return this._state;
+    }
+    set state(newState) {
+        if (!enums.PageState.hasOwnProperty(newState))
+            datalitError("propertySet", ["Page.state", String(newState), "enums.PageState"]);
+
+        this._state = newState;
     }
 
-    set position(newPosition) {
-        console.log("set new position from Page");
-        super.position = newPosition;
-    }
-
-    _prerenderCheck() {
-        if (this._sectionList.filter(sec => sec.alignment == enums.Align.FILL).length > 1) {
-            throw new Error("Can only have one Section with alignment == enums.Align.FILL");
+    prerenderCheck() {
+        if (this.sectionList.filter(sec => sec.align == enums.Align.FILL).length != 1) {
+            throw new Error("Must have exactly one Section with align == enums.Align.FILL");
         }
     }
 
     render() {
-        this._prerenderCheck();
+        this.prerenderCheck();
 
-        this._freeOrigins = [
+        this.freeOrigins = [
             this.margin[0],
             this.margin[1],
             window.innerWidth - this.margin[2],
             window.innerHeight - this.margin[3]
         ];
-        let totalSpace = [this._freeOrigins[2] - this._freeOrigins[0], this._freeOrigins[3] - this._freeOrigins[1]];
+        let totalSpace = [this.freeOrigins[2] - this.freeOrigins[0], this.freeOrigins[3] - this.freeOrigins[1]];
 
-        let viewableSections = this._sectionList.filter(sec => sec.visible && sec.alignment != enums.Align.FILL);
+        let viewableSections = this.sectionList.filter(sec => sec.visible && sec.align != enums.Align.FILL);
         for (let i = 0; i < viewableSections.length; i++) {
             let sec = viewableSections[i];
             let requestedSize = sec.calculateViewsize(totalSpace);
             // console.log(`Requested size: ${requestedSize}`);
             if (sec.flowType == enums.FlowType.HORIZONTAL) {
-                switch (sec.alignment) {
+                switch (sec.align) {
                     case enums.Align.TOP:
-                        sec.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
-                        sec.setSize([this._freeOrigins[2] - this._freeOrigins[0], requestedSize[1]]);
-                        this._freeOrigins[1] = requestedSize[1];
+                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
+                        sec.size = [this.freeOrigins[2] - this.freeOrigins[0], requestedSize[1]];
+                        this.freeOrigins[1] = requestedSize[1];
                         break;
                     case enums.Align.BOTTOM:
-                        sec.setPosition([this._freeOrigins[0], this._freeOrigins[3] - requestedSize[1]]);
-                        sec.setSize([this._freeOrigins[2] - this._freeOrigins[0], requestedSize[1]]);
-                        this._freeOrigins[3] -= requestedSize[1];
+                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[3] - requestedSize[1]]);
+                        sec.size = [this.freeOrigins[2] - this.freeOrigins[0], requestedSize[1]];
+                        this.freeOrigins[3] -= requestedSize[1];
                         break;
                 }
             } else if (sec.flowType == enums.FlowType.VERTICAL) {
-                switch (sec.alignment) {
+                switch (sec.align) {
                     case enums.Align.LEFT:
-                        sec.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
-                        sec.setSize([requestedSize[0], this._freeOrigins[3] - this._freeOrigins[1]]);
-                        this._freeOrigins[0] = requestedSize[0];
+                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
+                        sec.size = [requestedSize[0], this.freeOrigins[3] - this.freeOrigins[1]];
+                        this.freeOrigins[0] = requestedSize[0];
                         break;
                     case enums.Align.RIGHT:
-                        sec.setPosition([this._freeOrigins[2] - requestedSize[0], this._freeOrigins[1]]);
-                        sec.setSize([requestedSize[0], this._freeOrigins[3] - this._freeOrigins[1]]);
-                        this._freeOrigins[2] -= requestedSize[0];
+                        sec.arrangePosition(this, [this.freeOrigins[2] - requestedSize[0], this.freeOrigins[1]]);
+                        sec.size = [requestedSize[0], this.freeOrigins[3] - this.freeOrigins[1]];
+                        this.freeOrigins[2] -= requestedSize[0];
                         break;
                 }
             }
         }
 
         // Arrange the align.FILL section
-        let fillSection = this._sectionList.find(sec => sec.alignment == enums.Align.FILL);
-        fillSection.setPosition([this._freeOrigins[0], this._freeOrigins[1]]);
-        fillSection.setSize([this._freeOrigins[2] - this._freeOrigins[0], this._freeOrigins[3] - this._freeOrigins[1]]);
-
-        // console.log(`finished render... ${this._freeOrigins}`);
+        let fillSection = this.sectionList.find(sec => sec.align == enums.Align.FILL);
+        fillSection.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
+        fillSection.size = [this.freeOrigins[2] - this.freeOrigins[0], this.freeOrigins[3] - this.freeOrigins[1]];
     }
 
     // Private / Protected classes
     addSection(section) {
-        this._sectionList.push(section);
-
-        if (this._sectionList.find(sec => sec.alignment == enums.Align.FILL) == undefined) {
-            throw new Error("A page must have at least one section with alignment == FILL");
-        }
+        this.sectionList.push(section);
 
         this.render();
     }
 
     removeSection(section) {
-        this._sectionList.splice(this._sectionList.indexOf(section), 1);
+        this.sectionList.splice(this.sectionList.indexOf(section), 1);
         this.render();
     }
 
     // Extending classes should implement the following methods
     activate() {
-        this._state = enums.PageState.ACTIVE;
+        this.state = enums.PageState.ACTIVE;
 
         this.render();
     }
 
     deactivate() {
-        this._state = enums.PageState.READY;
+        this.state = enums.PageState.READY;
     }
 
     // Called by PageManager (think FSM)
     update(elapsed) {
-        for (let section of this._sectionList) {
+        for (let section of this.sectionList) {
             section.update(elapsed);
         }
     }
 
     draw(context) {
-        for (let section of this._sectionList) {
+        for (let section of this.sectionList) {
             if (section.visible) {
                 section.draw(context);
             }

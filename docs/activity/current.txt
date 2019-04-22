@@ -2,27 +2,27 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-04-19 23:46
+LAST UPDATE:		2019-04-21 18:08
 SYSTEM:				Core Library
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Design
+STAGE:				Prototype
 
 IMMEDIATE: 
-- Build core control, page, section 
-    * Built control
-    
+    - Build rect / icon / label 
+
 ----------
 TASK LIST
 ----------
 
-- Build rect / icon / label / circle / button / edit / list / table / dropdown / checkbox
 - Responsive layout and alignment system with multiple sections, pages, elements, etc.
+- build base controls circle / button / edit / list / table / dropdown / checkbox
 
 
 ----------
 COMPLETED
 ----------
 
+- Build core control, page, section 
 - Asset Management
 - Research and implement main library file structure 
 - Build main application loop

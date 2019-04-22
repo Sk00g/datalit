@@ -3,7 +3,9 @@ import { App } from "../app.js";
 import { datalitError } from "../errors.js";
 
 export class Control {
-    constructor(initialProperties = null) {
+    constructor(initialProperties = {}) {
+        // console.log("Control Constructor - 1");
+
         this._margin = App.GlobalState.DefaultMargin;
         this._size = [1, 1];
         this._localPosition = [0, 0];
@@ -12,12 +14,14 @@ export class Control {
         this._arrangedPosition = [0, 0];
         this._zValue = 0;
 
-        // console.log("Control Constructor - 1");
+        this.updateProperties(initialProperties);
+    }
 
-        for (let prop of initialProperties) {
-            if (!this.hasOwnProperty(prop)) datalitError("propertyNotFound", ["Control", prop]);
+    updateProperties(newProperties) {
+        for (const [key, value] of Object.entries(newProperties)) {
+            if (!this.hasOwnProperty("_" + key)) datalitError("propertyNotFound", ["Control", "_ " + key]);
 
-            this[prop] = initialProperties[prop];
+            this[key] = value;
         }
     }
 
@@ -51,6 +55,12 @@ export class Control {
     }
 
     // Default implementation, can be overriden
+    get viewWidth() {
+        return this.viewingRect[2];
+    }
+    get viewHeight() {
+        return this.viewingRect[3];
+    }
     get viewingRect() {
         return [...this._arrangedPosition, ...this._size];
     }
@@ -99,10 +109,15 @@ export class Control {
         this._localPosition = newPosition;
     }
 
+    get height() {
+        return this._size[1];
+    }
+    get width() {
+        return this._size[0];
+    }
     get size() {
         return this._size;
     }
-
     set size(newSize) {
         if (
             typeof newSize != "object" ||
