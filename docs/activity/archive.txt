@@ -1,11 +1,18 @@
 
+Core Library: 2019/04/22
+- Responsive layout and alignment system with multiple sections, pages, elements, etc.
+- Build rect / icon / label 
+- Build core control, page, section 
+- Asset Management
+- Research and implement main library file structure 
+- Build main application loop
+- Learn how to make an NPM package
 
 
-Miscellaneous: 2019/04/08
+Setup: 2019/04/08
 - Gather good resource links on Chrome for javascript, express, node.js, npm, icon resource, js cheat sheet, HTML5 canvas API, color matcher / resources 
 - Establish sample apps, inspiration GUIs, write out basic operation, GUI wireframes, etc.
 - Prepare IDE for optimal efficiency and backup settings to Drive
 - Centralize files, repo, design workflow
 - Clarify design tools and organization
-
 

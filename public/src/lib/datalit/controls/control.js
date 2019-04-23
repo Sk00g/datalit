@@ -15,11 +15,24 @@ export class Control {
         this._zValue = 0;
 
         this.updateProperties(initialProperties);
+
+        // Members used for property event functions
+        this.propertyMetadata = {};
+        this.registerProperty("margin");
+        this.registerProperty("size");
+        this.registerProperty("visible");
+        this.registerProperty("align");
+        this.registerProperty("zValue");
+        this.registerProperty("localPosition");
+    }
+
+    registerProperty(propertyName) {
+        this.propertyMetadata[propertyName] = { previousValue: this[propertyName] };
     }
 
     updateProperties(newProperties) {
         for (const [key, value] of Object.entries(newProperties)) {
-            if (!this.hasOwnProperty("_" + key)) datalitError("propertyNotFound", ["Control", "_ " + key]);
+            if (!this.hasOwnProperty("_" + key)) datalitError("propertyNotFound", ["Control", "_" + key]);
 
             this[key] = value;
         }
@@ -78,7 +91,6 @@ export class Control {
         return this.viewingRect[2];
     }
     get viewHeight() {
-        console.log("returning height: " + this.viewingRect[3]);
         return this.viewingRect[3];
     }
     get viewingRect() {
@@ -151,6 +163,18 @@ export class Control {
         this._size = newSize;
     }
 
-    update(elapsed) {}
+    update(elapsed) {
+        for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
+            if (metadata.previousValue != this[name]) {
+                let event = new CustomEvent("propertyChanged_" + name, {
+                    detail: { oldValue: metadata.previousValue, newValue: this[name] }
+                });
+                // launch event to listeners
+                console.log(`would launch event for ${name}: ${this[name]}`);
+
+                metadata.previousValue = this[name];
+            }
+        }
+    }
     draw(context) {}
 }

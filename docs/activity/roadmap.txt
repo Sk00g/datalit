@@ -8,16 +8,17 @@ Example Applications (SPA) to Build:
 ------------------------------------
 Overarching Systems
 ------------------------------------
-* Core Library
-* Event Handling
-* Styles & Themes
-* Data Binding
-* Special Elements
-* Editor
-* Animation
-* Optimization
-* Back-End
-* Miscellaneous
+* Setup                 |X|
+* Core Library          |X|
+* Event handling        |-|
+* Styles & Themes       | |
+* Special Elements      | |
+* Data Binding          | |
+* Editor                | |
+* Animation             | |
+* optimization          | |
+* Back-End              | |
+* Miscellaneous         | |
 
 ------------------------------------
 Topics to Learn:
@@ -34,3 +35,5 @@ IMPROVEMENTS WHEN APPLICABLE
 - Make a definitive list of properties and an associated compatbility matrix matching controls with their relevant properties for easy lookup
 - Improve the asset-loader.py script to do error checking on asset names (no '-' char), and also build in a nesting system to handle directories and such
 - Add in custom fonts feature by local file or URL
+- For documentation would be great to have a master list of all properties involved in alignment and arrangement so that I (and others) can easily see how to achieve our desired layouts. Otherwise it is confusing with flowType, align, contentAlignment, margin, and how those all relate to each other
+- For the event system, need to go in and write a ton of error handling stuff

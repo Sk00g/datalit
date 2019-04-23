@@ -1,0 +1,38 @@
+---------------
+EVENT MANAGEMENT
+---------------
+
+* Unfortunately I cannot use the native browser 'addEventListener' and 'dispatchEvent' because only DOM elements, window, document, and a couple other specific objects can actually be event emitters under this model. TL;DR - I will be building a new event model from scratch. I think it might be beneficial to loosely model the current 'Javascript' way of doing events, for future ease of integration and training. However, I won't take shortcuts, and am sticking to the core principle of 'One Way of Doing Simple Things' (OWDST).
+
+* Will definitely need to add a GUI-specific layer over mouse and keyboard events to handle control-specific events, such as focus, hover, etc. This layer will also need bubbling / nesting / multi-source events
+
+* A central event manager will hopefully help simplify and optimize error handling. This means native DOM canvas GUI events like mouse / keyboard will only be subscribed to once and propagated via the event system.
+
+* A central event manager will allow for a single import { Events } from "../events.js" import script for any class needing to use events
+
+* If a mouse event occurs within a Control, that event will be fired (if listened for) for the Control and any parent sections, but not the owning page
+
+* The current system doesn't have support for any 'global' events, as in events not tied to an EventSource, hopefully this doesn't turn out to be a problem, as I haven't thought of any use cases so far
+
+* The basic system will be an EventManager (Events) class utilizing EventSource objects to execute callbacks when required  
+    - Events.register(targetSource, eventType, callback[, options]) : UID
+    - Events.unregister(UID)
+    - Events.attachSource(source, [eventList])
+    - EventSource.addEventListener(eventType, callback) - This function emulates the native browser event style for consistency, but must be implemented manually in custom event sources (data model, control properties, etc.) 
+
+* Events.register options:
+    - priority (default 0, higher priority are called first, otherwise sorted by order of subscription)
+    - one-off (only listen to the first event dispatch)
+    - UID (unique identifier, generated automatically if left out. Used for unregistering)
+
+* Events.register callback data types:
+    - function eventHandler(event, data) {...}
+    - event: { 
+        sourceType: enums.EventSourceType.* (CONTROL, DATA, NATIVE), helps in identifying how to handle event.source, 
+        eventSource: [source object reference],
+        eventType: String, case-insensitive describing the event type (same as JS native),
+        triggerTime: timestamp, helps for time critical events that have their reaction delayed for any 
+            reason (same as JS native),
+        killChain: flag to stop any subsequent handlers from being executed. Typical use-case is for injecting a high priority 'interrupt' on certain events without unregister / register for an unknown amount of listeners
+    }
+    - data: Entirely custom data object, used for all event-specific data

@@ -2,31 +2,26 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-04-21 18:08
-SYSTEM:				Core Library
-(Design -> Research -> Prototype -> Write -> Test -> Document)
+LAST UPDATE:		2019-04-22 19:16
+SYSTEM:				Event Handling 
+(Research -> Design -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
 
 IMMEDIATE: 
-- build base controls circle / button / edit / list / table / dropdown / checkbox
+- Implement necessary classes to support event infrastructure
 
 ----------
 TASK LIST
 ----------
 
-
+- Hook mouse, keyboard, and resize events into system 
+- Hook property changed events into system
 
 ----------
 COMPLETED
 ----------
 
-- Responsive layout and alignment system with multiple sections, pages, elements, etc.
-- Build rect / icon / label 
-- Build core control, page, section 
-- Asset Management
-- Research and implement main library file structure 
-- Build main application loop
-- Learn how to make an NPM package
+- Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
 
 
 --------------------

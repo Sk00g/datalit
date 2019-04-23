@@ -1,5 +1,6 @@
 import enums from "../enums.js";
 import { Control } from "./control.js";
+import { App } from "../app.js";
 
 export class Page extends Control {
     constructor(initialProperties = {}) {
@@ -42,14 +43,14 @@ export class Page extends Control {
     render() {
         this.prerenderCheck();
 
-        console.log("rendering page...");
+        // console.log("rendering page...");
         this.requiresRender = false;
 
         this.freeOrigins = [
             this.margin[0],
             this.margin[1],
-            window.innerWidth - this.margin[2],
-            window.innerHeight - this.margin[3]
+            App.Canvas.width - this.margin[2],
+            App.Canvas.height - this.margin[3]
         ];
         let totalSpace = [this.freeOrigins[2] - this.freeOrigins[0], this.freeOrigins[3] - this.freeOrigins[1]];
 

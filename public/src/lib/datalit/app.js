@@ -1,5 +1,5 @@
 import enums from "./enums.js";
-import { EventManager } from "./events/events.js";
+import { Events } from "./events/events.js";
 import { PageManager } from "./pageManager.js";
 
 class DatalitApp {
@@ -21,14 +21,13 @@ class DatalitApp {
         this.resizeCanvas();
 
         // All resize events results in the resizing of the canvas
-        window.addEventListener("resize", this.resizeCanvas);
+        Events.register(window, "resize", (ev, data) => this.resizeCanvas(), { priority: 1 });
 
         // For tracking main application loop elapsed
         this.lastTick = 0;
 
         // Create the base manager classes
-        this.eventManager = new EventManager();
-        this.pageManager = new PageManager(this.eventManager);
+        this.pageManager = new PageManager();
     }
 
     addPage(newPage, options = {}) {
@@ -36,6 +35,7 @@ class DatalitApp {
     }
 
     resizeCanvas() {
+        console.log("resizing canvas");
         this.Canvas.width = window.innerWidth;
         this.Canvas.height = window.innerHeight;
     }

@@ -1,8 +1,14 @@
-export class PageManager {
-    constructor(eventManager) {
-        this.eventManager = eventManager;
+import { App } from "./app.js";
+import { Events } from "./events/events.js";
 
+export class PageManager {
+    constructor() {
         this.pageStack = [];
+        Events.register(window, "resize", (ev, data) => {
+            console.log("resize = redraw page");
+            this.peek().scheduleRender();
+            App.GlobalState.RedrawRequired = true;
+        });
     }
 
     peek() {

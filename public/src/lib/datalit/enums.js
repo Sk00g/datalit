@@ -1,3 +1,9 @@
+export const EventSourceType = Object.freeze({
+    CONTROL: "CONTROL",
+    DATAMODEL: "DATAMODEL",
+    NATIVE: "NATIVE"
+});
+
 export const Colors = Object.freeze({
     RED: "rgb(255, 0, 0)",
     GREEN: "rgb(0, 255, 0)",
@@ -36,7 +42,7 @@ export const FlowType = Object.freeze({
 });
 
 export const SizeTarget = Object.freeze({
-    MINIMUM: 0xff
+    MINIMUM: "MINIMUM"
 });
 
 export default {
@@ -45,5 +51,6 @@ export default {
     Align,
     PageState,
     FlowType,
-    SizeTarget
+    SizeTarget,
+    EventSourceType
 };
