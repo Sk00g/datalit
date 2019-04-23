@@ -8,20 +8,26 @@ SYSTEM:				Event Handling
 STAGE:				Prototype
 
 IMMEDIATE: 
-- Implement necessary classes to support event infrastructure
+- Hook mouse, keyboard, and resize events into system 
+    * Did resize events
 
 ----------
 TASK LIST
 ----------
 
-- Hook mouse, keyboard, and resize events into system 
 - Hook property changed events into system
+- Build GUI layer that handles Control-specific event management
+- Build 'focus' system handled by page
+- Build state system for each control and have it changed by events automagically
+- Build up to use case where pressing escape at any time brings up a popup section
+    * This will require implementing align.FREE for sections
 
 ----------
 COMPLETED
 ----------
 
 - Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
+- Implement necessary classes to support event infrastructure
 
 
 --------------------

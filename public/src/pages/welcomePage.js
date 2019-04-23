@@ -63,6 +63,7 @@ export class WelcomePage extends Page {
     }
 
     handleKeypress(event) {
+        console.log(event.key);
         switch (event.key) {
             case "a":
                 console.log("switch testRect to invisible!");
@@ -71,6 +72,9 @@ export class WelcomePage extends Page {
             case "b":
                 break;
             case "c":
+                break;
+            case "Escape":
+                alert("OH NOOOOOO!");
                 break;
         }
     }
