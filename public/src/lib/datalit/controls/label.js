@@ -20,6 +20,11 @@ export class Label extends Control {
         }
 
         this.calculateSize();
+
+        this.registerProperty("text");
+        this.registerProperty("fontSize");
+        this.registerProperty("fontColor");
+        this.registerProperty("fontType");
     }
 
     calculateSize() {

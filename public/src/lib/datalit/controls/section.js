@@ -17,6 +17,12 @@ export class Section extends Control {
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
+        this.registerProperty("sizeTarget");
+        this.registerProperty("contentAlignment");
+        this.registerProperty("backgroundColor");
+        this.registerProperty("borderColor");
+        this.registerProperty("borderThickness");
+
         this.isArranger = true;
         this.requiresRender = true;
         this.children = [];
@@ -349,6 +355,8 @@ export class Section extends Control {
     }
 
     update(elapsed) {
+        super.update(elapsed);
+
         // Only render once per update loop
         if (this.requiresRender) this.render();
 

@@ -1,6 +1,7 @@
 import enums from "../enums.js";
 import { App } from "../app.js";
 import { datalitError } from "../errors.js";
+import { Events } from "../events/events.js";
 
 export class Control {
     constructor(initialProperties = {}) {
@@ -24,6 +25,27 @@ export class Control {
         this.registerProperty("align");
         this.registerProperty("zValue");
         this.registerProperty("localPosition");
+
+        // All controls must register with the event system for 'propertyChanged' events
+        this.propertyChangedListeners = [];
+        Events.attachSource(this, ["propertyChanged"]);
+    }
+
+    dispatchEvent(eventName, data) {
+        if (eventName == "propertyChanged") {
+            if (this.propertyChangedListeners.length < 1) return;
+
+            for (let cb of this.propertyChangedListeners) cb(data);
+        } else {
+            datalitError("notYetImplemented");
+        }
+    }
+
+    addEventListener(eventName, callback) {
+        if (eventName == "propertyChanged") this.propertyChangedListeners.push(callback);
+        else {
+            datalitError("notYetImplemented");
+        }
     }
 
     registerProperty(propertyName) {
@@ -166,11 +188,13 @@ export class Control {
     update(elapsed) {
         for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
             if (metadata.previousValue != this[name]) {
-                let event = new CustomEvent("propertyChanged_" + name, {
-                    detail: { oldValue: metadata.previousValue, newValue: this[name] }
+                this.dispatchEvent("propertyChanged", {
+                    propertyName: name,
+                    oldValue: metadata.previousValue,
+                    newValue: this[name]
                 });
                 // launch event to listeners
-                console.log(`would launch event for ${name}: ${this[name]}`);
+                // console.log(`would launch event for ${name}: ${this[name]}`);
 
                 metadata.previousValue = this[name];
             }

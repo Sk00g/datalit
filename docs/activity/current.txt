@@ -8,14 +8,12 @@ SYSTEM:				Event Handling
 STAGE:				Prototype
 
 IMMEDIATE: 
-- Hook mouse, keyboard, and resize events into system 
-    * Did resize events
+- Hook property changed events into system
 
 ----------
 TASK LIST
 ----------
 
-- Hook property changed events into system
 - Build GUI layer that handles Control-specific event management
 - Build 'focus' system handled by page
 - Build state system for each control and have it changed by events automagically
@@ -28,6 +26,7 @@ COMPLETED
 
 - Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
 - Implement necessary classes to support event infrastructure
+- Hook mouse, keyboard, and resize events into system 
 
 
 --------------------

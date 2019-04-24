@@ -12,6 +12,8 @@ export class Icon extends Control {
         this.image = Assets.getImage(imageName);
 
         this.updateProperties(initialProperties);
+
+        this.registerProperty("sourceRect");
     }
 
     get sourceRect() {

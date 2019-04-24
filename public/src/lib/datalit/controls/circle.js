@@ -14,6 +14,11 @@ export class Circle extends Control {
         this._borderThickness = 0;
 
         this.updateProperties(initialProperties);
+
+        this.registerProperty("radius");
+        this.registerProperty("fillColor");
+        this.registerProperty("borderColor");
+        this.registerProperty("borderThickness");
     }
 
     // Overridden properties

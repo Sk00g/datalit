@@ -36,3 +36,9 @@ EVENT MANAGEMENT
         killChain: flag to stop any subsequent handlers from being executed. Typical use-case is for injecting a high priority 'interrupt' on certain events without unregister / register for an unknown amount of listeners
     }
     - data: Entirely custom data object, used for all event-specific data
+
+---------------
+IMPORTANT TIDBITS
+---------------
+
+- for mouse events ev => ev.clientX, ev.clientY are DOM position (so entire canvas). Use ev.which to determine the mouse button used. 1 == left, 2 == middle, 3 == right

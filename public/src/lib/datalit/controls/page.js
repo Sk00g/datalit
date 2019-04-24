@@ -119,6 +119,8 @@ export class Page extends Control {
 
     // Called by PageManager (think FSM)
     update(elapsed) {
+        super.update(elapsed);
+
         // Only render once per update loop
         if (this.requiresRender) this.render();
 

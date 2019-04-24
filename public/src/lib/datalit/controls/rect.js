@@ -13,6 +13,10 @@ export class Rect extends Control {
         this._borderThickness = [0, 0, 0, 0];
 
         this.updateProperties(initialProperties);
+
+        this.registerProperty("fillColor");
+        this.registerProperty("borderColor");
+        this.registerProperty("borderThickness");
     }
 
     //#region Unique Properties

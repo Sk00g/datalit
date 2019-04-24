@@ -1,5 +1,6 @@
 import enums from "../lib/datalit/enums.js";
 import utils from "../lib/datalit/utils.js";
+import { App } from "../lib/datalit/app";
 import { Page } from "../lib/datalit/controls/page.js";
 import { Section } from "../lib/datalit/controls/section.js";
 import { Rect } from "../lib/datalit/controls/rect.js";
@@ -7,6 +8,7 @@ import { Label } from "../lib/datalit/controls/label.js";
 import { Icon } from "../lib/datalit/controls/icon.js";
 import { Assets } from "../lib/datalit/assetManager.js";
 import { Circle } from "../lib/datalit/controls/circle.js";
+import { Events } from "../lib/datalit/events/events.js";
 
 export class WelcomePage extends Page {
     constructor() {
@@ -59,22 +61,16 @@ export class WelcomePage extends Page {
         this.addSection(this.leftSection);
         this.addSection(this.navBar);
 
-        window.addEventListener("keydown", e => this.handleKeypress(e));
+        Events.register(App.Canvas, "keyup", (ev, data) => this.handleKeypress(ev, data));
     }
 
-    handleKeypress(event) {
-        console.log(event.key);
-        switch (event.key) {
+    handleKeypress(event, data) {
+        // console.log(`welcomePage event -> ${data.key} | ${data.code}`);
+
+        switch (data.key) {
             case "a":
-                console.log("switch testRect to invisible!");
-                this.testRect.visible = false;
-                break;
-            case "b":
-                break;
-            case "c":
-                break;
-            case "Escape":
-                alert("OH NOOOOOO!");
+                console.log("switching visibility");
+                this.leftSection.visible = !this.leftSection.visible;
                 break;
         }
     }

@@ -35,7 +35,6 @@ class DatalitApp {
     }
 
     resizeCanvas() {
-        console.log("resizing canvas");
         this.Canvas.width = window.innerWidth;
         this.Canvas.height = window.innerHeight;
     }

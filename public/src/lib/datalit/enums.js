@@ -1,3 +1,15 @@
+export const Modifier = Object.freeze({
+    ALT: "ALT",
+    SHIFT: "SHIFT",
+    CTRL: "CTRL"
+});
+
+export const MouseButton = Object.freeze({
+    LEFT: 1,
+    MIDDLE: 2,
+    RIGHT: 3
+});
+
 export const EventSourceType = Object.freeze({
     CONTROL: "CONTROL",
     DATAMODEL: "DATAMODEL",
@@ -52,5 +64,7 @@ export default {
     PageState,
     FlowType,
     SizeTarget,
-    EventSourceType
+    EventSourceType,
+    MouseButton,
+    Modifier
 };

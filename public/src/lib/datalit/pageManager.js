@@ -4,8 +4,9 @@ import { Events } from "./events/events.js";
 export class PageManager {
     constructor() {
         this.pageStack = [];
+
+        // Re-render the page when resized
         Events.register(window, "resize", (ev, data) => {
-            console.log("resize = redraw page");
             this.peek().scheduleRender();
             App.GlobalState.RedrawRequired = true;
         });
