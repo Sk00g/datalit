@@ -8,7 +8,6 @@ export class PageManager {
         // Re-render the page when resized
         Events.register(window, "resize", (ev, data) => {
             this.peek().scheduleRender();
-            App.GlobalState.RedrawRequired = true;
         });
     }
 
@@ -22,6 +21,7 @@ export class PageManager {
 
         if (this.peek()) {
             this.peek().activate();
+            Events.updateActivePage(this.peek());
         }
     }
 
@@ -39,6 +39,7 @@ export class PageManager {
 
         this.pageStack.push(page);
         page.activate();
+        Events.updateActivePage(this.peek());
     }
 
     update(elapsed) {

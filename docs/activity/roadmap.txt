@@ -14,6 +14,7 @@ Overarching Systems
 * Styles & Themes       | |
 * Special Elements      | |
 * Data Binding          | |
+* Drag & Drop           | |
 * Editor                | |
 * Animation             | |
 * optimization          | |
@@ -24,9 +25,10 @@ Overarching Systems
 Topics to Learn:
 ------------------------------------
 - canvas optimization
-- advanced javascript OOP concepts
-- javascript event handling in modern browsers
-
+- general javascript optimization skills
+- how to analyze the in-built mozilla performance tabs and reduce 'layout' calls
+- profiling in ES6
+- unit-testing in ES6
 
 ------------------------------------
 IMPROVEMENTS WHEN APPLICABLE
@@ -37,3 +39,4 @@ IMPROVEMENTS WHEN APPLICABLE
 - Add in custom fonts feature by local file or URL
 - For documentation would be great to have a master list of all properties involved in alignment and arrangement so that I (and others) can easily see how to achieve our desired layouts. Otherwise it is confusing with flowType, align, contentAlignment, margin, and how those all relate to each other
 - For the event system, need to go in and write a ton of error handling stuff
+- May need to revisit the mousenter/leave logic to improve the precision. Just not sure if this would be helpful yet

@@ -3,6 +3,7 @@ import { App } from "../app.js";
 import { Control } from "./control.js";
 import { Rect } from "./rect.js";
 import { datalitError } from "../errors.js";
+import utils from "../utils.js";
 
 export class Section extends Control {
     constructor(initialProperties = {}) {
@@ -17,12 +18,6 @@ export class Section extends Control {
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
-        this.registerProperty("sizeTarget");
-        this.registerProperty("contentAlignment");
-        this.registerProperty("backgroundColor");
-        this.registerProperty("borderColor");
-        this.registerProperty("borderThickness");
-
         this.isArranger = true;
         this.requiresRender = true;
         this.children = [];
@@ -35,6 +30,12 @@ export class Section extends Control {
         this.background = new Rect({ fillColor: this.backgroundColor });
         if (this.borderColor) this.background.borderColor = this.borderColor;
         if (this.borderThickness) this.background.borderThickness = this.borderThickness;
+
+        this.registerProperty("sizeTarget");
+        this.registerProperty("contentAlignment");
+        this.registerProperty("backgroundColor");
+        this.registerProperty("borderColor");
+        this.registerProperty("borderThickness");
     }
 
     //#region Unique Properties
@@ -107,22 +108,6 @@ export class Section extends Control {
     }
     //#endregion
 
-    // Overridden properties
-    get viewingRect() {
-        return [
-            this._arrangedPosition[0] - this.margin[0] - this.borderThickness[0],
-            this._arrangedPosition[1] - this.margin[1] - this.borderThickness[1],
-            Math.max(
-                0,
-                this.size[0] + this.margin[0] + this.margin[2] + this.borderThickness[0] + this.borderThickness[2]
-            ),
-            Math.max(
-                0,
-                this.size[1] + this.margin[1] + this.margin[3] + this.borderThickness[1] + this.borderThickness[3]
-            )
-        ];
-    }
-
     scheduleRender() {
         this.requiresRender = true;
     }
@@ -191,6 +176,7 @@ export class Section extends Control {
 
         // console.log(`rendering section... (${this.children.length})`);
         this.requiresRender = false;
+        App.GlobalState.RedrawRequired = true;
 
         this.renderSubsections();
 
@@ -339,6 +325,8 @@ export class Section extends Control {
     }
 
     arrangePosition(arranger, newPosition) {
+        if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
+
         super.arrangePosition(arranger, newPosition);
         this.background.arrangePosition(arranger, newPosition);
 

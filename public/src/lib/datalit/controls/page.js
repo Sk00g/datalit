@@ -1,6 +1,7 @@
 import enums from "../enums.js";
 import { Control } from "./control.js";
 import { App } from "../app.js";
+import { datalitError } from "../errors";
 
 export class Page extends Control {
     constructor(initialProperties = {}) {
@@ -9,6 +10,7 @@ export class Page extends Control {
 
         // Unique property fields
         this._state = enums.PageState.READY;
+        this._focusedControl = null;
 
         this.isArranger = true;
         this.requiresRender = true;
@@ -18,6 +20,21 @@ export class Page extends Control {
         this.freeOrigins = [0, 0, 0, 0];
 
         this.updateProperties(initialProperties);
+
+        this.registerProperty("state");
+        this.registerProperty("focusedControl");
+    }
+
+    get focusedControl() {
+        return this._focusedControl;
+    }
+    set focusedControl(newControl) {
+        if (!(newControl instanceof Control))
+            datalitError("propertySet", ["Page.focusedControl", String(newControl), "Control class"]);
+        if (!newControl.isFocusable)
+            datalitError("propertySet", ["Page.focusedControl", String(newControl), "focusabled control"]);
+
+        this._focusedControl = newControl;
     }
 
     get state() {
@@ -45,6 +62,7 @@ export class Page extends Control {
 
         // console.log("rendering page...");
         this.requiresRender = false;
+        App.GlobalState.RedrawRequired = true;
 
         this.freeOrigins = [
             this.margin[0],

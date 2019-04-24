@@ -1,0 +1,45 @@
+---------------
+CONTROL STATE SYSTEM
+---------------
+
+    DISABLED: "DISABLED",
+    READY: "READY",
+    HOVERED: "HOVERED",
+    DEPRESSED: "DEPRESSED",
+    DRAGGED: "DRAGGED"
+
+POSSIBLE CHANGES (option 2 for enable() resolutions):
+    ANY -> DISABLED
+    DISABLED -> READY
+    READY -> HOVERED | DEPRESSED 
+    HOVERED -> READY | DEPRESSED
+    DEPRESSED -> READY | HOVERED | DRAGGED
+    DRAGGED -> READY | HOVERED
+
+
+* Defines how each control moves between states, what states affect, and how this can be extended
+
+* Assuming that FOCUSED as an exclusive state doesn't make sense, because buttons and other controls can be both FOCUSED and HOVERED / DEPRESSED / DRAGGED at the same time, and in fact this will likely be the ONLY way this is possible. We will consider FOCUS a separate topic to state changes.
+    - This might be confusing for style changes, because having 'focus' should change a feature of certain controls, but that feature will need to be completely independent than all other state style changes. Not sure how to enforce this behaviour...
+
+* A point of concern for mutually exclusive state logic, is controls could be both DISABLED + HOVERED, for now we will consider these exclusive. HOVERED can only apply when a control is not depressed, dragged, disabled, etc.  
+
+* Stylistic themes and custom view logic is attached to state. 
+    - on state change, properties automatically switch (IE. background color on HOVER)
+    - on state change, custom logic can be run (IE. have a tooltip popup on hover state)
+
+* READY is the default state
+* State should NEVER be changed directly. Controls are responsible for handling their own state, based on user input, but they expose three public functions enable() / disable() for external access to the system 
+
+* Big question is to separate state-change and reaction logic completely from the event system, or just use the default propertyChanged event, or create a new 'stateChanged' event?
+
+* Initially will try the following approach:
+    - treat state as any other property. Styles and custom logic can be implemented as per any other property, styles will just do it automatically, meaning controls are applies registered to their own state change events
+    - Controls manage their own traversal between HOVERED | DEPRESSED | DRAGGED states, by registering to their own events
+
+* Problem point is logic when a control has enable() called, as the resulting new state is ambiguous, depending on the current mouse state...
+    - One option would be to track the current mouse position, then on enable the system checks for HOVER based on mouse position
+    - Other option is to just default enable() -> READY. Then it just updates naturally on the next mouse movement. Only downside here is if mouse is over a disabled or focused control, when focus changes or control is enabled, it will not update to HOVER until the mouse is moved next time. This means that changes directly from READY to DEPRESSED or DRAGGED must be considered
+
+* The style outcome must be completely deterministic based on a finite amount of factors. Currently:
+    - state | focused

@@ -7,6 +7,14 @@ export class Control {
     constructor(initialProperties = {}) {
         // console.log("Control Constructor - 1");
 
+        // As the name suggests, main use is for identifying controls during debugging
+        this._debugName = null;
+
+        // State management properties
+        this._state = enums.ControlState.READY;
+        this._isFocusable = false;
+        this._focused = false;
+
         this._margin = App.GlobalState.DefaultMargin;
         this._size = [1, 1];
         this._localPosition = [0, 0];
@@ -25,11 +33,26 @@ export class Control {
         this.registerProperty("align");
         this.registerProperty("zValue");
         this.registerProperty("localPosition");
+        this.registerProperty("focused");
+        this.registerProperty("state");
 
         // All controls must register with the event system for 'propertyChanged' events
         this.propertyChangedListeners = [];
         Events.attachSource(this, ["propertyChanged"]);
+
+        // Listen for self-source events to trigger state swaps
+        Events.register(this, "mouseenter", (ev, data) => this.handleMouseEnter(ev, data));
+        Events.register(this, "mouseleave", (ev, data) => this.handleMouseLeave(ev, data));
+        Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
+        Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
+        Events.register(this, "mousemove", (ev, data) => this.handleMouseMove(ev, data));
     }
+
+    handleMouseEnter(event, data) {}
+    handleMouseLeave(event, data) {}
+    handleMouseDown(event, data) {}
+    handleMouseUp(event, data) {}
+    handleMouseMove(event, data) {}
 
     dispatchEvent(eventName, data) {
         if (eventName == "propertyChanged") {
@@ -79,6 +102,47 @@ export class Control {
         }
     }
 
+    get debugName() {
+        return this._debugName;
+    }
+    set debugName(name) {
+        this._debugName = name;
+    }
+
+    get state() {
+        return this._state;
+    }
+    set state(newState) {
+        if (!enums.ControlState.hasOwnProperty(newState))
+            datalitError("propertySet", ["Control.state", String(newState), "enums.ControlState"]);
+
+        if (this.state == enums.ControlState.DISABLED && newState != enums.ControlState.READY)
+            datalitError("illogical", ["newState", newState, "previousState", "DISABLED"]);
+
+        this._state = newState;
+    }
+
+    get isFocusable() {
+        return this._isFocusable;
+    }
+    set isFocusable(flag) {
+        if (typeof flag != "boolean") datalitError("propertySet", ["Control.isFocusable", String(flag), "BOOL"]);
+
+        this._isFocusable = flag;
+    }
+
+    get focused() {
+        return this._focused;
+    }
+    set focused(flag) {
+        if (typeof flag != "boolean") datalitError("propertySet", ["Control.focused", String(flag), "BOOL"]);
+
+        if (flag && !this.isFocusable)
+            datalitError("illogical", ["Control.focused", true, "Control.isFocusable", false]);
+
+        this._focused = flag;
+    }
+
     get zValue() {
         return this._zValue;
     }
@@ -116,17 +180,22 @@ export class Control {
         return this.viewingRect[3];
     }
     get viewingRect() {
-        return [
-            this._arrangedPosition[0] - this.margin[0],
-            this._arrangedPosition[1] - this.margin[1],
-            Math.max(0, this.size[0] + this.margin[0] + this.margin[2]),
-            Math.max(0, this.size[1] + this.margin[1] + this.margin[3])
-        ];
+        return [...this._arrangedPosition, ...this.size];
     }
 
     // Default implementation, can be overriden
     get hitRect() {
-        return [...this._arrangedPosition, ...this.size];
+        return [
+            this._arrangedPosition[0] + this.margin[0],
+            this._arrangedPosition[1] + this.margin[1],
+            this.size[0] - this.margin[2] - this.margin[0],
+            this.size[1] - this.margin[3] - this.margin[1]
+        ];
+    }
+
+    isPointWithin(point) {
+        const hr = this.hitRect;
+        return hr[0] < point[0] && point[0] < hr[0] + hr[2] && hr[1] < point[1] && point[1] < hr[1] + hr[3];
     }
 
     get align() {
@@ -189,7 +258,7 @@ export class Control {
         for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
             if (metadata.previousValue != this[name]) {
                 this.dispatchEvent("propertyChanged", {
-                    propertyName: name,
+                    property: name,
                     oldValue: metadata.previousValue,
                     newValue: this[name]
                 });

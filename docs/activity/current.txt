@@ -2,23 +2,23 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-04-22 19:16
+LAST UPDATE:		2019-04-23 23:02
 SYSTEM:				Event Handling 
 (Research -> Design -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
 
 IMMEDIATE: 
-- Hook property changed events into system
+- Build state system for each control and have it changed by events automagically
+    * Wrote out most of the design, starting to implement it. Finished in control.js adding the default Control mouse event handlers to change states automatically
 
 ----------
 TASK LIST
 ----------
 
-- Build GUI layer that handles Control-specific event management
 - Build 'focus' system handled by page
-- Build state system for each control and have it changed by events automagically
 - Build up to use case where pressing escape at any time brings up a popup section
     * This will require implementing align.FREE for sections
+- Build in redraw / rerender logic to redraw and rerender as necessary
 
 ----------
 COMPLETED
@@ -27,6 +27,8 @@ COMPLETED
 - Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
 - Implement necessary classes to support event infrastructure
 - Hook mouse, keyboard, and resize events into system 
+- Hook property changed events into system
+- Build GUI layer that handles Control-specific event management
 
 
 --------------------

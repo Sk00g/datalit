@@ -26,9 +26,8 @@ export const Colors = Object.freeze({
 
 export const ControlState = Object.freeze({
     DISABLED: "DISABLED",
-    ENABLED: "ENABLED",
+    READY: "READY",
     HOVERED: "HOVERED",
-    FOCUSED: "FOCUSED",
     DEPRESSED: "DEPRESSED",
     DRAGGED: "DRAGGED"
 });

@@ -1,22 +1,15 @@
 import enums from "../enums.js";
 import { datalitError } from "../errors.js";
+import { EventListener } from "./eventListener.js";
+import { ControlEventLayer } from "./controlEventLayer.js";
 
 var UID_COUNT = 1523;
-
-class EventListener {
-    constructor(targetSource, eventType, callback, options) {
-        this.targetSource = targetSource;
-        this.eventType = eventType;
-        this.callback = callback;
-        this.priority = options.priority;
-        this.oneOff = options.oneOff;
-        this.UID = options.UID;
-    }
-}
 
 class EventManager {
     constructor(options = {}) {
         this.canvas = document.getElementById("canvas");
+        this.activePage = null;
+        this.controlLayer = new ControlEventLayer(this);
 
         window.addEventListener("resize", ev => this.handleEvent(window, "resize", null));
 
@@ -26,6 +19,10 @@ class EventManager {
         this.setupKeyboardEvents();
 
         this.registrations = [];
+    }
+
+    updateActivePage(page) {
+        this.activePage = page;
     }
 
     attachSource(source, eventList) {
@@ -54,9 +51,27 @@ class EventManager {
         return options.UID;
     }
 
+    _setupKeyboardEvent(eventName) {
+        window.addEventListener(eventName, ev => {
+            // console.log(
+            //     `Handling ${eventName} event: ${ev.code}/${ev.key} (${JSON.stringify(this.keyboardModifiers)}) | (repeat: ${ev.repeat})`
+            // );
+
+            // Sends this event out to helper class ControlEventLayer to determine which control(s)
+            // this keyboard event should be sourced by. It then calls handleEvent with each control as source
+            this.controlLayer.rerouteKeyboardEvent(eventName, ev.code, ev.key, ev.repeat, this.keyboardModifiers);
+
+            // Update modifiers AFTER the event is called, so modifiers keys don't modify themselves
+            if (ev.code == "ShiftLeft" || ev.code == "ShiftRight")
+                this.keyboardModifiers.shift = eventName == "keydown";
+            if (ev.code == "ControlLeft" || ev.code == "ControlRight")
+                this.keyboardModifiers.ctrl = eventName == "keydown";
+            if (ev.code == "AltLeft" || ev.code == "AltRight") this.keyboardModifiers.alt = eventName == "keydown";
+        });
+    }
     setupKeyboardEvents() {
-        window.addEventListener("keydown", ev => this.handleKeyboardEvent("keydown", ev.code, ev.key, ev.repeat));
-        window.addEventListener("keyup", ev => this.handleKeyboardEvent("keyup", ev.code, ev.key, ev.repeat));
+        this._setupKeyboardEvent("keydown");
+        this._setupKeyboardEvent("keyup");
     }
 
     _setupMouseEvent(eventName) {
@@ -66,18 +81,15 @@ class EventManager {
             if (ev.shiftKey) mods.push(enums.Modifier.SHIFT);
             if (ev.ctrlKey) mods.push(enums.Modifier.CTRL);
 
-            this.handleEvent(canvas, eventName, {
-                position: [ev.clientX, ev.clientY],
-                button: ev.which,
-                modifiers: mods
-            });
+            // Sends this event out to helper class ControlEventLayer to determine which control(s)
+            // this mouse event falls under. It then calls handleEvent with each control as source
+            this.controlLayer.rerouteMouseEvent([ev.clientX, ev.clientY], eventName, ev.which, mods);
         });
     }
     setupMouseEvents() {
         this._setupMouseEvent("mousedown");
         this._setupMouseEvent("mouseup");
         this._setupMouseEvent("mousemove");
-        this._setupMouseEvent("click");
         this._setupMouseEvent("dblclick");
         this._setupMouseEvent("mouseover");
         this._setupMouseEvent("mouseout");
@@ -94,26 +106,10 @@ class EventManager {
         }
     }
 
-    handleKeyboardEvent(type, code, key, repeat) {
-        // console.log(
-        //     `Handling ${type} event: ${code}/${key} (${JSON.stringify(this.keyboardModifiers)}) | (repeat: ${repeat})`
-        // );
-
-        this.handleEvent(this.canvas, type, {
-            code: code,
-            key: key,
-            repeat: repeat,
-            modifiers: this.keyboardModifiers
-        });
-
-        // Update modifiers AFTER the event is called, so modifiers keys don't modify themselves
-        if (code == "ShiftLeft" || code == "ShiftRight") this.keyboardModifiers.shift = type == "keydown";
-        if (code == "ControlLeft" || code == "ControlRight") this.keyboardModifiers.ctrl = type == "keydown";
-        if (code == "AltLeft" || code == "AltRight") this.keyboardModifiers.alt = type == "keydown";
-    }
-
     handleEvent(source, type, data) {
-        console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
+        if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
+            console.log(`Handling event ${type} from ${source.debugName}`);
+        else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
 
         let activeListeners = this.registrations.filter(reg => reg.targetSource == source && reg.eventType == type);
         if (activeListeners.length < 1) return;

@@ -2,18 +2,22 @@
 CORE ELEMENT
 ---------------
 
-* Want to use getters and setters to encapsulate internal calculations, private properties, and property change event handling for data binding and animation purposes
-* Need to establish clear conventions for consistency across polymorphic constructs
-* Elements should be unaware and decoupled from their parent structure (Page or Section)
+* Getters and setters encapsulate internal calculations, private properties, and property change event handling 
+* Established clear conventions for consistency across polymorphic constructs
+* Elements are unaware and decoupled from their parent structure (Page or Section)
 
 
 Core Properties (common to all controls):
+- debugName: Useful for debugging events and such
+- isFocusable: Used in Focus management by page and events
 - viewingRect: Returns the exact area of the canvas this control is displayed on. Used for clearing optimization
     * viewWidth / viewHeight (read-only)
+    * this rect INCLUDES margins
 - hitRect: Returns area considered for hitboxing for mouse events
+    * this rect DOES NOT INCLUDE margins
 - size: Explicit for some controls, derived in others (label), this size of the actual item, not including margin
     * width / height (read-only)
-- localPosition: The position within its parent structure (Page or Section). This can be get/set directly, but is only relevant when align = Align.FREE
+- localPosition: The position within its parent structure (Page or Section). This can be get/set directly, and is only relevant when align = Align.FREE
 - visible: True or False, taken into account by parent structure
 - zValue: Z-axis value, affects which controls are 'on top' of others. Get/set directly, but only has relevance within immediate tier of controls (ie. applies within it's Parent Section, which has its own zValue relevant to its parent Page)
 - margin: Exactly what it sounds like. Blank space that is considered part of a control's viewing Rect, but not hitRect. It is used for arrangement and alignment calculations. There is no 'padding', each element has its own margin
