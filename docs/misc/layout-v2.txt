@@ -1,0 +1,15 @@
+---------------
+LAYOUT VERSION 2
+---------------
+
+* Re-attempting layout because it wasn't logical
+* Not separating page from section, that was dumb
+* Considering all containers directional (enums.ContentDirection)
+    - When ContentDirection.HORIZONTAL: any width taken up by a child control is taken out of the 'free space'
+    - When ContentDirection.VERTICAL: any height taken up by a child control is taken out of the 'free space'
+    - During render(), all children request and receive their size out of the parent's 'free space', which remains constant in one axis as its own size, but gets eaten up in the other axis
+    - Child alignment on the non-flow axis (vertical axis if ContentDirection.HORIZONTAL) is either
+        # Align.FILL + FillSize (including 1.0), then request size determines size
+        # Align.TOP/BOTTOM/RIGHT/LEFT/CENTER and use static size
+        # Align.Fill + FillSize = MIN (FillSize = MAX doesn't exist because this is the same as FillSize = 1.0)
+            MIN == -1

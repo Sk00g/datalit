@@ -1,20 +1,18 @@
-import enums from "../enums.js";
+import { ContentDirection, HAlign, VAlign, Colors } from "../enums.js";
 import { App } from "../app.js";
-import { Control } from "./control.js";
+import { DynamicControl } from "./dynamicControl.js";
 import { Rect } from "./rect.js";
 import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
-export class Section extends Control {
+export class Section extends DynamicControl {
     constructor(initialProperties = {}) {
         // console.log("Section constructor");
         super();
 
         // Unique property definitions
-        this._flowType = enums.FlowType.VERTICAL;
-        this._sizeTarget = enums.SizeTarget.MINIMUM;
-        this._contentAlignment = enums.Align.CENTER;
-        this._backgroundColor = App.GlobalState.DefaultBackground;
+        this._contentDirection = ContentDirection.VERTICAL;
+        this._backgroundColor = null;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
@@ -22,17 +20,14 @@ export class Section extends Control {
         this.requiresRender = true;
         this.children = [];
 
-        // Sections default differently than regular controls
-        this.align = enums.Align.LEFT;
-
         this.updateProperties(initialProperties);
 
-        this.background = new Rect({ fillColor: this.backgroundColor });
-        if (this.borderColor) this.background.borderColor = this.borderColor;
-        if (this.borderThickness) this.background.borderThickness = this.borderThickness;
+        if (this.backgroundColor || this.borderColor) {
+            this.background = new Rect({ fillColor: this.backgroundColor ? this.backgroundColor : Colors.TRANSPARENT });
+            if (this.borderColor) this.background.borderColor = this.borderColor;
+            if (this.borderThickness) this.background.borderThickness = this.borderThickness;
+        }
 
-        this.registerProperty("sizeTarget");
-        this.registerProperty("contentAlignment");
         this.registerProperty("backgroundColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness");
@@ -77,248 +72,277 @@ export class Section extends Control {
             this._borderThickness = thickness;
         }
     }
-    get sizeTarget() {
-        return this._sizeTarget;
-    }
-    set sizeTarget(newTarget) {
-        if (newTarget < 0 || (newTarget >= 1.0 && !enums.SizeTarget.hasOwnProperty(newTarget)))
-            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "enums.SizeTarget or 0 -> 1.0"]);
 
-        this._sizeTarget = newTarget;
+    get contentDirection() {
+        return this._contentDirection;
     }
+    set contentDirection(dir) {
+        if (!ContentDirection.hasOwnProperty(dir))
+            datalitError("propertySet", ["Section.contentDirection", String(dir), "ContentDirection"]);
 
-    get contentAlignment() {
-        return this._contentAlignment;
-    }
-    set contentAlignment(newAlign) {
-        if (!enums.Align.hasOwnProperty(newAlign))
-            datalitError("propertySet", ["Section.contentAlignment", String(newAlign), "enums.Align"]);
-
-        this._contentAlignment = newAlign;
-    }
-
-    get flowType() {
-        return this._flowType;
-    }
-    set flowType(newType) {
-        if (!enums.FlowType.hasOwnProperty(newType))
-            datalitError("propertySet", ["Section.flowType", String(newType), "enums.FlowType"]);
-
-        this._flowType = newType;
+        this._contentDirection = dir;
     }
     //#endregion
+
+    // Sections can have [h|v]fillTarget == -1, meaning minimum size based on child elements
+    requestWidth(availableWidth, parentWidth) {
+        if (this.halign == HAlign.FILL) return availableWidth;
+        else if (this.halign == HAlign.STRETCH) return parentWidth;
+        else if (this.hfillTarget == -1) {
+            // If we have ContentDirection.VERTICAL, just get largest child width
+            if (this.contentDirection == ContentDirection.VERTICAL) {
+                let largestWidth = 0;
+                for (let child of this.children) {
+                    let cWidth = child.requestWidth(availableWidth, this.viewWidth);
+                    if (cWidth > largestWidth) largestWidth = cWidth;
+                }
+                return largestWidth + this.margin[0] + this.margin[2];
+            } // Otherwise we have to get the combination of child widths
+            else if (this.contentDirection == ContentDirection.HORIZONTAL) {
+                let widthSum = 0;
+                for (let child of this.children) widthSum += child.requestWidth(availableWidth, this.viewWidth);
+                return heightSum + this.margin[0] + this.margin[2];
+            }
+        } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
+        else return this._viewSize[0];
+    }
+
+    requestHeight(availableHeight, parentHeight) {
+        if (this.valign == VAlign.FILL) return availableHeight;
+        else if (this.valign == VAlign.STRETCH) return parentHeight;
+        else if (this.vfillTarget == -1) {
+            // If we have ContentDirection.HORIZONTAL, just get largest child height
+            if (this.contentDirection == ContentDirection.HORIZONTAL) {
+                let largestHeight = 0;
+                for (let child of this.children) {
+                    let cHeight = child.requestHeight(availableHeight, this.viewHeight);
+                    if (cHeight > largestHeight) largestHeight = cHeight;
+                }
+                return largestHeight + this.margin[1] + this.margin[3];
+            } // Otherwise we have to get the combination of child heights
+            else if (this.contentDirection == ContentDirection.VERTICAL) {
+                let heightSum = 0;
+                for (let child of this.children) heightSum += child.requestHeight(availableHeight, this.viewHeight);
+                return heightSum + this.margin[1] + this.margin[3];
+            }
+        } else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
+        else return this._viewSize[1];
+    }
 
     scheduleRender() {
         this.requiresRender = true;
     }
 
-    renderSubsections() {
-        let sectionList = this.children.filter(child => child instanceof Section && child.visible);
-        if (sectionList.filter(sec => sec.align == enums.Align.FILL).length > 1) {
-            throw new Error("Sections can have max one Section with align == enums.Align.FILL");
-        }
+    prerenderCheck(totalSpace) {
+        let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
+        // Cannot have both Align.CENTER and Align.FILL in the same parent
+        let fills = this.children.filter(ch => ch[alignProp] == HAlign.FILL);
+        let centers = this.children.filter(ch => ch[alignProp] == HAlign.CENTER);
+        if (fills.length > 0 && centers.length > 0)
+            datalitError("invalidAlignment", [this.debugName, "Cannot have CENTER + FILL in same axis"]);
 
-        // console.log(`rendering page subsections... (${sectionList.length})`);
-
-        let freeOrigins = [
-            this._arrangedPosition[0] + this.margin[0] + this.borderThickness[0],
-            this._arrangedPosition[1] + this.margin[1] + this.borderThickness[1],
-            this.size[0] - this.margin[2] - this.borderThickness[2],
-            this.size[1] - this.margin[3] - this.borderThickness[3]
-        ];
-        let totalSpace = [freeOrigins[2] - freeOrigins[0], freeOrigins[3] - freeOrigins[1]];
-
-        for (let i = 0; i < sectionList.length; i++) {
-            let sec = sectionList[i];
-            // Don't calculate the FILL section until other sectionsh have been allotted
-            if (sec.align == enums.Align.FILL) continue;
-
-            let requestedSize = sec.calculateViewsize(totalSpace);
-            if (sec.flowType == enums.FlowType.HORIZONTAL) {
-                switch (sec.align) {
-                    case enums.Align.TOP:
-                        sec.arrangePosition(this, [freeOrigins[0], freeOrigins[1]]);
-                        sec.size = [freeOrigins[2] - freeOrigins[0], requestedSize[1]];
-                        freeOrigins[1] = requestedSize[1];
-                        break;
-                    case enums.Align.BOTTOM:
-                        sec.arrangePosition(this, [freeOrigins[0], freeOrigins[3] - requestedSize[1]]);
-                        sec.size = [freeOrigins[2] - freeOrigins[0], requestedSize[1]];
-                        freeOrigins[3] -= requestedSize[1];
-                        break;
-                }
-            } else if (sec.flowType == enums.FlowType.VERTICAL) {
-                switch (sec.align) {
-                    case enums.Align.LEFT:
-                        sec.arrangePosition(this, [freeOrigins[0], freeOrigins[1]]);
-                        sec.size = [requestedSize[0], freeOrigins[3] - freeOrigins[1]];
-                        freeOrigins[0] = requestedSize[0];
-                        break;
-                    case enums.Align.RIGHT:
-                        sec.arrangePosition(this, [freeOrigins[2] - requestedSize[0], freeOrigins[1]]);
-                        sec.size = [requestedSize[0], freeOrigins[3] - freeOrigins[1]];
-                        freeOrigins[2] -= requestedSize[0];
-                        break;
-                }
+        // Multiple CENTER children cannot have a combined width/height of great than totalSpace
+        if (centers.length > 0) {
+            if (this.contentDirection == ContentDirection.HORIZONTAL) {
+                let combinedWidth = 0;
+                for (let ctrl of centers) combinedWidth += ctrl.requestWidth(totalSpace[0], this.viewWidth);
+                if (combinedWidth > totalSpace[0])
+                    datalitError("invalidAlignment", [
+                        this.debugName,
+                        "Cannot have CENTER children with width sum > totalSpace[0]"
+                    ]);
+            } else if (this.contentDirection == ContentDirection.VERTICAL) {
+                let combinedHeight = 0;
+                for (let ctrl of centers) combinedHeight += ctrl.requestHeight(totalSpace[1], this.viewHeight);
+                if (combinedHeight > totalSpace[1])
+                    datalitError("invalidAlignment", [
+                        this.debugName,
+                        "Cannot have CENTER children with height sum > totalSpace[1]"
+                    ]);
             }
-        }
-
-        // Arrange the align.FILL section
-        let fillSection = sectionList.find(sec => sec.align == enums.Align.FILL);
-        if (fillSection) {
-            fillSection.arrangePosition(this, [freeOrigins[0], freeOrigins[1]]);
-            fillSection.size = [freeOrigins[2] - freeOrigins[0], freeOrigins[3] - freeOrigins[1]];
         }
     }
 
     render() {
         if (this.children.length < 1) return;
 
-        // console.log(`rendering section... (${this.children.length})`);
+        console.log(`rendering section... ${this.debugName} (${this.children.length})`);
         this.requiresRender = false;
         App.GlobalState.RedrawRequired = true;
 
-        this.renderSubsections();
-
-        var origins = [
+        let origins = [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.margin[1],
-            this._arrangedPosition[0] + this.size[0] - this.margin[2],
-            this._arrangedPosition[1] + this.size[1] - this.margin[3]
+            this._arrangedPosition[0] + this.viewSize[0] - this.margin[2],
+            this._arrangedPosition[1] + this.viewSize[1] - this.margin[3]
         ];
+        let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
 
-        // Set position of all child controls except sections
-        if (this.flowType == enums.FlowType.HORIZONTAL) {
-            for (let child of this.children) {
-                switch (child.align) {
-                    case enums.Align.TOP:
-                        child.arrangePosition(this, [-1, origins[1]]);
-                        break;
-                    case enums.Align.BOTTOM:
-                        child.arrangePosition(this, [-1, origins[3] - Math.min(child.viewHeight, this.size[1])]);
-                        break;
-                    case enums.Align.CENTER:
-                        let space = Math.max(this.size[1] - this.margin[1] - this.margin[3] - child.viewHeight, 0);
-                        child.arrangePosition(this, [-1, origins[1] + Math.floor(space / 2)]);
-                        break;
+        this.prerenderCheck(totalSpace);
+
+        // Set position and size of all child controls
+        let fillChildren = null;
+        let centeredChildren = null;
+        let alignedChildren = null;
+        switch (this.contentDirection) {
+            case ContentDirection.HORIZONTAL:
+                fillChildren = this.children.filter(child => child.halign == HAlign.FILL);
+                centeredChildren = this.children.filter(child => child.halign == HAlign.CENTER);
+                alignedChildren = this.children.filter(
+                    child => child.halign != HAlign.CENTER && child.halign != HAlign.FILL
+                );
+
+                for (let child of alignedChildren) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+                    child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+
+                    switch (child.halign) {
+                        case HAlign.LEFT:
+                            child.arrangePosition(this, [origins[0], -1]);
+                            origins[0] += child.viewWidth;
+                            break;
+                        case HAlign.RIGHT:
+                            child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
+                            origins[2] -= child.viewWidth;
+                            break;
+                    }
                 }
-            }
 
-            switch (this.contentAlignment) {
-                case enums.Align.LEFT:
-                    for (let child of this.children) {
+                // Now arrange center or fill children
+                if (fillChildren.length > 0) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    // Evenly divide remaining width
+                    let splitWidth = Math.floor(totalSpace[0] / fillChildren.length);
+                    let remainder = totalSpace[0] - splitWidth * fillChildren.length;
+
+                    for (let child of fillChildren) {
+                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+                        let trueWidth = splitWidth;
+                        if (remainder > 0) {
+                            trueWidth = splitWidth + 1;
+                            remainder -= 0;
+                        }
+
+                        child.viewWidth = trueWidth;
+                        child.arrangePosition(this, [origins[0], -1]);
+                        origins[0] += trueWidth;
+                    }
+                } else if (centeredChildren.length > 0) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    let widthSum = 0;
+                    for (let child of centeredChildren) {
+                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+                        widthSum += child.viewWidth;
+                    }
+                    let space = totalSpace[0] - widthSum;
+                    origins[0] += Math.floor(space / 2);
+                    for (let child of centeredChildren) {
                         child.arrangePosition(this, [origins[0], -1]);
                         origins[0] += child.viewWidth;
                     }
-                    break;
-                case enums.Align.RIGHT:
-                    var origin = 0;
-                    for (let child of this.children) {
-                        let childPosition = [origins[2] - child.viewWidth, -1];
-                        child.arrangePosition(this, childPosition);
-                        origins[2] -= child.viewWidth;
-                    }
-                    break;
-                case enums.Align.CENTER:
-                    let widths = this.children.map(ch => ch.viewWidth);
-                    let totalWidth = widths.reduce((total, amount) => total + amount);
-                    var origin = origins[0] + Math.floor((this.size[0] - totalWidth) / 2);
-
-                    for (let child of this.children) {
-                        child.arrangePosition(this, [origin, -1]);
-                        origin += child.viewWidth;
-                    }
-                    break;
-            }
-        } else if (this.flowType == enums.FlowType.VERTICAL) {
-            for (let child of this.children) {
-                switch (child.align) {
-                    case enums.Align.LEFT:
-                        child.arrangePosition(this, [origins[0], -1]);
-                        break;
-                    case enums.Align.RIGHT:
-                        child.arrangePosition(this, [origins[2] - Math.min(child.viewWidth, this.size[0]), -1]);
-                        break;
-                    case enums.Align.CENTER:
-                        let space = Math.max(this.size[0] - this.margin[0] - this.margin[2] - child.viewWidth, 0);
-                        child.arrangePosition(this, origins[0] + [Math.floor(space / 2), -1]);
-                        break;
                 }
-            }
 
-            switch (this.contentAlignment) {
-                case enums.Align.TOP:
-                    for (let child of this.children) {
+                // Vertical alignment of children in a ContentDirection.HORIZONTAL parent is isolated
+                for (let child of this.children) {
+                    switch (child.valign) {
+                        case VAlign.CENTER:
+                            let sp = Math.max(this.viewHeight - this.margin[1] - this.margin[3] - child.viewHeight, 0);
+                            child.arrangePosition(this, [-1, origins[1] + Math.floor(sp / 2)]);
+                            break;
+                        case VAlign.TOP:
+                            child.arrangePosition(this, [-1, origins[1]]);
+                            break;
+                        case VAlign.BOTTOM:
+                            child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
+                            break;
+                        case VAlign.FILL:
+                            child.arrangePosition(this, [-1, origins[1]]);
+                            break;
+                    }
+                }
+                break;
+            case ContentDirection.VERTICAL:
+                fillChildren = this.children.filter(child => child.valign == VAlign.FILL);
+                centeredChildren = this.children.filter(child => child.valign == VAlign.CENTER);
+                alignedChildren = this.children.filter(
+                    child => child.valign != VAlign.CENTER && child.valign != VAlign.FILL
+                );
+
+                for (let child of alignedChildren) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+                    child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+
+                    switch (child.valign) {
+                        case VAlign.TOP:
+                            child.arrangePosition(this, [-1, origins[1]]);
+                            origins[1] += child.viewHeight;
+                            break;
+                        case VAlign.BOTTOM:
+                            child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
+                            origins[3] -= child.viewHeight;
+                            break;
+                    }
+                }
+
+                // Now arrange center or fill children
+                if (fillChildren.length > 0) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    // Evenly divide remaining width
+                    let splitHeight = Math.floor(totalSpace[1] / fillChildren.length);
+
+                    for (let child of fillChildren) {
+                        child.viewHeight = splitHeight;
+                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+                        child.arrangePosition(this, [-1, origins[1]]);
+                        origins[1] += splitHeight;
+                    }
+                } else if (centeredChildren.length > 0) {
+                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                    let heightSum = 0;
+                    for (let child of centeredChildren) {
+                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+                        heightSum += child.viewHeight;
+                    }
+                    let space = totalSpace[1] - heightSum;
+                    origins[1] += Math.floor(space / 2);
+                    for (let child of centeredChildren) {
                         child.arrangePosition(this, [-1, origins[1]]);
                         origins[1] += child.viewHeight;
                     }
-                    break;
-                case enums.Align.BOTTOM:
-                    for (let child of this.children) {
-                        let childPosition = [-1, origins[3] - child.viewHeight];
-                        child.arrangePosition(this, childPosition);
-                        origin[3] -= child.viewHeight;
-                    }
-                    break;
-                case enums.Align.CENTER:
-                    let heights = this.children.map(ch => ch.viewHeight);
-                    let totalHeight = heights.reduce((total, amount) => total + amount);
-                    var origin = origins[1] + Math.floor((this.size[1] - totalHeight) / 2);
+                }
 
-                    for (let child of this.children) {
-                        child.arrangePosition(this, [-1, origin]);
-                        origin += child.viewHeight;
+                // Horizontal alignment of children in a ContentDirection.VERTICAL parent is isolated
+                for (let child of this.children) {
+                    switch (child.halign) {
+                        case HAlign.CENTER:
+                            let space = Math.max(this.viewWidth - this.margin[0] - this.margin[2] - child.viewWidth, 0);
+                            child.arrangePosition(this, [origins[0] + Math.floor(space / 2), -1]);
+                            break;
+                        case HAlign.LEFT:
+                            child.arrangePosition(this, [origins[0], -1]);
+                            break;
+                        case HAlign.RIGHT:
+                            child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
+                            break;
+                        case HAlign.FILL:
+                            child.arrangePosition(this, [origins[0], -1]);
+                            break;
                     }
-                    break;
-            }
+                }
+                break;
         }
     }
 
-    calculateViewsize(availableSpace) {
-        let requestedSize = [0, 0];
-
-        if (this.flowType == enums.FlowType.HORIZONTAL) {
-            if (this.sizeTarget == enums.SizeTarget.MINIMUM) {
-                let largestHeight = 0;
-                for (let child of this.children) {
-                    if (child.viewHeight > largestHeight) {
-                        largestHeight = child.viewHeight;
-                    }
-                }
-                requestedSize = [
-                    availableSpace[0],
-                    largestHeight + this.margin[1] + this.margin[3] + this.borderThickness[0] + this.borderThickness[2]
-                ];
-            } else {
-                // sizeTarget is a float value between 0 and 1
-                requestedSize = [availableSpace[0], Math.floor(this.sizeTarget * availableSpace[1])];
-            }
-        } else if (this.flowType == enums.FlowType.VERTICAL) {
-            if (this.sizeTarget == enums.SizeTarget.MINIMUM) {
-                let largestWidth = 0;
-                for (let child of this.children) {
-                    if (child.viewWidth > largestWidth) {
-                        largestWidth = child.viewWidth;
-                    }
-                }
-                requestedSize = [
-                    largestWidth + this.margin[0] + this.margin[2] + this.borderThickness[1] + this.borderThickness[3],
-                    availableSpace[1]
-                ];
-            } else {
-                requestedSize = [Math.floor(this.sizeTarget * availableSpace[0]), availableSpace[1]];
-            }
-        }
-
-        return requestedSize;
+    get viewSize() {
+        return super.viewSize;
     }
-
-    get size() {
-        return this._size;
-    }
-    set size(newSize) {
-        super.size = newSize;
-        this.background.size = newSize;
+    set viewSize(newSize) {
+        super.viewSize = newSize;
+        if (this.background) this.background.viewSize = newSize;
 
         // This render can now determine the size and alignment of nested sections and elements
         this.scheduleRender();
@@ -328,7 +352,7 @@ export class Section extends Control {
         if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
 
         super.arrangePosition(arranger, newPosition);
-        this.background.arrangePosition(arranger, newPosition);
+        if (this.background) this.background.arrangePosition(arranger, newPosition);
 
         this.scheduleRender();
     }
@@ -354,7 +378,7 @@ export class Section extends Control {
     }
 
     draw() {
-        this.background.draw();
+        if (this.background) this.background.draw();
 
         for (let child of this.children) {
             if (child.visible) {

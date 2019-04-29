@@ -1,5 +1,6 @@
-import enums from "../enums.js";
+import utils from "../utils.js";
 import { App } from "../app.js";
+import { Colors } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
 
@@ -9,7 +10,7 @@ export class Circle extends Control {
 
         // Unique properties
         this._radius = radius;
-        this._fillColor = enums.Colors.OFFWHITE;
+        this._fillColor = Colors.OFFWHITE;
         this._borderColor = null;
         this._borderThickness = 0;
 
@@ -21,12 +22,28 @@ export class Circle extends Control {
         this.registerProperty("borderThickness");
     }
 
-    // Overridden properties
-    get size() {
-        return [this.radius * 2, this.radius * 2];
+    // Method overrides
+    isPointWithin(point) {
+        let center = [
+            this._arrangedPosition[0] + this.radius + this.margin[0],
+            this._arrangedPosition[1] + this.radius + this.margin[1]
+        ];
+
+        let dist = utils.distanceBetweenPoints(point, center);
+
+        return dist <= this.radius;
     }
-    set size(size) {
-        datalitError("invalidProperty", ["Circle", "size"]);
+
+    // Property overrides
+    get viewSize() {
+        return [this.radius * 2 + this.margin[0] + this.margin[2], this.radius * 2 + this.margin[1] + this.margin[3]];
+    }
+    set viewSize(size) {
+        if (typeof size != "object" || size.length != 2 || !Number.isInteger(size[0]) || !Number.isInteger(size[1]))
+            datalitError("propertySet", ["Circle.viewSize", String(size), "LIST of 2 int"]);
+
+        if (size[0] != 0) this._radius = Math.floor(size[0] / 2);
+        else if (size[1] != 0) this._radius = Math.floor(size[1] / 2);
     }
 
     //#region Unique Properties
@@ -43,9 +60,7 @@ export class Circle extends Control {
         return this._fillColor;
     }
     set fillColor(newColor) {
-        if (typeof newColor != "string") {
-            datalitError("propertySet", ["Circle.fillColor", String(newColor), "string"]);
-        }
+        if (typeof newColor != "string") datalitError("propertySet", ["Circle.fillColor", String(newColor), "string"]);
 
         this._fillColor = newColor;
     }

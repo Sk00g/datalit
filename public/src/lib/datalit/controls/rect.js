@@ -65,7 +65,11 @@ export class Rect extends Control {
     draw() {
         App.Context.fillStyle = this.fillColor;
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
-        App.Context.fillRect(...truePosition, ...this.size);
+        let trueSize = [
+            this.viewSize[0] - this.margin[0] - this.margin[2],
+            this.viewSize[1] - this.margin[1] - this.margin[3]
+        ];
+        App.Context.fillRect(...truePosition, ...trueSize);
 
         if (!this.borderColor) return;
 
@@ -73,21 +77,21 @@ export class Rect extends Control {
         App.Context.fillStyle = this.borderColor;
         const bt = this.borderThickness;
         if (bt[0] != 0) {
-            let size = [bt[0], this.size[1]];
+            let size = [bt[0], trueSize[1]];
             App.Context.fillRect(...truePosition, ...size);
         }
         if (bt[1] != 0) {
-            let size = [this.size[0], bt[1]];
+            let size = [trueSize[0], bt[1]];
             App.Context.fillRect(...truePosition, ...size);
         }
         if (bt[2] != 0) {
-            let pos = [truePosition[0] + this.size[0] - bt[2], truePosition[1]];
-            let size = [bt[2], this.size[1]];
+            let pos = [truePosition[0] + trueSize[0] - bt[2], truePosition[1]];
+            let size = [bt[2], trueSize[1]];
             App.Context.fillRect(...pos, ...size);
         }
         if (bt[3] != 0) {
-            let pos = [truePosition[0], truePosition[1] + this.size[1] - bt[3]];
-            let size = [this.size[0], bt[3]];
+            let pos = [truePosition[0], truePosition[1] + trueSize[1] - bt[3]];
+            let size = [trueSize[0], bt[3]];
             App.Context.fillRect(...pos, ...size);
         }
     }

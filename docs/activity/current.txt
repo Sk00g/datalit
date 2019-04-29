@@ -2,15 +2,21 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-04-23 23:02
-SYSTEM:				Event Handling 
+LAST UPDATE:		2019-04-28 23:00
+SYSTEM:				Core Library 
 (Research -> Design -> Prototype -> Write -> Test -> Document)
-STAGE:				Prototype
+STAGE:				Write/Document
 
 IMMEDIATE: 
-- Build state system for each control and have it changed by events automagically
-    * Wrote out most of the design, starting to implement it. Finished in control.js adding the default Control mouse event handlers to change states automatically
-
+- Clearly the arrangement and alignment system needs work, so taking a break to fix this
+    * Sections and basic elements appear to align properly, including usage of margins. Needs further testing and a code review to make sure things are consistent and making sense. Particularly Align.STRETCH needs testing
+    * Taking a break because going straight for too long
+    * When coming back:
+        1. Make sure existing controls are up to date and working
+        2. Clean up all code so far, get rid of anything obsolete
+            # Got up to rect alphabetically in controls with this
+        3. Update design documents with arrangement strategy writeup while it's fresh
+    
 ----------
 TASK LIST
 ----------
@@ -29,6 +35,7 @@ COMPLETED
 - Hook mouse, keyboard, and resize events into system 
 - Hook property changed events into system
 - Build GUI layer that handles Control-specific event management
+- Build state system for liveControl.js and have it changed by events automagically
 
 
 --------------------

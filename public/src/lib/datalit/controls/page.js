@@ -2,8 +2,10 @@ import enums from "../enums.js";
 import { Control } from "./control.js";
 import { App } from "../app.js";
 import { datalitError } from "../errors";
+import { Section } from "./section.js";
 
-export class Page extends Control {
+// Keep in mind a Page defaults to ContentDirection.VERTICAL, but this can be changed manually
+export class Page extends Section {
     constructor(initialProperties = {}) {
         super();
         // console.log("Page Constructor - 2");
@@ -12,12 +14,7 @@ export class Page extends Control {
         this._state = enums.PageState.READY;
         this._focusedControl = null;
 
-        this.isArranger = true;
         this.requiresRender = true;
-        this.sectionList = [];
-
-        // This is used internally to simplify the render 'arrangement' process
-        this.freeOrigins = [0, 0, 0, 0];
 
         this.updateProperties(initialProperties);
 
@@ -47,80 +44,19 @@ export class Page extends Control {
         this._state = newState;
     }
 
-    prerenderCheck() {
-        if (this.sectionList.filter(sec => sec.align == enums.Align.FILL).length != 1) {
-            throw new Error("Must have exactly one Section with align == enums.Align.FILL");
-        }
-    }
-
-    scheduleRender() {
-        this.requiresRender = true;
-    }
-
-    render() {
-        this.prerenderCheck();
-
-        // console.log("rendering page...");
-        this.requiresRender = false;
-        App.GlobalState.RedrawRequired = true;
-
-        this.freeOrigins = [
-            this.margin[0],
-            this.margin[1],
-            App.Canvas.width - this.margin[2],
-            App.Canvas.height - this.margin[3]
-        ];
-        let totalSpace = [this.freeOrigins[2] - this.freeOrigins[0], this.freeOrigins[3] - this.freeOrigins[1]];
-
-        let viewableSections = this.sectionList.filter(sec => sec.visible && sec.align != enums.Align.FILL);
-        for (let i = 0; i < viewableSections.length; i++) {
-            let sec = viewableSections[i];
-            let requestedSize = sec.calculateViewsize(totalSpace);
-            // console.log(`Requested size: ${requestedSize}`);
-            if (sec.flowType == enums.FlowType.HORIZONTAL) {
-                switch (sec.align) {
-                    case enums.Align.TOP:
-                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
-                        sec.size = [this.freeOrigins[2] - this.freeOrigins[0], requestedSize[1]];
-                        this.freeOrigins[1] = requestedSize[1];
-                        break;
-                    case enums.Align.BOTTOM:
-                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[3] - requestedSize[1]]);
-                        sec.size = [this.freeOrigins[2] - this.freeOrigins[0], requestedSize[1]];
-                        this.freeOrigins[3] -= requestedSize[1];
-                        break;
-                }
-            } else if (sec.flowType == enums.FlowType.VERTICAL) {
-                switch (sec.align) {
-                    case enums.Align.LEFT:
-                        sec.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
-                        sec.size = [requestedSize[0], this.freeOrigins[3] - this.freeOrigins[1]];
-                        this.freeOrigins[0] = requestedSize[0];
-                        break;
-                    case enums.Align.RIGHT:
-                        sec.arrangePosition(this, [this.freeOrigins[2] - requestedSize[0], this.freeOrigins[1]]);
-                        sec.size = [requestedSize[0], this.freeOrigins[3] - this.freeOrigins[1]];
-                        this.freeOrigins[2] -= requestedSize[0];
-                        break;
-                }
-            }
-        }
-
-        // Arrange the align.FILL section
-        let fillSection = this.sectionList.find(sec => sec.align == enums.Align.FILL);
-        fillSection.arrangePosition(this, [this.freeOrigins[0], this.freeOrigins[1]]);
-        fillSection.size = [this.freeOrigins[2] - this.freeOrigins[0], this.freeOrigins[3] - this.freeOrigins[1]];
+    addChild(child) {
+        throw new Error("Cannot add children to pages Use addSection()");
     }
 
     // Private / Protected classes
     addSection(section) {
-        this.sectionList.push(section);
+        this.children.push(section);
 
         this.scheduleRender();
     }
 
     removeSection(section) {
-        this.sectionList.splice(this.sectionList.indexOf(section), 1);
+        this.children.splice(this.children.indexOf(section), 1);
         this.scheduleRender();
     }
 
@@ -135,6 +71,11 @@ export class Page extends Control {
         this.state = enums.PageState.READY;
     }
 
+    render() {
+        this.viewSize = [App.Canvas.width, App.Canvas.height];
+        super.render();
+    }
+
     // Called by PageManager (think FSM)
     update(elapsed) {
         super.update(elapsed);
@@ -142,13 +83,13 @@ export class Page extends Control {
         // Only render once per update loop
         if (this.requiresRender) this.render();
 
-        for (let section of this.sectionList) {
+        for (let section of this.children) {
             section.update(elapsed);
         }
     }
 
     draw() {
-        for (let section of this.sectionList) {
+        for (let section of this.children) {
             if (section.visible) {
                 section.draw();
             }

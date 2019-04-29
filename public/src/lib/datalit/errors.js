@@ -5,7 +5,8 @@ const ERROR_LIST = {
     objectInterfaceMismatch: "Object '$0' doesn't match appropriate interface with properties: '$1'",
     notYetImplemented: "This feature is not yet implemented",
     typeMismatch: "Type '$0' is invalid for parameter '$1', expecting '$2'",
-    illogical: "Property '$0' cannot be '$1' while property '$2' is '$3'"
+    illogical: "Property '$0' cannot be '$1' while property '$2' is '$3'",
+    invalidAlignment: "Alignment for '$0' is invalid: '$1'"
 };
 
 export function datalitError(name, params) {

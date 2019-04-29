@@ -21,7 +21,8 @@ export const Colors = Object.freeze({
     GREEN: "rgb(0, 255, 0)",
     BLUE: "rgb(0, 0, 255)",
     OFFWHITE: "rgb(210, 210, 210)",
-    OFFBLACK: "rgb(20, 20, 20)"
+    OFFBLACK: "rgb(20, 20, 20)",
+    TRANSPARENT: "rgba(0, 0, 0, 0)"
 });
 
 export const ControlState = Object.freeze({
@@ -32,14 +33,26 @@ export const ControlState = Object.freeze({
     DRAGGED: "DRAGGED"
 });
 
-export const Align = Object.freeze({
+export const HAlign = Object.freeze({
+    RIGHT: "RIGHT",
+    LEFT: "LEFT",
+    CENTER: "CENTER",
+    FILL: "FILL",
+    STRETCH: "STRETCH"
+});
+
+export const VAlign = Object.freeze({
     TOP: "TOP",
     BOTTOM: "BOTTOM",
     CENTER: "CENTER",
-    FREE: "FREE",
     FILL: "FILL",
-    RIGHT: "RIGHT",
-    LEFT: "LEFT"
+    STRETCH: "STRETCH"
+});
+
+export const ContentDirection = Object.freeze({
+    HORIZONTAL: "HORIZONTAL",
+    VERTICAL: "VERTICAL",
+    FREE: "FREE"
 });
 
 export const PageState = Object.freeze({
@@ -47,22 +60,13 @@ export const PageState = Object.freeze({
     ACTIVE: "ACTIVE"
 });
 
-export const FlowType = Object.freeze({
-    HORIZONTAL: "HORIZONTAL",
-    VERTICAL: "VERTICAL"
-});
-
-export const SizeTarget = Object.freeze({
-    MINIMUM: "MINIMUM"
-});
-
 export default {
     Colors,
     ControlState,
-    Align,
+    HAlign,
+    VAlign,
+    ContentDirection,
     PageState,
-    FlowType,
-    SizeTarget,
     EventSourceType,
     MouseButton,
     Modifier

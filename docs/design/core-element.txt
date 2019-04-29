@@ -1,5 +1,5 @@
 ---------------
-CORE ELEMENT
+CORE CONTROL
 ---------------
 
 * Getters and setters encapsulate internal calculations, private properties, and property change event handling 
@@ -7,22 +7,31 @@ CORE ELEMENT
 * Elements are unaware and decoupled from their parent structure (Page or Section)
 
 
-Core Properties (common to all controls):
+Key Properties (common to all controls):
 - debugName: Useful for debugging events and such
-- isFocusable: Used in Focus management by page and events
-- viewingRect: Returns the exact area of the canvas this control is displayed on. Used for clearing optimization
-    * viewWidth / viewHeight (read-only)
-    * this rect INCLUDES margins
-- hitRect: Returns area considered for hitboxing for mouse events
-    * this rect DOES NOT INCLUDE margins
-- size: Explicit for some controls, derived in others (label), this size of the actual item, not including margin
-    * width / height (read-only)
-- localPosition: The position within its parent structure (Page or Section). This can be get/set directly, and is only relevant when align = Align.FREE
-- visible: True or False, taken into account by parent structure
-- zValue: Z-axis value, affects which controls are 'on top' of others. Get/set directly, but only has relevance within immediate tier of controls (ie. applies within it's Parent Section, which has its own zValue relevant to its parent Page)
-- margin: Exactly what it sounds like. Blank space that is considered part of a control's viewing Rect, but not hitRect. It is used for arrangement and alignment calculations. There is no 'padding', each element has its own margin
-- align: Specifies alignment for this control, this value is used by parent structure to perform arrangement and final location calculations. This property can be checked for validity to throw helpful errors (ie. Align.RIGHT doesn't work when within a FlowType.HORIZONTAL parent Section)
 
+- state: Mainly used for automatic style-transitions
+
+- visible: TRUE or FALSE, taken into account by parent Section when drawing (or not drawing if false)
+
+- _arrangedPosition: Unique property, has no external access. The actual derived position to display, absolute position on the canvas
+
+- viewSize: Explicit for most controls, derived in others (label), this size of the actual item. The parent section uses get and set of this property during render (alignment + arrangement). This property should INCLUDE a control's margin in its calculation, and does so by default. Since this property is stored directly, the final display of an item is typically calculated using margin + _arrangedPosition + viewSize
+    * Includes get|set viewWidth | viewHeight
+
+- viewingRect: Returns the exact area of the canvas this control is displayed on. Uses _arrangedPosition + viewSize by default. Used for clearing optimization
+
+- hitRect: Returns area considered for hitboxing for mouse events. By default assumes the hitbox starts at _arrangedPosition + margin[0], etc...
+
+- margin: Exactly what it sounds like. Blank space that is considered part of a control's viewing Rect, but not hitRect. It should always be transparent. There is no 'padding', each element has its own margin to fulfill this purpose
+
+- halign|valign: Specifies alignment for this control, values are used by parent structure to perform arrangement and final location calculations. These properties are checked for validity to throw helpful datalit-specific errors
+
+- hfillTarget|vfillTarget: Specifies the percentage of parent to consume when aligning. These values only apply in certain alignment scenarios. When set to -1, this means fill the 'minimum' space possible based on children (only applies to Section and derivatives).
+
+- localPosition: A explicit position within its parent Section (Page or Section). This can be get/set directly, and is only relevant when align = Align.FREE
+
+- zValue: Z-axis value, affects which controls are 'on top' of others. Get/set directly, but only has relevance within immediate tier of controls (ie. applies within it's Parent Section, which has its own zValue relevant to its parent Page)
 
 
 ---------------
@@ -32,3 +41,10 @@ CONVENTIONS
 * properties wrapped by getter/setter are always be preceded by  '_' (_position)
 * enums use CamelCase for the type, and ALL_CAPS for the values
 * all other properties use regular camelCase, including methods
+* Sections should be displayed in the following order:
+    - constructor
+    - Override methods (add comment title)
+    - Regular methods
+    - Override properties (add comment title)
+    - Unique Properties getter and setters (add comment region for easy folding)
+    - update / draw methods

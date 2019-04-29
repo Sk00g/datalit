@@ -1,1 +1,1 @@
-export default {"baseDir": "assets", "imageDir": "images", "imagePaths": ["char.png", "searchPurple.png", "loginTeal.png"], "imageCount": 3}
+export default {"baseDir": "assets", "imageDir": "images", "imagePaths": ["char.png", "searchPurple.png", "infinitiLogo.png", "loginTeal.png"], "imageCount": 4}

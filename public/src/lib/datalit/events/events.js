@@ -45,7 +45,7 @@ class EventManager {
         if (!("priority" in options)) options.priority = 0;
         if (!("UID" in options)) options.UID = UID_COUNT++;
 
-        console.log(`register for event ${eventType} from ${this.getSourceType(targetSource)} (UID: ${options.UID})`);
+        // console.log(`register for event ${eventType} from ${this.getSourceType(targetSource)} (UID: ${options.UID})`);
 
         this.registrations.push(new EventListener(targetSource, eventType, callback, options));
         return options.UID;
@@ -107,9 +107,9 @@ class EventManager {
     }
 
     handleEvent(source, type, data) {
-        if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
-            console.log(`Handling event ${type} from ${source.debugName}`);
-        else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
+        // if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
+        //     console.log(`Handling event ${type} from ${source.debugName}`);
+        // else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
 
         let activeListeners = this.registrations.filter(reg => reg.targetSource == source && reg.eventType == type);
         if (activeListeners.length < 1) return;

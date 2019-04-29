@@ -1,21 +1,23 @@
-import { Colors, HAlign, VAlign } from "../enums.js";
+import enums from "../enums.js";
+import { ControlState } from "../enums.js";
 import { App } from "../app.js";
-import { Control } from "./control.js";
+import { DynamicControl } from "./dynamicControl.js";
 import { datalitError } from "../errors.js";
+import { Events } from "../events/events.js";
 
-export class Label extends Control {
-    constructor(text, initialProperties = {}) {
+export class TextButton extends DynamicControl {
+    constructor(text, action, initialProperties = {}) {
         super();
 
         // Unique properties
         this._text = text;
         this._fontSize = App.GlobalState.DefaultFontSize;
-        this._fontColor = Colors.OFFBLACK;
+        this._fontColor = enums.Colors.OFFBLACK;
         this._fontType = "sans-serif";
 
         this.updateProperties(initialProperties);
 
-        if (this.halign == HAlign.FILL || this.valign == VAlign.FILL) {
+        if (this.align == enums.Align.FILL) {
             throw new Error("Text-based elements cannot have a FILL align");
         }
 
@@ -25,22 +27,20 @@ export class Label extends Control {
         this.registerProperty("fontSize");
         this.registerProperty("fontColor");
         this.registerProperty("fontType");
+
+        if (action) this.addEventListener("click", action);
+        Events.attachSource(this, ["click"]);
+    }
+
+    handleMouseUp() {
+        if (this.state == ControlState.DEPRESSED) this.dispatchEvent("click", null);
+
+        super.handleMouseUp();
     }
 
     calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        super.viewSize = [
-            App.Context.measureText(this._text).width + this.margin[0] + this.margin[2],
-            this._fontSize + this.margin[1] + this.margin[3]
-        ];
-    }
-
-    get viewSize() {
-        return super.viewSize;
-    }
-    set viewSize(size) {
-        // throw new Error("Can't set the viewSize of a label! It is generated from fontSize, text, and margins");
-        return;
+        this.size = [App.Context.measureText(this._text).width, this._fontSize];
     }
 
     get text() {
