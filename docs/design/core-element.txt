@@ -41,6 +41,7 @@ CONVENTIONS
 * properties wrapped by getter/setter are always be preceded by  '_' (_position)
 * enums use CamelCase for the type, and ALL_CAPS for the values
 * all other properties use regular camelCase, including methods
+* import statements at the top of the file should be organized alphabetically
 * Sections should be displayed in the following order:
     - constructor
     - Override methods (add comment title)

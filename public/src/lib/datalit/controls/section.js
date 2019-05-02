@@ -3,6 +3,7 @@ import { App } from "../app.js";
 import { DynamicControl } from "./dynamicControl.js";
 import { Rect } from "./rect.js";
 import { datalitError } from "../errors.js";
+import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
 export class Section extends DynamicControl {
@@ -19,11 +20,15 @@ export class Section extends DynamicControl {
         this.isArranger = true;
         this.requiresRender = true;
         this.children = [];
+        this.orderedChildren = []; // For zValue drawing
 
         this.updateProperties(initialProperties);
 
         if (this.backgroundColor || this.borderColor) {
-            this.background = new Rect({ fillColor: this.backgroundColor ? this.backgroundColor : Colors.TRANSPARENT });
+            this.background = new Rect({
+                fillColor: this.backgroundColor ? this.backgroundColor : Colors.TRANSPARENT,
+                viewSize: this.viewSize
+            });
             if (this.borderColor) this.background.borderColor = this.borderColor;
             if (this.borderThickness) this.background.borderThickness = this.borderThickness;
         }
@@ -101,9 +106,10 @@ export class Section extends DynamicControl {
             else if (this.contentDirection == ContentDirection.HORIZONTAL) {
                 let widthSum = 0;
                 for (let child of this.children) widthSum += child.requestWidth(availableWidth, this.viewWidth);
-                return heightSum + this.margin[0] + this.margin[2];
+                return widthSum + this.margin[0] + this.margin[2];
             }
         } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
+        else if (this.contentDirection == ContentDirection.FREE) return this.viewWidth;
         else return this._viewSize[0];
     }
 
@@ -126,7 +132,8 @@ export class Section extends DynamicControl {
                 return heightSum + this.margin[1] + this.margin[3];
             }
         } else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
-        else return this._viewSize[1];
+        else if (this.contentDirection == ContentDirection.FREE) return this.viewHeight;
+        else return this.viewHeight;
     }
 
     scheduleRender() {
@@ -134,6 +141,9 @@ export class Section extends DynamicControl {
     }
 
     prerenderCheck(totalSpace) {
+        // ContentDirection.FREE is always viable, just might not make sense
+        if (this.contentDirection == ContentDirection.FREE) return;
+
         let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
         // Cannot have both Align.CENTER and Align.FILL in the same parent
         let fills = this.children.filter(ch => ch[alignProp] == HAlign.FILL);
@@ -166,7 +176,7 @@ export class Section extends DynamicControl {
     render() {
         if (this.children.length < 1) return;
 
-        console.log(`rendering section... ${this.debugName} (${this.children.length})`);
+        // console.log(`rendering section... ${this.debugName} (${this.children.length})`);
         this.requiresRender = false;
         App.GlobalState.RedrawRequired = true;
 
@@ -185,6 +195,14 @@ export class Section extends DynamicControl {
         let centeredChildren = null;
         let alignedChildren = null;
         switch (this.contentDirection) {
+            case ContentDirection.FREE:
+                for (let child of this.children) {
+                    child.arrangePosition(this, [
+                        origins[0] + child.localPosition[0],
+                        origins[1] + child.localPosition[1]
+                    ]);
+                }
+                break;
             case ContentDirection.HORIZONTAL:
                 fillChildren = this.children.filter(child => child.halign == HAlign.FILL);
                 centeredChildren = this.children.filter(child => child.halign == HAlign.CENTER);
@@ -252,13 +270,13 @@ export class Section extends DynamicControl {
                             child.arrangePosition(this, [-1, origins[1] + Math.floor(sp / 2)]);
                             break;
                         case VAlign.TOP:
+                        case VAlign.FILL:
+                        case VAlign.STRETCH:
                             child.arrangePosition(this, [-1, origins[1]]);
                             break;
                         case VAlign.BOTTOM:
                             child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
                             break;
-                        case VAlign.FILL:
-                            child.arrangePosition(this, [-1, origins[1]]);
                             break;
                     }
                 }
@@ -323,13 +341,12 @@ export class Section extends DynamicControl {
                             child.arrangePosition(this, [origins[0] + Math.floor(space / 2), -1]);
                             break;
                         case HAlign.LEFT:
+                        case HAlign.FILL:
+                        case HAlign.STRETCH:
                             child.arrangePosition(this, [origins[0], -1]);
                             break;
                         case HAlign.RIGHT:
                             child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
-                            break;
-                        case HAlign.FILL:
-                            child.arrangePosition(this, [origins[0], -1]);
                             break;
                     }
                 }
@@ -359,6 +376,25 @@ export class Section extends DynamicControl {
 
     addChild(newChild) {
         this.children.push(newChild);
+        this.orderedChildren.push(newChild);
+        this.orderedChildren.sort((a, b) => {
+            if (a.zValue > b.zValue) return 1;
+            else if (a.zValue < b.zValue) return -1;
+            else return 0;
+        });
+
+        // Listen for zValue changes to resort
+        Events.register(newChild, "propertyChanged", (event, data) => {
+            if (data.property == "zValue") {
+                this.orderedChildren.sort((a, b) => {
+                    if (a.zValue > b.zValue) return 1;
+                    else if (a.zValue < b.zValue) return -1;
+                    else return 0;
+                });
+                App.GlobalState.RedrawRequired = true;
+            }
+        });
+
         this.scheduleRender();
     }
     removeChild(child) {
@@ -380,7 +416,7 @@ export class Section extends DynamicControl {
     draw() {
         if (this.background) this.background.draw();
 
-        for (let child of this.children) {
+        for (let child of this.orderedChildren) {
             if (child.visible) {
                 child.draw();
             }

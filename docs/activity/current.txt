@@ -2,28 +2,17 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-04-28 23:00
+LAST UPDATE:		2019-05-01 19:22
 SYSTEM:				Core Library 
 (Research -> Design -> Prototype -> Write -> Test -> Document)
-STAGE:				Write/Document
+STAGE:				Design
 
 IMMEDIATE: 
-- Clearly the arrangement and alignment system needs work, so taking a break to fix this
-    * Sections and basic elements appear to align properly, including usage of margins. Needs further testing and a code review to make sure things are consistent and making sense. Particularly Align.STRETCH needs testing
-    * Taking a break because going straight for too long
-    * When coming back:
-        1. Make sure existing controls are up to date and working
-        2. Clean up all code so far, get rid of anything obsolete
-            # Got up to rect alphabetically in controls with this
-        3. Update design documents with arrangement strategy writeup while it's fresh
     
 ----------
 TASK LIST
 ----------
 
-- Build 'focus' system handled by page
-- Build up to use case where pressing escape at any time brings up a popup section
-    * This will require implementing align.FREE for sections
 - Build in redraw / rerender logic to redraw and rerender as necessary
 
 ----------
@@ -35,9 +24,13 @@ COMPLETED
 - Hook mouse, keyboard, and resize events into system 
 - Hook property changed events into system
 - Build GUI layer that handles Control-specific event management
-- Build state system for liveControl.js and have it changed by events automagically
+- Build state system for dynamicControl.js and have it changed by events automagically
+- Redesign most of the alignment / arrangement system to be smarter and more flexible
+- Build align.FREE logic for sections
 
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
+
+- Build 'focus' system handled by page (easier to do after styling stuff is finished)

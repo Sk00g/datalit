@@ -1,5 +1,5 @@
-import enums from "../enums.js";
 import { App } from "../app.js";
+import { Colors } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
 
@@ -8,7 +8,7 @@ export class Rect extends Control {
         super();
 
         // Unique properties
-        this._fillColor = enums.Colors.OFFWHITE;
+        this._fillColor = Colors.OFFWHITE;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
@@ -24,9 +24,7 @@ export class Rect extends Control {
         return this._fillColor;
     }
     set fillColor(newColor) {
-        if (typeof newColor != "string") {
-            datalitError("propertySet", ["Rect.fillColor", String(newColor), "string"]);
-        }
+        if (typeof newColor != "string") datalitError("propertySet", ["Rect.fillColor", String(newColor), "string"]);
 
         this._fillColor = newColor;
     }
@@ -35,9 +33,7 @@ export class Rect extends Control {
         return this._borderColor;
     }
     set borderColor(newColor) {
-        if (typeof newColor != "string") {
-            datalitError("propertySet", ["Rect.borderColor", String(newColor), "string"]);
-        }
+        if (typeof newColor != "string") datalitError("propertySet", ["Rect.borderColor", String(newColor), "string"]);
 
         this._borderColor = newColor;
     }

@@ -1,0 +1,28 @@
+---------------
+ARRANGEMENT SYSTEM
+---------------
+
+* The goal for the new arrangement system is to have a few simple rules from which any imaginable GUI can be derived
+* The outworking motto of this is to have 'only way of doing things', sort of poke-yoke style
+
+* Core principle of this arrangement style is to split up each part of the 'screen' into either VERTICAL or HORIZONTAL sections. Page -> Section > Control (which can also be nested sections)
+* While this might end up with slightly unnatural ways of designing certain unique layouts, it will hopefully allow for an easy learning curve, consistent design and implementation, and most importantly: Little to no confusion about what will happen when you make changes
+* Unless I can come up with a better solution, anything that can't be subdivided into rectangles of one directional flow, then use the ContentDirection.FREE setting, which requires a sub-system built on top of it to do any layout and alignment. Or if it's static the developer/designer can just hardcode in the locations. This FREE arrangement style will double as a flexible container for non-standard controls and layouts, similar to what many GUI frameworks have, or the HTML Canvas itself was partially built for.
+
+---------------
+Rules of Arrangement:
+---------------
+
+1. Sections have a key property called 'ContentDirection' (see enums). When HORIZONTAL this means the x-axis is shared by children. IE/ Three HAlign.LEFT controls will be placed side by side on the x-axis. When VERTICAL, the y-axis is shared in the same manner.
+
+2. When a control's parent has Direction.HORIZONTAL, its VAlign property is considered in complete isolation from the sibling controls. The reverse is true in the other axis.
+
+3. hfillTarget and vfillTarget are only applicable when [H|V]Align == FILL. They are logic checked before computing.
+
+4. [H|V]Align == STRETCH applies the parent size to the relevant axis
+
+5. Page and many other controls derive from Section which derives from Control but overwrites many of its subsclasses.
+
+6. The core function used in alignment is the render() function found in Section. This function sets both the size (when required) and location of all child controls. It also sets off recursive render() calls in child sub-sections. In this way when the active page is updated in loop, if a render is required it will render all children.
+
+7. Section's have a special option for [h|v]fillTarget == -1. This sets its size to the LARGEST child size in given axis. This allows for both dynamic Section sizing and a simpler design process for many layout schemes.

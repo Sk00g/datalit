@@ -11,6 +11,7 @@ class DatalitApp {
             DefaultMargin: [0, 0, 0, 0],
             DefaultFontSize: 12,
             RedrawRequired: true,
+            PropertyCheckTimeout: 0,
             ClearRegions: []
         };
 
@@ -48,7 +49,6 @@ class DatalitApp {
         if (this.GlobalState.RedrawRequired) {
             this.GlobalState.RedrawRequired = false;
             this.Context.clearRect(0, 0, this.Canvas.width, this.Canvas.height);
-
             this.pageManager.draw();
         }
 

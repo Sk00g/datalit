@@ -1,5 +1,5 @@
-import { Colors, HAlign, VAlign } from "../enums.js";
 import { App } from "../app.js";
+import { Colors, HAlign, VAlign } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
 
@@ -35,6 +35,7 @@ export class Label extends Control {
         ];
     }
 
+    //#region Override Method
     get viewSize() {
         return super.viewSize;
     }
@@ -42,7 +43,9 @@ export class Label extends Control {
         // throw new Error("Can't set the viewSize of a label! It is generated from fontSize, text, and margins");
         return;
     }
+    //#endregion
 
+    //#region Unique Properties
     get text() {
         return this._text;
     }
@@ -58,7 +61,7 @@ export class Label extends Control {
     }
     set fontSize(size) {
         if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["Label.fontSize", String(size), "int > 2"]);
+            datalitError("propertySet", ["Label.fontSize", String(size), "int >= 2"]);
 
         this._fontSize = size;
         this.calculateSize();
@@ -82,6 +85,7 @@ export class Label extends Control {
         this._fontType = font;
         this.calculateSize();
     }
+    //#endregion
 
     draw() {
         App.Context.fillStyle = this.fontColor;

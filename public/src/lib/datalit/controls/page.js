@@ -50,9 +50,9 @@ export class Page extends Section {
 
     // Private / Protected classes
     addSection(section) {
-        this.children.push(section);
+        if (!section.isArranger) throw new Error("Only Sections can be children of a Page");
 
-        this.scheduleRender();
+        super.addChild(section);
     }
 
     removeSection(section) {
@@ -74,25 +74,5 @@ export class Page extends Section {
     render() {
         this.viewSize = [App.Canvas.width, App.Canvas.height];
         super.render();
-    }
-
-    // Called by PageManager (think FSM)
-    update(elapsed) {
-        super.update(elapsed);
-
-        // Only render once per update loop
-        if (this.requiresRender) this.render();
-
-        for (let section of this.children) {
-            section.update(elapsed);
-        }
-    }
-
-    draw() {
-        for (let section of this.children) {
-            if (section.visible) {
-                section.draw();
-            }
-        }
     }
 }

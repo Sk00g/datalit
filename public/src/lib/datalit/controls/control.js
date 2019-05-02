@@ -25,6 +25,7 @@ export class Control {
         this.updateProperties(initialProperties);
 
         // Members used for property event functions
+        this.timeSinceCheck = 0;
         this.propertyMetadata = {};
         this.registerProperty("state");
         this.registerProperty("visible");
@@ -108,7 +109,7 @@ export class Control {
         if (this.valign == VAlign.FILL) return availableHeight;
         // Align == STRETCH takes up the full height AFTER its parent has been allocated
         else if (this.valign == VAlign.STRETCH) return parentHeight;
-        // If hfill target != null, then it wants to take up a % of available space
+        // If hfill target kk!= null, then it wants to take up a % of available space
         else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
         // If non of the above conditions are true, our requested height is our explicit height
         else return this.viewSize[1];
@@ -154,6 +155,7 @@ export class Control {
     set visible(flag) {
         if (typeof flag != "boolean") datalitError("propertySet", ["Control.visible", String(flag), "BOOL"]);
 
+        if (this._visible != flag) App.GlobalState.RedrawRequired = true;
         this._visible = flag;
     }
 
@@ -226,7 +228,7 @@ export class Control {
         return this._hfillTarget;
     }
     set hfillTarget(newTarget) {
-        if (newTarget < 0 || newTarget > 1.0) {
+        if (typeof newTarget != "number" || newTarget < 0 || newTarget > 1.0) {
             if (!this.isArranger) datalitError("propertySet", ["Control.hfillTarget", String(newTarget), "0 -> 1.0"]);
             else if (this.isArranger && newTarget != -1)
                 datalitError("propertySet", ["Section.hfillTarget", String(newTarget), "-1 or 0 -> 1.0"]);
@@ -316,17 +318,19 @@ export class Control {
     }
 
     update(elapsed) {
-        for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
-            if (metadata.previousValue != this[name]) {
-                this.dispatchEvent("propertyChanged", {
-                    property: name,
-                    oldValue: metadata.previousValue,
-                    newValue: this[name]
-                });
-
-                metadata.previousValue = this[name];
+        if (this.timeSinceCheck > App.GlobalState.PropertyCheckTimeout) {
+            this.timeSinceCheck = 0;
+            for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
+                if (metadata.previousValue != this[name]) {
+                    this.dispatchEvent("propertyChanged", {
+                        property: name,
+                        oldValue: metadata.previousValue,
+                        newValue: this[name]
+                    });
+                    metadata.previousValue = this[name];
+                }
             }
-        }
+        } else this.timeSinceCheck += elapsed;
     }
     draw(context) {}
 }
