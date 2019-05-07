@@ -2,9 +2,13 @@ import { App } from "../app.js";
 import { ControlState, HAlign, VAlign } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
+import utils from "../utils.js";
 
 export class Control {
     constructor(initialProperties = {}) {
+        // Convenience member for internal rerender / redraw logic
+        this.__parent = null;
+
         // As the name suggests, main use is for identifying controls during debugging
         this._debugName = null;
 
@@ -25,18 +29,17 @@ export class Control {
         this.updateProperties(initialProperties);
 
         // Members used for property event functions
-        this.timeSinceCheck = 0;
         this.propertyMetadata = {};
-        this.registerProperty("state");
-        this.registerProperty("visible");
-        this.registerProperty("viewSize");
-        this.registerProperty("margin");
-        this.registerProperty("halign");
-        this.registerProperty("valign");
-        this.registerProperty("hfillTarget");
-        this.registerProperty("vfillTarget");
-        this.registerProperty("focused");
-        this.registerProperty("localPosition");
+        this.registerProperty("state", false, false);
+        this.registerProperty("visible", true);
+        this.registerProperty("viewSize", true, true, utils.comparePoints);
+        this.registerProperty("margin", true, true, utils.compareSides);
+        this.registerProperty("halign", true);
+        this.registerProperty("valign", true);
+        this.registerProperty("hfillTarget", true);
+        this.registerProperty("vfillTarget", true);
+        this.registerProperty("focused", false, false);
+        this.registerProperty("localPosition", true, true, utils.comparePoints);
         this.registerProperty("zValue");
 
         // All controls must register with the event system for 'propertyChanged' events
@@ -45,6 +48,12 @@ export class Control {
     }
 
     //#region Methods
+    isChildOf(parent) {
+        if (!parent.isArranger) return false;
+
+        return parent.children.indexOf(this) != -1;
+    }
+
     dispatchEvent(eventName, data) {
         if (this.eventListeners[eventName].length < 1) return;
 
@@ -57,8 +66,41 @@ export class Control {
         this.eventListeners[eventName].push(callback);
     }
 
-    registerProperty(propertyName) {
-        this.propertyMetadata[propertyName] = { previousValue: this[propertyName] };
+    registerProperty(propertyName, rerenderOnChange = false, redrawOnChange = true, comparisonFunc = null) {
+        this.propertyMetadata[propertyName] = {
+            previousValue: this[propertyName],
+            redraw: redrawOnChange,
+            rerender: rerenderOnChange,
+            compare: comparisonFunc == null ? (a, b) => a === b : comparisonFunc
+        };
+    }
+
+    notifyPropertyChange(name) {
+        const metadata = this.propertyMetadata[name];
+
+        // Can't notify before registering
+        if (!metadata) return;
+
+        if (!metadata.compare(metadata.previousValue, this[name])) {
+            this.dispatchEvent("propertyChanged", {
+                property: name,
+                oldValue: metadata.previousValue,
+                newValue: this[name]
+            });
+            // console.log(`Property ${name} changed from ${metadata.previousValue} to ${this[name]}`);
+            metadata.previousValue = this[name];
+            // Request rerender based on metadata, re-render ancestor page
+            if (metadata.rerender && this.__parent) {
+                parent = this.__parent;
+                while (!parent.isPage) {
+                    if (!parent.__parent) break;
+                    parent = parent.__parent;
+                }
+                parent.scheduleRender();
+            }
+            // Request redraw as required
+            if (metadata.redraw) App.GlobalState.RedrawRequired = true;
+        }
     }
 
     updateProperties(newProperties) {
@@ -144,9 +186,10 @@ export class Control {
         if (this.state == ControlState.DISABLED && newState != ControlState.READY)
             datalitError("illogical", ["newState", newState, "previousState", "DISABLED"]);
 
-        // console.log(`Swapping state from ${this._state} to ${newState}`);
+        console.log(`Swapping state from ${this._state} to ${newState}`);
 
         this._state = newState;
+        this.notifyPropertyChange("state");
     }
 
     get visible() {
@@ -155,8 +198,8 @@ export class Control {
     set visible(flag) {
         if (typeof flag != "boolean") datalitError("propertySet", ["Control.visible", String(flag), "BOOL"]);
 
-        if (this._visible != flag) App.GlobalState.RedrawRequired = true;
         this._visible = flag;
+        this.notifyPropertyChange("visible");
     }
 
     get viewWidth() {
@@ -190,6 +233,7 @@ export class Control {
             datalitError("propertySet", ["Control.viewSize", String(newSize), "LIST of 2 int"]);
 
         this._viewSize = newSize;
+        this.notifyPropertyChange("viewSize");
     }
 
     get margin() {
@@ -209,6 +253,7 @@ export class Control {
 
             this._margin = newMargin;
         }
+        this.notifyPropertyChange("margin");
     }
 
     get viewingRect() {
@@ -235,6 +280,7 @@ export class Control {
         }
 
         this._hfillTarget = newTarget;
+        this.notifyPropertyChange("hfillTarget");
     }
 
     get vfillTarget() {
@@ -248,6 +294,7 @@ export class Control {
         }
 
         this._vfillTarget = newTarget;
+        this.notifyPropertyChange("vfillTarget");
     }
 
     get halign() {
@@ -258,6 +305,7 @@ export class Control {
             datalitError("propertySet", ["Control.halign", String(newAlign), "HAlign"]);
 
         this._halign = newAlign;
+        this.notifyPropertyChange("halign");
     }
 
     get valign() {
@@ -268,6 +316,7 @@ export class Control {
             datalitError("propertySet", ["Control.valign", String(newAlign), "VAlign"]);
 
         this._valign = newAlign;
+        this.notifyPropertyChange("valign");
     }
 
     get zValue() {
@@ -278,6 +327,7 @@ export class Control {
             datalitError("propertySet", ["Control.zValue", String(newValue), "int 0 or greater"]);
 
         this._zValue = newValue;
+        this.notifyPropertyChange("zValue");
     }
 
     get isFocusable() {
@@ -315,22 +365,10 @@ export class Control {
             datalitError("propertySet", ["Control.localPosition", String(newPosition), "LIST of 2 int"]);
 
         this._localPosition = newPosition;
+        this.notifyPropertyChange("localPosition");
     }
+    //#endregion
 
-    update(elapsed) {
-        if (this.timeSinceCheck > App.GlobalState.PropertyCheckTimeout) {
-            this.timeSinceCheck = 0;
-            for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
-                if (metadata.previousValue != this[name]) {
-                    this.dispatchEvent("propertyChanged", {
-                        property: name,
-                        oldValue: metadata.previousValue,
-                        newValue: this[name]
-                    });
-                    metadata.previousValue = this[name];
-                }
-            }
-        } else this.timeSinceCheck += elapsed;
-    }
+    update(elapsed) {}
     draw(context) {}
 }

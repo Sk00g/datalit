@@ -1,4 +1,4 @@
-import { ContentDirection, HAlign, VAlign, Colors } from "../enums.js";
+import { Color, ContentDirection, HAlign, VAlign } from "../enums.js";
 import { App } from "../app.js";
 import { DynamicControl } from "./dynamicControl.js";
 import { Rect } from "./rect.js";
@@ -11,9 +11,12 @@ export class Section extends DynamicControl {
         // console.log("Section constructor");
         super();
 
+        // Keep track of child event registrations
+        this.childEventRegisters = {};
+
         // Unique property definitions
         this._contentDirection = ContentDirection.VERTICAL;
-        this._backgroundColor = null;
+        this._backgroundColor = Color.TRANSPARENT;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
@@ -24,116 +27,20 @@ export class Section extends DynamicControl {
 
         this.updateProperties(initialProperties);
 
-        if (this.backgroundColor || this.borderColor) {
-            this.background = new Rect({
-                fillColor: this.backgroundColor ? this.backgroundColor : Colors.TRANSPARENT,
-                viewSize: this.viewSize
-            });
-            if (this.borderColor) this.background.borderColor = this.borderColor;
-            if (this.borderThickness) this.background.borderThickness = this.borderThickness;
-        }
+        this.background = new Rect({
+            fillColor: this.backgroundColor,
+            viewSize: this.viewSize
+        });
+        if (this.borderColor) this.background.borderColor = this.borderColor;
+        if (this.borderThickness) this.background.borderThickness = this.borderThickness;
 
         this.registerProperty("backgroundColor");
         this.registerProperty("borderColor");
-        this.registerProperty("borderThickness");
+        this.registerProperty("borderThickness", false, true, utils.compareSides);
     }
 
-    //#region Unique Properties
-    get backgroundColor() {
-        return this._backgroundColor;
-    }
-    set backgroundColor(newColor) {
-        if (typeof newColor != "string")
-            datalitError("propertySet", ["Section.backgroundColor", String(newColor), "string"]);
-
-        this._backgroundColor = newColor;
-    }
-    get borderColor() {
-        return this._borderColor;
-    }
-    set borderColor(newColor) {
-        if (typeof newColor != "string") {
-            datalitError("propertySet", ["Section.borderColor", String(newColor), "string"]);
-        }
-
-        this._borderColor = newColor;
-    }
-
-    get borderThickness() {
-        return this._borderThickness;
-    }
-    set borderThickness(thickness) {
-        if (typeof thickness == "number") {
-            if (!Number.isInteger(thickness) || thickness < 0)
-                datalitError("propertySet", ["Section.borderThickness", String(thickness), "int or LIST of 4 int"]);
-            this._borderThickness = [thickness, thickness, thickness, thickness];
-        } else {
-            if (typeof thickness != "object" || thickness.length != 4)
-                datalitError("propertySet", ["Section.borderThickness", String(thickness), "int LIST of 4 int"]);
-            for (let i = 0; i < 4; i++)
-                if (!Number.isInteger(thickness[i]) && thickness[i] >= 0)
-                    datalitError("propertySet", ["Section.borderThickness", String(thickness), "int LIST of 4 int"]);
-
-            this._borderThickness = thickness;
-        }
-    }
-
-    get contentDirection() {
-        return this._contentDirection;
-    }
-    set contentDirection(dir) {
-        if (!ContentDirection.hasOwnProperty(dir))
-            datalitError("propertySet", ["Section.contentDirection", String(dir), "ContentDirection"]);
-
-        this._contentDirection = dir;
-    }
-    //#endregion
-
-    // Sections can have [h|v]fillTarget == -1, meaning minimum size based on child elements
-    requestWidth(availableWidth, parentWidth) {
-        if (this.halign == HAlign.FILL) return availableWidth;
-        else if (this.halign == HAlign.STRETCH) return parentWidth;
-        else if (this.hfillTarget == -1) {
-            // If we have ContentDirection.VERTICAL, just get largest child width
-            if (this.contentDirection == ContentDirection.VERTICAL) {
-                let largestWidth = 0;
-                for (let child of this.children) {
-                    let cWidth = child.requestWidth(availableWidth, this.viewWidth);
-                    if (cWidth > largestWidth) largestWidth = cWidth;
-                }
-                return largestWidth + this.margin[0] + this.margin[2];
-            } // Otherwise we have to get the combination of child widths
-            else if (this.contentDirection == ContentDirection.HORIZONTAL) {
-                let widthSum = 0;
-                for (let child of this.children) widthSum += child.requestWidth(availableWidth, this.viewWidth);
-                return widthSum + this.margin[0] + this.margin[2];
-            }
-        } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
-        else if (this.contentDirection == ContentDirection.FREE) return this.viewWidth;
-        else return this._viewSize[0];
-    }
-
-    requestHeight(availableHeight, parentHeight) {
-        if (this.valign == VAlign.FILL) return availableHeight;
-        else if (this.valign == VAlign.STRETCH) return parentHeight;
-        else if (this.vfillTarget == -1) {
-            // If we have ContentDirection.HORIZONTAL, just get largest child height
-            if (this.contentDirection == ContentDirection.HORIZONTAL) {
-                let largestHeight = 0;
-                for (let child of this.children) {
-                    let cHeight = child.requestHeight(availableHeight, this.viewHeight);
-                    if (cHeight > largestHeight) largestHeight = cHeight;
-                }
-                return largestHeight + this.margin[1] + this.margin[3];
-            } // Otherwise we have to get the combination of child heights
-            else if (this.contentDirection == ContentDirection.VERTICAL) {
-                let heightSum = 0;
-                for (let child of this.children) heightSum += child.requestHeight(availableHeight, this.viewHeight);
-                return heightSum + this.margin[1] + this.margin[3];
-            }
-        } else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
-        else if (this.contentDirection == ContentDirection.FREE) return this.viewHeight;
-        else return this.viewHeight;
+    isParentOf(child) {
+        return this.children.indexOf(child) != -1;
     }
 
     scheduleRender() {
@@ -176,8 +83,7 @@ export class Section extends DynamicControl {
     render() {
         if (this.children.length < 1) return;
 
-        // console.log(`rendering section... ${this.debugName} (${this.children.length})`);
-        this.requiresRender = false;
+        console.log(`rendering section... ${this.debugName} (${this.children.length})`);
         App.GlobalState.RedrawRequired = true;
 
         let origins = [
@@ -352,26 +258,8 @@ export class Section extends DynamicControl {
                 }
                 break;
         }
-    }
 
-    get viewSize() {
-        return super.viewSize;
-    }
-    set viewSize(newSize) {
-        super.viewSize = newSize;
-        if (this.background) this.background.viewSize = newSize;
-
-        // This render can now determine the size and alignment of nested sections and elements
-        this.scheduleRender();
-    }
-
-    arrangePosition(arranger, newPosition) {
-        if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
-
-        super.arrangePosition(arranger, newPosition);
-        if (this.background) this.background.arrangePosition(arranger, newPosition);
-
-        this.scheduleRender();
+        this.requiresRender = false;
     }
 
     addChild(newChild) {
@@ -384,23 +272,159 @@ export class Section extends DynamicControl {
         });
 
         // Listen for zValue changes to resort
-        Events.register(newChild, "propertyChanged", (event, data) => {
+        this.childEventRegisters[newChild] = Events.register(newChild, "propertyChanged", (event, data) => {
             if (data.property == "zValue") {
                 this.orderedChildren.sort((a, b) => {
                     if (a.zValue > b.zValue) return 1;
                     else if (a.zValue < b.zValue) return -1;
                     else return 0;
                 });
-                App.GlobalState.RedrawRequired = true;
             }
         });
+
+        // Use this with care
+        newChild.__parent = this;
 
         this.scheduleRender();
     }
     removeChild(child) {
+        if (this.children.indexOf(child) == -1) return;
+
         this.children.splice(this.children.indexOf(child), 1);
+        this.orderedChildren.splice(this.orderedChildren.indexOf(child), 1);
+        Events.unregister(this.childEventRegisters[child]);
+
         this.scheduleRender();
     }
+
+    //#region Method overrides
+    arrangePosition(arranger, newPosition) {
+        if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
+
+        super.arrangePosition(arranger, newPosition);
+        if (this.background) this.background.arrangePosition(arranger, newPosition);
+
+        this.scheduleRender();
+    }
+
+    // Sections can have [h|v]fillTarget == -1, meaning minimum size based on child elements
+    requestWidth(availableWidth, parentWidth) {
+        if (this.halign == HAlign.FILL) return availableWidth;
+        else if (this.halign == HAlign.STRETCH) return parentWidth;
+        else if (this.hfillTarget == -1) {
+            // If we have ContentDirection.VERTICAL, just get largest child width
+            if (this.contentDirection == ContentDirection.VERTICAL) {
+                let largestWidth = 0;
+                for (let child of this.children) {
+                    let cWidth = child.requestWidth(availableWidth, this.viewWidth);
+                    if (cWidth > largestWidth) largestWidth = cWidth;
+                }
+                return largestWidth + this.margin[0] + this.margin[2];
+            } // Otherwise we have to get the combination of child widths
+            else if (this.contentDirection == ContentDirection.HORIZONTAL) {
+                let widthSum = 0;
+                for (let child of this.children) widthSum += child.requestWidth(availableWidth, this.viewWidth);
+                return widthSum + this.margin[0] + this.margin[2];
+            }
+        } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
+        else if (this.contentDirection == ContentDirection.FREE) return this.viewWidth;
+        else return this._viewSize[0];
+    }
+
+    requestHeight(availableHeight, parentHeight) {
+        if (this.valign == VAlign.FILL) return availableHeight;
+        else if (this.valign == VAlign.STRETCH) return parentHeight;
+        else if (this.vfillTarget == -1) {
+            // If we have ContentDirection.HORIZONTAL, just get largest child height
+            if (this.contentDirection == ContentDirection.HORIZONTAL) {
+                let largestHeight = 0;
+                for (let child of this.children) {
+                    let cHeight = child.requestHeight(availableHeight, this.viewHeight);
+                    if (cHeight > largestHeight) largestHeight = cHeight;
+                }
+                return largestHeight + this.margin[1] + this.margin[3];
+            } // Otherwise we have to get the combination of child heights
+            else if (this.contentDirection == ContentDirection.VERTICAL) {
+                let heightSum = 0;
+                for (let child of this.children) heightSum += child.requestHeight(availableHeight, this.viewHeight);
+                return heightSum + this.margin[1] + this.margin[3];
+            }
+        } else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
+        else if (this.contentDirection == ContentDirection.FREE) return this.viewHeight;
+        else return this.viewHeight;
+    }
+    //#endregion
+
+    // Property overrides
+    get viewSize() {
+        return super.viewSize;
+    }
+    set viewSize(newSize) {
+        super.viewSize = newSize;
+        if (this.background) this.background.viewSize = newSize;
+
+        // This render can now determine the size and alignment of nested sections and elements
+        this.scheduleRender();
+    }
+
+    //#region Unique Properties
+    get backgroundColor() {
+        return this._backgroundColor;
+    }
+    set backgroundColor(newColor) {
+        if (typeof utils.hexColor(newColor) != "string")
+            datalitError("propertySet", ["Section.backgroundColor", String(newColor), "string"]);
+
+        this._backgroundColor = newColor;
+        if (this.background) this.background.fillColor = this._backgroundColor;
+        this.notifyPropertyChange("backgroundColor");
+    }
+
+    get borderColor() {
+        return this._borderColor;
+    }
+    set borderColor(newColor) {
+        if (typeof utils.hexColor(newColor) != "string") {
+            datalitError("propertySet", ["Section.borderColor", String(newColor), "string"]);
+        }
+
+        this._borderColor = newColor;
+        if (this.background) this.background.borderColor = this._borderColor;
+        this.notifyPropertyChange("borderColor");
+    }
+
+    get borderThickness() {
+        return this._borderThickness;
+    }
+    set borderThickness(thickness) {
+        if (typeof thickness == "number") {
+            if (!Number.isInteger(thickness) || thickness < 0)
+                datalitError("propertySet", ["Section.borderThickness", String(thickness), "int or LIST of 4 int"]);
+            this._borderThickness = [thickness, thickness, thickness, thickness];
+        } else {
+            if (typeof thickness != "object" || thickness.length != 4)
+                datalitError("propertySet", ["Section.borderThickness", String(thickness), "int LIST of 4 int"]);
+            for (let i = 0; i < 4; i++)
+                if (!Number.isInteger(thickness[i]) && thickness[i] >= 0)
+                    datalitError("propertySet", ["Section.borderThickness", String(thickness), "int LIST of 4 int"]);
+
+            this._borderThickness = thickness;
+        }
+
+        if (this.background) this.background.borderThickness = this._borderThickness;
+        this.notifyPropertyChange("borderThickness");
+    }
+
+    get contentDirection() {
+        return this._contentDirection;
+    }
+    set contentDirection(dir) {
+        if (!ContentDirection.hasOwnProperty(dir))
+            datalitError("propertySet", ["Section.contentDirection", String(dir), "ContentDirection"]);
+
+        this._contentDirection = dir;
+    }
+    //#endregion
 
     update(elapsed) {
         super.update(elapsed);

@@ -1,3 +1,12 @@
+export const Color = Object.freeze({
+    TRANSPARENT: "00000000",
+    BLACK: "00",
+    WHITE: "FF",
+    RED: "FF0000",
+    GREEN: "00FF00",
+    BLUE: "0000FF"
+});
+
 export const Modifier = Object.freeze({
     ALT: "ALT",
     SHIFT: "SHIFT",
@@ -14,15 +23,6 @@ export const EventSourceType = Object.freeze({
     CONTROL: "CONTROL",
     DATAMODEL: "DATAMODEL",
     NATIVE: "NATIVE"
-});
-
-export const Colors = Object.freeze({
-    RED: "rgb(255, 0, 0)",
-    GREEN: "rgb(0, 255, 0)",
-    BLUE: "rgb(0, 0, 255)",
-    OFFWHITE: "rgb(210, 210, 210)",
-    OFFBLACK: "rgb(20, 20, 20)",
-    TRANSPARENT: "rgba(0, 0, 0, 0)"
 });
 
 export const ControlState = Object.freeze({
@@ -61,7 +61,7 @@ export const PageState = Object.freeze({
 });
 
 export default {
-    Colors,
+    Color,
     ControlState,
     HAlign,
     VAlign,

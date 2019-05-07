@@ -1,8 +1,8 @@
-import utils from "../utils.js";
 import { App } from "../app.js";
-import { Colors } from "../enums.js";
+import { Color } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
+import utils from "../utils.js";
 
 export class Circle extends Control {
     constructor(radius, initialProperties = {}) {
@@ -10,16 +10,16 @@ export class Circle extends Control {
 
         // Unique properties
         this._radius = radius;
-        this._fillColor = Colors.OFFWHITE;
+        this._fillColor = Color.BLACK;
         this._borderColor = null;
         this._borderThickness = 0;
 
         this.updateProperties(initialProperties);
 
-        this.registerProperty("radius");
+        this.registerProperty("radius", true);
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
-        this.registerProperty("borderThickness");
+        this.registerProperty("borderThickness", false, true, utils.compareSides);
     }
 
     // Method overrides
@@ -54,26 +54,30 @@ export class Circle extends Control {
         if (!Number.isInteger(newRadius)) datalitError("propertySet", ["Circle.radius", String(newRadius), "int"]);
 
         this._radius = newRadius;
+        this.notifyPropertyChange("radius");
     }
 
     get fillColor() {
         return this._fillColor;
     }
     set fillColor(newColor) {
-        if (typeof newColor != "string") datalitError("propertySet", ["Circle.fillColor", String(newColor), "string"]);
+        if (typeof utils.hexColor(newColor) != "string")
+            datalitError("propertySet", ["Circle.fillColor", String(newColor), "string"]);
 
         this._fillColor = newColor;
+        this.notifyPropertyChange("fillColor");
     }
 
     get borderColor() {
         return this._borderColor;
     }
     set borderColor(newColor) {
-        if (typeof newColor != "string") {
+        if (typeof utils.hexColor(newColor) != "string") {
             datalitError("propertySet", ["Circle.borderColor", String(newColor), "string"]);
         }
 
         this._borderColor = newColor;
+        this.notifyPropertyChange("borderColor");
     }
 
     get borderThickness() {
@@ -83,12 +87,13 @@ export class Circle extends Control {
         if (!Number.isInteger(thickness) || thickness < 0)
             datalitError("propertySet", ["Circle.borderThickness", String(thickness), "int"]);
         this._borderThickness = thickness;
+        this.notifyPropertyChange("borderThickness");
     }
     //#endregion
 
     draw() {
         App.Context.beginPath();
-        App.Context.fillStyle = this.fillColor;
+        App.Context.fillStyle = utils.hexColor(this.fillColor);
         let center = [
             this._arrangedPosition[0] + this.radius + this.margin[0],
             this._arrangedPosition[1] + this.radius + this.margin[1]
@@ -98,7 +103,7 @@ export class Circle extends Control {
 
         if (!this.borderColor) return;
 
-        App.Context.strokeStyle = this.borderColor;
+        App.Context.strokeStyle = utils.hexColor(this.borderColor);
         var count = 1;
         while (count <= this.borderThickness) {
             App.Context.beginPath();

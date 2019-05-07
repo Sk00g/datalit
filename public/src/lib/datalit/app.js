@@ -1,4 +1,5 @@
-import enums from "./enums.js";
+import { Assets } from "./assetManager.js";
+import { Color } from "./enums.js";
 import { Events } from "./events/events.js";
 import { PageManager } from "./pageManager.js";
 
@@ -7,11 +8,10 @@ class DatalitApp {
         this.Canvas = document.getElementById("canvas");
         this.Context = this.Canvas.getContext("2d");
         this.GlobalState = {
-            DefaultBackground: enums.Colors.OFFWHITE,
+            DefaultBackground: Color.WHITE,
             DefaultMargin: [0, 0, 0, 0],
             DefaultFontSize: 12,
             RedrawRequired: true,
-            PropertyCheckTimeout: 0,
             ClearRegions: []
         };
 

@@ -22,6 +22,11 @@ export function comparePoints(pointA, pointB) {
     return pointA[0] == pointB[0] && pointA[1] == pointB[1];
 }
 
+// Used for any object that is a list of 4 integers
+export function compareSides(sidesA, sidesB) {
+    return sidesA[0] == sidesB[0] && sidesA[1] == sidesB[1] && sidesA[2] == sidesB[2] && sidesA[3] == sidesB[3];
+}
+
 export function distanceBetweenPoints(pointA, pointB) {
     return Math.sqrt(
         (pointA[0] - pointB[0]) * (pointA[0] - pointB[0]) + (pointA[1] - pointB[1]) * (pointA[1] - pointB[1])
@@ -32,5 +37,6 @@ export default {
     newColor,
     hexColor,
     comparePoints,
-    distanceBetweenPoints
+    distanceBetweenPoints,
+    compareSides
 };

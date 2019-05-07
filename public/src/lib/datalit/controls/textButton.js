@@ -1,9 +1,10 @@
-import enums from "../enums.js";
-import { ControlState } from "../enums.js";
 import { App } from "../app.js";
-import { DynamicControl } from "./dynamicControl.js";
+import { Color, HAlign, VAlign } from "../enums.js";
+import { ControlState } from "../enums.js";
 import { datalitError } from "../errors.js";
+import { DynamicControl } from "./dynamicControl.js";
 import { Events } from "../events/events.js";
+import utils from "../utils.js";
 
 export class TextButton extends DynamicControl {
     constructor(text, action, initialProperties = {}) {
@@ -12,21 +13,24 @@ export class TextButton extends DynamicControl {
         // Unique properties
         this._text = text;
         this._fontSize = App.GlobalState.DefaultFontSize;
-        this._fontColor = enums.Colors.OFFBLACK;
+        this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
 
         this.updateProperties(initialProperties);
 
-        if (this.align == enums.Align.FILL) {
+        if (this.halign == HAlign.FILL || this.valign == VAlign.FILL) {
             throw new Error("Text-based elements cannot have a FILL align");
         }
 
         this.calculateSize();
 
-        this.registerProperty("text");
-        this.registerProperty("fontSize");
+        this.registerProperty("text", true);
+        this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
-        this.registerProperty("fontType");
+        this.registerProperty("fontType", true);
+
+        // Set the initial or default properties as the ControlState.READY style
+        this.generateDefaultStyle();
 
         if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);
@@ -40,9 +44,33 @@ export class TextButton extends DynamicControl {
 
     calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        this.size = [App.Context.measureText(this._text).width, this._fontSize];
+        super.viewSize = [
+            App.Context.measureText(this._text).width + this.margin[0] + this.margin[2],
+            this._fontSize + this.margin[1] + this.margin[3]
+        ];
     }
 
+    //#region Override Method
+    get viewSize() {
+        return super.viewSize;
+    }
+    set viewSize(size) {
+        return;
+    }
+    //#endregion
+
+    //#region Override Properties
+    get hitRect() {
+        return [
+            this._arrangedPosition[0] + this.margin[0] - 2,
+            this._arrangedPosition[1] + this.margin[1] - 2,
+            this.viewSize[0] - this.margin[2] - this.margin[0] + 4,
+            this.viewSize[1] - this.margin[3] - this.margin[1] + 4
+        ];
+    }
+    //#endregion
+
+    //#region Unique Properties
     get text() {
         return this._text;
     }
@@ -51,6 +79,7 @@ export class TextButton extends DynamicControl {
 
         this._text = newText;
         this.calculateSize();
+        this.notifyPropertyChange("text");
     }
 
     get fontSize() {
@@ -62,15 +91,18 @@ export class TextButton extends DynamicControl {
 
         this._fontSize = size;
         this.calculateSize();
+        this.notifyPropertyChange("fontSize");
     }
 
     get fontColor() {
         return this._fontColor;
     }
     set fontColor(color) {
-        if (typeof color != "string") datalitError("propertySet", ["Label.fontColor", String(color), "string"]);
+        if (typeof utils.hexColor(color) != "string")
+            datalitError("propertySet", ["Label.fontColor", String(color), "string"]);
 
         this._fontColor = color;
+        this.notifyPropertyChange("fontColor");
     }
 
     get fontType() {
@@ -81,15 +113,18 @@ export class TextButton extends DynamicControl {
 
         this._fontType = font;
         this.calculateSize();
+        this.notifyPropertyChange("fontType");
     }
+    //#endregion
 
     draw() {
-        App.Context.fillStyle = this.fontColor;
+        App.Context.fillStyle = utils.hexColor(this.fontColor);
         App.Context.font = this.fontSize + "pt " + this.fontType;
         let truePosition = [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.fontSize + this.margin[1]
         ];
+
         App.Context.fillText(this.text, ...truePosition);
     }
 }

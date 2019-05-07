@@ -16,3 +16,20 @@ Setup: 2019/04/08
 - Centralize files, repo, design workflow
 - Clarify design tools and organization
 
+Event and Arrangement: 2019/05/04
+
+- Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
+- Implement necessary classes to support event infrastructure
+- Hook mouse, keyboard, and resize events into system 
+- Hook property changed events into system
+- Build GUI layer that handles Control-specific event management
+- Build state system for dynamicControl.js and have it changed by events automagically
+- Redesign most of the alignment / arrangement system to be smarter and more flexible
+- Build align.FREE logic for sections
+- Build in redraw / rerender logic to redraw and rerender as necessary. Just redraw/rendering the whole shebang for now, optimize later
+
+--------------------
+DIVERTED OR DROPPED
+--------------------
+- Build 'focus' system handled by page (easier to do after styling stuff is finished)
+

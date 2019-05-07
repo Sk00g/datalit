@@ -1,14 +1,15 @@
 import { App } from "../app.js";
-import { Colors } from "../enums.js";
+import { Color } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
+import utils from "../utils.js";
 
 export class Rect extends Control {
     constructor(initialProperties = {}) {
         super();
 
         // Unique properties
-        this._fillColor = Colors.OFFWHITE;
+        this._fillColor = Color.BLACK;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
 
@@ -16,7 +17,7 @@ export class Rect extends Control {
 
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
-        this.registerProperty("borderThickness");
+        this.registerProperty("borderThickness", false, true, utils.compareSides);
     }
 
     //#region Unique Properties
@@ -24,18 +25,22 @@ export class Rect extends Control {
         return this._fillColor;
     }
     set fillColor(newColor) {
-        if (typeof newColor != "string") datalitError("propertySet", ["Rect.fillColor", String(newColor), "string"]);
+        if (typeof utils.hexColor(newColor) != "string")
+            datalitError("propertySet", ["Rect.fillColor", String(newColor), "string"]);
 
         this._fillColor = newColor;
+        this.notifyPropertyChange("fillColor");
     }
 
     get borderColor() {
         return this._borderColor;
     }
     set borderColor(newColor) {
-        if (typeof newColor != "string") datalitError("propertySet", ["Rect.borderColor", String(newColor), "string"]);
+        if (typeof utils.hexColor(newColor) != "string")
+            datalitError("propertySet", ["Rect.borderColor", String(newColor), "string"]);
 
         this._borderColor = newColor;
+        this.notifyPropertyChange("borderColor");
     }
 
     get borderThickness() {
@@ -55,11 +60,12 @@ export class Rect extends Control {
 
             this._borderThickness = thickness;
         }
+        this.notifyPropertyChange("borderThickness");
     }
     //#endregion
 
     draw() {
-        App.Context.fillStyle = this.fillColor;
+        App.Context.fillStyle = utils.hexColor(this.fillColor);
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
         let trueSize = [
             this.viewSize[0] - this.margin[0] - this.margin[2],
@@ -70,7 +76,7 @@ export class Rect extends Control {
         if (!this.borderColor) return;
 
         // Draw borders
-        App.Context.fillStyle = this.borderColor;
+        App.Context.fillStyle = utils.hexColor(this.borderColor);
         const bt = this.borderThickness;
         if (bt[0] != 0) {
             let size = [bt[0], trueSize[1]];

@@ -1,0 +1,1 @@
+export default {"default": "default", "theme1": "theme1"}

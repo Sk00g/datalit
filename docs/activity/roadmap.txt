@@ -10,15 +10,15 @@ Overarching Systems
 ------------------------------------
 * Setup                 |X|
 * Core Library          |X|
-* Event handling        |-|
-* Styles & Themes       | |
+* Event handling        |X|
+* Styles & Themes       |-|
 * Special Elements      | |
 * Back-End              | |
 * Data Binding          | |
 * Drag & Drop           | |
 * Editor                | |
 * Animation             | |
-* optimization          | |
+* Optimization          | |
 * Miscellaneous         | |
 
 ------------------------------------

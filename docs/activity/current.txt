@@ -2,35 +2,31 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019-05-01 19:22
-SYSTEM:				Core Library 
-(Research -> Design -> Prototype -> Write -> Test -> Document)
+LAST UPDATE:		2019/05/04 12:38
+SYSTEM:				Styles & Themes
+(Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Design
 
-IMMEDIATE: 
+IMMEDIATE:
+- design and build theme data object
     
 ----------
 TASK LIST
 ----------
 
-- Build in redraw / rerender logic to redraw and rerender as necessary
+- incorporate theme data object into codebase
 
 ----------
 COMPLETED
 ----------
 
-- Design on overall event strategy, event manager?, registration, event data, bubbling, etc.
-- Implement necessary classes to support event infrastructure
-- Hook mouse, keyboard, and resize events into system 
-- Hook property changed events into system
-- Build GUI layer that handles Control-specific event management
-- Build state system for dynamicControl.js and have it changed by events automagically
-- Redesign most of the alignment / arrangement system to be smarter and more flexible
-- Build align.FREE logic for sections
-
+- design and build style data objects
+- incorporate style data object into codebase
+* Taking an urgent detour from style system to address the delayed property update shenanigans
+- make styles automatically switch on state change, which occur from events
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
+* Might be worth going back and changing the structure of control constructors to have ALL property registrationn in the base Control / DynamicControl classes, and just pass the property names in... not sure
 
-- Build 'focus' system handled by page (easier to do after styling stuff is finished)

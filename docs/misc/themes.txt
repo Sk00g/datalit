@@ -1,0 +1,21 @@
+---------------
+THEMES
+---------------
+
+Goal for theme system is to provide a simple layer over explicit declaration for thematic styling of sets of controls
+
+* Want to keep the explicit nature of the library by leaving out a 'default style', such as HTML + OS GUIs typically do. There are obviously defaults such as default font size, background colors, etc. But these will be bare bones and have no state management or anything
+
+* Themes should be declarative as opposed to procedural, but don't want to break existing design patterns and go read-only data files...
+
+THEME CONTENT:
+- specific default properties for each type of control
+- specific dynamic styles for each type of control
+- accessible color schemes that can be used manually in code when defining controls, and can also be easily tweaked to modify an entire theme
+
+* Dynamic theme modification would be nice, but doesn't really make sense to put effort into this... This seems like something the editor should handle, rather than the actual framework
+
+* BaseTheme - There will be an App-wide 'BaseTheme' that is loaded from file (still code file) immediately upon startup. This theme will be applied to all created controls by default.
+
+* Sub-themes - All Theme objects used that aren't the BaseTheme are considered sub-themes. These should be used for styling groups of objects within a subset of the GUI, such as a list of buttons or rows in a table.
+    -

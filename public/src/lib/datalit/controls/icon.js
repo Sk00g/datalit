@@ -28,7 +28,7 @@ export class Icon extends Control {
         if (typeof size != "object" || size.length != 2 || !Number.isInteger(size[0]) || !Number.isInteger(size[1]))
             datalitError("propertySet", ["Icon.imageSize", String(size), "LIST of 2 int"]);
 
-        this.viewSize = [size[0] + this.margin[0] + this.margin[2], size[1] + this.margin[1] + this.margin[3]];
+        super.viewSize = [size[0] + this.margin[0] + this.margin[2], size[1] + this.margin[1] + this.margin[3]];
     }
 
     get sourceRect() {
@@ -39,6 +39,7 @@ export class Icon extends Control {
             datalitError("propertySet", ["Icon.sourceRect", String(rect), "LIST of 4 int"]);
 
         this._sourceRect = rect;
+        this.notifyPropertyChange("sourceRect");
     }
     //#endregion
 

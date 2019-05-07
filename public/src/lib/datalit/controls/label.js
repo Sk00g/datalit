@@ -1,7 +1,8 @@
 import { App } from "../app.js";
-import { Colors, HAlign, VAlign } from "../enums.js";
+import { Color, HAlign, VAlign } from "../enums.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
+import utils from "../utils.js";
 
 export class Label extends Control {
     constructor(text, initialProperties = {}) {
@@ -10,7 +11,7 @@ export class Label extends Control {
         // Unique properties
         this._text = text;
         this._fontSize = App.GlobalState.DefaultFontSize;
-        this._fontColor = Colors.OFFBLACK;
+        this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
 
         this.updateProperties(initialProperties);
@@ -21,10 +22,10 @@ export class Label extends Control {
 
         this.calculateSize();
 
-        this.registerProperty("text");
-        this.registerProperty("fontSize");
+        this.registerProperty("text", true);
+        this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
-        this.registerProperty("fontType");
+        this.registerProperty("fontType", true);
     }
 
     calculateSize() {
@@ -54,6 +55,7 @@ export class Label extends Control {
 
         this._text = newText;
         this.calculateSize();
+        this.notifyPropertyChange("text");
     }
 
     get fontSize() {
@@ -65,15 +67,18 @@ export class Label extends Control {
 
         this._fontSize = size;
         this.calculateSize();
+        this.notifyPropertyChange("fontSize");
     }
 
     get fontColor() {
         return this._fontColor;
     }
     set fontColor(color) {
-        if (typeof color != "string") datalitError("propertySet", ["Label.fontColor", String(color), "string"]);
+        if (typeof utils.hexColor(color) != "string")
+            datalitError("propertySet", ["Label.fontColor", String(color), "string"]);
 
         this._fontColor = color;
+        this.notifyPropertyChange("fontColor");
     }
 
     get fontType() {
@@ -84,11 +89,12 @@ export class Label extends Control {
 
         this._fontType = font;
         this.calculateSize();
+        this.notifyPropertyChange("fontType");
     }
     //#endregion
 
     draw() {
-        App.Context.fillStyle = this.fontColor;
+        App.Context.fillStyle = utils.hexColor(this.fontColor);
         App.Context.font = this.fontSize + "pt " + this.fontType;
         let truePosition = [
             this._arrangedPosition[0] + this.margin[0],

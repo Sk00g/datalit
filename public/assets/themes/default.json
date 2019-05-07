@@ -1,0 +1,38 @@
+{
+    "name": "Default",
+    "version": "v1.01.190504",
+    "description": "This is a basic theme for testing purposes",
+    "isBase": true,
+    "colors": {
+        "BackgroundMain": "DDDDDD",
+        "BackgroundDark": "333353",
+        "TextMain": "1e1e1e",
+        "TextMainHighlight": "333333",
+        "TextLight": "DDDDDD"
+    },
+    "controlProperties": {
+        "Icon": {
+            "margin": 4,
+            "imageSize": [32, 32]
+        },
+        "Label": {
+            "margin": 6,
+            "fontColor": "$colors.TextMain",
+            "fontSize": 12
+        },
+        "TextButtons": {
+            "margin": 8,
+            "fontColor": "$colors.TextMain",
+            "fontSize": 14,
+            "styles": {
+                "HOVERED": {
+                    "fontColor": "$colors.TextMainHighlight"
+                },
+                "DEPRESSED": {
+                    "fontColor": "$colors.TextMainHighlight",
+                    "margin": [10, 10, 8, 8]
+                }
+            }
+        }
+    }
+}
