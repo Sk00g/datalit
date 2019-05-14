@@ -2,19 +2,21 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/05/04 12:38
+LAST UPDATE:		2019/05/06 22:23
 SYSTEM:				Styles & Themes
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Design
+STAGE:				Prototype
 
 IMMEDIATE:
-- design and build theme data object
+- incorporate theme data object into codebase
+    * Working on this, have some examples and the script that makes Assets Map and such. Uses fetch API to grab the file from the server.
+    * Possible problem that might need redesign: Files are currently in JSON and loaded on demand, this means there is no Intellisense with which to use the colors and styles and such of a theme. Not sure if this is a problem if you're using an editor
+    * The above problem shouldn't really matter in regular theme usage, as it will be applied automatically by default to controls (App.BaseTheme). But still when doing any custom theme application and such, Intellisense would be near-essential, so will probably need to include functionality to translate and parse JSON theme files into usable Javascript, which can just be imported as required... Not sure how this will work  
     
 ----------
 TASK LIST
 ----------
 
-- incorporate theme data object into codebase
 
 ----------
 COMPLETED
@@ -24,6 +26,7 @@ COMPLETED
 - incorporate style data object into codebase
 * Taking an urgent detour from style system to address the delayed property update shenanigans
 - make styles automatically switch on state change, which occur from events
+- design and build theme data object
 
 --------------------
 DIVERTED OR DROPPED
