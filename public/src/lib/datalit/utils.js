@@ -1,3 +1,7 @@
+export function resolveObjectPath(path, obj = self) {
+    return path.reduce((prev, curr) => prev && prev[curr], obj);
+}
+
 export function newColor(r, g, b, a = 1.0) {
     return `rgba(${r},${g},${b},${a})`;
 }
@@ -34,6 +38,7 @@ export function distanceBetweenPoints(pointA, pointB) {
 }
 
 export default {
+    resolveObjectPath,
     newColor,
     hexColor,
     comparePoints,

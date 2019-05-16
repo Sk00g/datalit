@@ -12,12 +12,14 @@ export class Rect extends Control {
         this._fillColor = Color.BLACK;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
-
-        this.updateProperties(initialProperties);
-
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness", false, true, utils.compareSides);
+
+        // Apply base theme before customized properties
+        this.applyTheme("Rect");
+
+        this.updateProperties(initialProperties);
     }
 
     //#region Unique Properties
@@ -67,11 +69,8 @@ export class Rect extends Control {
     draw() {
         App.Context.fillStyle = utils.hexColor(this.fillColor);
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
-        let trueSize = [
-            this.viewSize[0] - this.margin[0] - this.margin[2],
-            this.viewSize[1] - this.margin[1] - this.margin[3]
-        ];
-        App.Context.fillRect(...truePosition, ...trueSize);
+        // console.log(`drawing rect at ${truePosition} (${this.size})`);
+        App.Context.fillRect(...truePosition, ...this.size);
 
         if (!this.borderColor) return;
 
@@ -79,21 +78,21 @@ export class Rect extends Control {
         App.Context.fillStyle = utils.hexColor(this.borderColor);
         const bt = this.borderThickness;
         if (bt[0] != 0) {
-            let size = [bt[0], trueSize[1]];
+            let size = [bt[0], this.size[1]];
             App.Context.fillRect(...truePosition, ...size);
         }
         if (bt[1] != 0) {
-            let size = [trueSize[0], bt[1]];
+            let size = [this.size[0], bt[1]];
             App.Context.fillRect(...truePosition, ...size);
         }
         if (bt[2] != 0) {
-            let pos = [truePosition[0] + trueSize[0] - bt[2], truePosition[1]];
-            let size = [bt[2], trueSize[1]];
+            let pos = [truePosition[0] + this.size[0] - bt[2], truePosition[1]];
+            let size = [bt[2], this.size[1]];
             App.Context.fillRect(...pos, ...size);
         }
         if (bt[3] != 0) {
-            let pos = [truePosition[0], truePosition[1] + trueSize[1] - bt[3]];
-            let size = [trueSize[0], bt[3]];
+            let pos = [truePosition[0], truePosition[1] + this.size[1] - bt[3]];
+            let size = [this.size[0], bt[3]];
             App.Context.fillRect(...pos, ...size);
         }
     }

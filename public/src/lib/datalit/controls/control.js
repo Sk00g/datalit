@@ -3,9 +3,10 @@ import { ControlState, HAlign, VAlign } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import utils from "../utils.js";
+import { Assets } from "../assetManager.js";
 
 export class Control {
-    constructor(initialProperties = {}) {
+    constructor() {
         // Convenience member for internal rerender / redraw logic
         this.__parent = null;
 
@@ -15,7 +16,7 @@ export class Control {
         this._state = ControlState.READY;
         this._visible = true;
         this._arrangedPosition = [0, 0];
-        this._viewSize = [0, 0];
+        this._size = [0, 0];
         this._margin = App.GlobalState.DefaultMargin;
         this._halign = HAlign.LEFT;
         this._valign = VAlign.TOP;
@@ -26,13 +27,11 @@ export class Control {
         this._localPosition = [0, 0];
         this._zValue = 0;
 
-        this.updateProperties(initialProperties);
-
         // Members used for property event functions
         this.propertyMetadata = {};
         this.registerProperty("state", false, false);
         this.registerProperty("visible", true);
-        this.registerProperty("viewSize", true, true, utils.comparePoints);
+        this.registerProperty("size", true, true, utils.comparePoints);
         this.registerProperty("margin", true, true, utils.compareSides);
         this.registerProperty("halign", true);
         this.registerProperty("valign", true);
@@ -48,6 +47,23 @@ export class Control {
     }
 
     //#region Methods
+    applyTheme(className, newTheme = Assets.BaseTheme) {
+        let styleMatch = newTheme.controlProperties[className];
+        if (styleMatch) {
+            for (const [key, value] of Object.entries(styleMatch)) {
+                if (key == "styles") {
+                    for (const [styleKey, styleValue] of Object.entries(value)) {
+                        let propertyDefinitions = [];
+                        for (const [propKey, propValue] of Object.entries(styleValue))
+                            propertyDefinitions.push([propKey, propValue]);
+                        this.addStyle(styleKey, propertyDefinitions);
+                    }
+                }
+                if (this[key]) this[key] = value;
+            }
+        }
+    }
+
     isChildOf(parent) {
         if (!parent.isArranger) return false;
 
@@ -106,7 +122,6 @@ export class Control {
     updateProperties(newProperties) {
         for (const [key, value] of Object.entries(newProperties)) {
             if (!this.hasOwnProperty("_" + key)) datalitError("propertyNotFound", ["Control", "_" + key]);
-
             this[key] = value;
         }
     }
@@ -143,7 +158,7 @@ export class Control {
         // If hfill target != null, then it wants to take up a % of available space
         else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
         // If neither above conditions are true, our requested width is our explicit width
-        else return this.viewSize[0];
+        else return this.viewWidth;
     }
 
     requestHeight(availableHeight, parentHeight) {
@@ -154,7 +169,7 @@ export class Control {
         // If hfill target kk!= null, then it wants to take up a % of available space
         else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
         // If non of the above conditions are true, our requested height is our explicit height
-        else return this.viewSize[1];
+        else return this.viewHeight;
     }
 
     disable() {
@@ -186,7 +201,7 @@ export class Control {
         if (this.state == ControlState.DISABLED && newState != ControlState.READY)
             datalitError("illogical", ["newState", newState, "previousState", "DISABLED"]);
 
-        console.log(`Swapping state from ${this._state} to ${newState}`);
+        // console.log(`Swapping state from ${this._state} to ${newState}`);
 
         this._state = newState;
         this.notifyPropertyChange("state");
@@ -202,38 +217,38 @@ export class Control {
         this.notifyPropertyChange("visible");
     }
 
-    get viewWidth() {
-        return this.viewSize[0];
+    get size() {
+        return this._size;
     }
-    get viewHeight() {
-        return this.viewSize[1];
-    }
-    get viewSize() {
-        return this._viewSize;
-    }
-    set viewWidth(newWidth) {
-        if (typeof newWidth != "number" || !Number.isInteger(newWidth))
-            datalitError("propertySet", ["Control.viewWidth", String(newWidth), "int"]);
-
-        this.viewSize = [newWidth, this._viewSize[1]];
-    }
-    set viewHeight(newHeight) {
-        if (typeof newHeight != "number" || !Number.isInteger(newHeight))
-            datalitError("propertySet", ["Control.viewHeight", String(newHeight), "int"]);
-
-        this.viewSize = [this._viewSize[0], newHeight];
-    }
-    set viewSize(newSize) {
+    set size(newSize) {
         if (
             typeof newSize != "object" ||
             newSize.length != 2 ||
             !Number.isInteger(newSize[0]) ||
             !Number.isInteger(newSize[1])
         )
-            datalitError("propertySet", ["Control.viewSize", String(newSize), "LIST of 2 int"]);
+            datalitError("propertySet", ["Control.size", String(newSize), "LIST of 2 int"]);
 
-        this._viewSize = newSize;
-        this.notifyPropertyChange("viewSize");
+        this._size = newSize;
+        this.notifyPropertyChange("size");
+    }
+    get width() {
+        return this._size[0];
+    }
+    get height() {
+        return this._size[1];
+    }
+    set width(newWidth) {
+        if (typeof newWidth != "number" || !Number.isInteger(newWidth))
+            datalitError("propertySet", ["Control.width", String(newWidth), "int"]);
+
+        this.size = [newWidth, this._size[1]];
+    }
+    set height(newHeight) {
+        if (typeof newHeight != "number" || !Number.isInteger(newHeight))
+            datalitError("propertySet", ["Control.height", String(newHeight), "int"]);
+
+        this.size = [this._size[0], newHeight];
     }
 
     get margin() {
@@ -257,15 +272,38 @@ export class Control {
     }
 
     get viewingRect() {
-        return [...this._arrangedPosition, ...this.viewSize];
+        return [
+            this._arrangedPosition[0],
+            this._arrangedPosition[1],
+            this._size[0] + this.margin[0] + this.margin[2],
+            this._size[1] + this.margin[1] + this.margin[3]
+        ];
+    }
+    get viewWidth() {
+        return this._size[0] + this._margin[0] + this._margin[2];
+    }
+    get viewHeight() {
+        return this._size[1] + this._margin[1] + this._margin[3];
+    }
+    set viewWidth(newWidth) {
+        if (typeof newWidth != "number" || !Number.isInteger(newWidth))
+            datalitError("propertySet", ["Control.viewWidth", String(newWidth), "int"]);
+
+        this.size = [Math.max(0, newWidth - this.margin[0] - this.margin[2]), this._size[1]];
+    }
+    set viewHeight(newHeight) {
+        if (typeof newHeight != "number" || !Number.isInteger(newHeight))
+            datalitError("propertySet", ["Control.viewHeight", String(newHeight), "int"]);
+
+        this.size = [this._size[0], Math.max(0, newHeight - this.margin[1] - this.margin[3])];
     }
 
     get hitRect() {
         return [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.margin[1],
-            this.viewSize[0] - this.margin[2] - this.margin[0],
-            this.viewSize[1] - this.margin[3] - this.margin[1]
+            this.size[0] - this.margin[2] - this.margin[0],
+            this.size[1] - this.margin[3] - this.margin[1]
         ];
     }
 

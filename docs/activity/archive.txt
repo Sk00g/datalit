@@ -28,6 +28,8 @@ Event and Arrangement: 2019/05/04
 - Build align.FREE logic for sections
 - Build in redraw / rerender logic to redraw and rerender as necessary. Just redraw/rendering the whole shebang for now, optimize later
 
+
+
 --------------------
 DIVERTED OR DROPPED
 --------------------

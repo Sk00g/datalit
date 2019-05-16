@@ -1,6 +1,7 @@
 import configData from "../../../assets/assetConfig.js";
 import imageMap from "../../../assets/imageMap.js";
 import themeMap from "../../../assets/themeMap.js";
+import utils from "./utils.js";
 
 // Handles all assets for the application.
 class AssetManager {
@@ -23,6 +24,7 @@ class AssetManager {
             fetch(`http://localhost:9080/${configData.baseDir}/${configData.themeDir}/${file}`)
                 .then(rsp => rsp.json())
                 .then(rsp => {
+                    rsp = this.parseThemeData(rsp);
                     if (rsp.isBase) this.BaseTheme = rsp;
                     this._themes[key] = rsp;
                 });
@@ -31,6 +33,20 @@ class AssetManager {
         // Public maps so intellisense is awesome
         this.Images = imageMap;
         this.Themes = themeMap;
+    }
+
+    parseThemeData(themeObj) {
+        let jsonString = JSON.stringify(themeObj);
+
+        jsonString = jsonString.replace(/\$[^"]{1,}/g, (str, offset, input) => {
+            // console.log(`str: ${str} | offset: ${offset}`);
+            // console.log(`Tokens: ${JSON.stringify(tokens)}`);
+            // console.log(`Replace value: ${resolveObjectPath(tokens, themeObj)}`);
+            let tokens = str.substr(1, str.length).split(".");
+            return utils.resolveObjectPath(tokens, themeObj);
+        });
+
+        return JSON.parse(jsonString);
     }
 
     getImage(name) {

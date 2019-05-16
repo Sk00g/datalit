@@ -4,33 +4,24 @@ import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
 
 export class Icon extends Control {
-    constructor(imageName, imageSize, initialProperties = {}) {
+    constructor(imageName, size, initialProperties = {}) {
         super();
 
         // Unique properties
         this._sourceRect = null;
+        this.registerProperty("sourceRect");
 
         this.image = Assets.getImage(imageName);
 
+        this.size = size;
+
+        // Apply base theme before customized properties
+        this.applyTheme("Icon");
+
         this.updateProperties(initialProperties);
-
-        // Set this after margins so viewSize is set properly
-        this.imageSize = imageSize;
-
-        this.registerProperty("sourceRect");
     }
 
     //#region Unique Properties
-    get imageSize() {
-        return [this.viewWidth - this.margin[0] - this.margin[2], this.viewHeight - this.margin[1] - this.margin[3]];
-    }
-    set imageSize(size) {
-        if (typeof size != "object" || size.length != 2 || !Number.isInteger(size[0]) || !Number.isInteger(size[1]))
-            datalitError("propertySet", ["Icon.imageSize", String(size), "LIST of 2 int"]);
-
-        super.viewSize = [size[0] + this.margin[0] + this.margin[2], size[1] + this.margin[1] + this.margin[3]];
-    }
-
     get sourceRect() {
         return this._sourceRect;
     }
@@ -47,9 +38,9 @@ export class Icon extends Control {
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
 
         if (this.sourceRect) {
-            App.Context.drawImage(this.image, ...this.sourceRect, ...truePosition, ...this.imageSize);
+            App.Context.drawImage(this.image, ...this.sourceRect, ...truePosition, ...this.size);
         } else {
-            App.Context.drawImage(this.image, ...truePosition, ...this.imageSize);
+            App.Context.drawImage(this.image, ...truePosition, ...this.size);
         }
     }
 }

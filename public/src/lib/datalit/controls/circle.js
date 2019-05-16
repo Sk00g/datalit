@@ -13,13 +13,15 @@ export class Circle extends Control {
         this._fillColor = Color.BLACK;
         this._borderColor = null;
         this._borderThickness = 0;
-
-        this.updateProperties(initialProperties);
-
         this.registerProperty("radius", true);
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness", false, true, utils.compareSides);
+
+        // Apply base theme before customized properties
+        this.applyTheme("Circle");
+
+        this.updateProperties(initialProperties);
     }
 
     // Method overrides
@@ -35,15 +37,20 @@ export class Circle extends Control {
     }
 
     // Property overrides
-    get viewSize() {
-        return [this.radius * 2 + this.margin[0] + this.margin[2], this.radius * 2 + this.margin[1] + this.margin[3]];
+    get size() {
+        return [this.radius * 2, this.radius * 2];
     }
-    set viewSize(size) {
-        if (typeof size != "object" || size.length != 2 || !Number.isInteger(size[0]) || !Number.isInteger(size[1]))
-            datalitError("propertySet", ["Circle.viewSize", String(size), "LIST of 2 int"]);
+    set size(newSize) {
+        if (
+            typeof newSize != "object" ||
+            newSize.length != 2 ||
+            !Number.isInteger(newSize[0]) ||
+            !Number.isInteger(newSize[1])
+        )
+            datalitError("propertySet", ["Circle.size", String(newSize), "LIST of 2 int"]);
 
-        if (size[0] != 0) this._radius = Math.floor(size[0] / 2);
-        else if (size[1] != 0) this._radius = Math.floor(size[1] / 2);
+        if (newSize[0] != 0) this._radius = Math.floor(newSize[0] / 2);
+        else if (newSize[1] != 0) this._radius = Math.floor(newSize[1] / 2);
     }
 
     //#region Unique Properties

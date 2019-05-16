@@ -29,7 +29,6 @@ export class Style {
     }
 
     activate() {
-        console.log("applying style for state " + this.triggerState);
         for (let def of this.propertyDefinitions) this.host[def[0]] = def[1];
     }
 

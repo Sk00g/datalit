@@ -16,12 +16,13 @@ Key Properties (common to all controls):
 
 - _arrangedPosition: Unique property, has no external access. The actual derived position to display, absolute position on the canvas
 
-- viewSize: Explicit for most controls, derived in others (label), this size of the actual item. The parent section uses get and set of this property during render (alignment + arrangement). This property should INCLUDE a control's margin in its calculation, and does so by default. Since this property is stored directly, the final display of an item is typically calculated using margin + _arrangedPosition + viewSize
-    * Includes get|set viewWidth | viewHeight
+- size: Explicit for some controls, derived in others (label), this size of the actual displayed control. The parent section uses get and set of this property during render (alignment + arrangement). This property does NOT include its margin. Since this property is stored directly, the final display of an item is typically calculated using margin + _arrangedPosition + viewSize
+    * Includes get|set width | height
 
-- viewingRect: Returns the exact area of the canvas this control is displayed on. Uses _arrangedPosition + viewSize by default. Used for clearing optimization
+- viewingRect: Returns the total area (including margin), of the canvas this control is displayed on. Uses _arrangedPosition + margin + viewSize by default. Used for rendering calculation and clearing optimization
+    * Includes get viewWidth | viewHeight
 
-- hitRect: Returns area considered for hitboxing for mouse events. By default assumes the hitbox starts at _arrangedPosition + margin[0], etc...
+- hitRect: Returns area considered for hitboxing for mouse events. By default assumes the hitbox is at position _arrangedPosition + margin, and is of size 'size' (property)
 
 - margin: Exactly what it sounds like. Blank space that is considered part of a control's viewing Rect, but not hitRect. It should always be transparent. There is no 'padding', each element has its own margin to fulfill this purpose
 

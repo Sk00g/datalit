@@ -6,7 +6,7 @@ import { DynamicControl } from "./dynamicControl.js";
 import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
-export class TextButton extends DynamicControl {
+export class LabelButton extends DynamicControl {
     constructor(text, action, initialProperties = {}) {
         super();
 
@@ -15,6 +15,13 @@ export class TextButton extends DynamicControl {
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
+        this.registerProperty("text", true);
+        this.registerProperty("fontSize", true);
+        this.registerProperty("fontColor");
+        this.registerProperty("fontType", true);
+
+        // Apply base theme before customized properties
+        this.applyTheme("LabelButton");
 
         this.updateProperties(initialProperties);
 
@@ -23,11 +30,6 @@ export class TextButton extends DynamicControl {
         }
 
         this.calculateSize();
-
-        this.registerProperty("text", true);
-        this.registerProperty("fontSize", true);
-        this.registerProperty("fontColor");
-        this.registerProperty("fontType", true);
 
         // Set the initial or default properties as the ControlState.READY style
         this.generateDefaultStyle();
@@ -44,17 +46,14 @@ export class TextButton extends DynamicControl {
 
     calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        super.viewSize = [
-            App.Context.measureText(this._text).width + this.margin[0] + this.margin[2],
-            this._fontSize + this.margin[1] + this.margin[3]
-        ];
+        super.size = [App.Context.measureText(this._text).width, this._fontSize];
     }
 
     //#region Override Method
-    get viewSize() {
-        return super.viewSize;
+    get size() {
+        return super.size;
     }
-    set viewSize(size) {
+    set size(newSize) {
         return;
     }
     //#endregion

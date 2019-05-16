@@ -1,22 +1,23 @@
-import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/datalit/enums.js";
-import utils from "../lib/datalit/utils.js";
-import { Page } from "../lib/datalit/controls/page.js";
-import { Section } from "../lib/datalit/controls/section.js";
-import { Events } from "../lib/datalit/events/events.js";
 import { App } from "../lib/datalit/app.js";
-// import { Icon } from "../lib/datalit/controls/icon.js";
 import { Assets } from "../lib/datalit/assetManager.js";
-import { Rect } from "../lib/datalit/controls/rect.js";
-import { Label } from "../lib/datalit/controls/label.js";
+import { Button } from "../lib/datalit/controls/button";
 import { Circle } from "../lib/datalit/controls/circle.js";
-import { TextButton } from "../lib/datalit/controls/textButton.js";
+import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/datalit/enums.js";
+import { Events } from "../lib/datalit/events/events.js";
+import { Icon } from "../lib/datalit/controls/icon.js";
+import { Label } from "../lib/datalit/controls/label.js";
+import { Page } from "../lib/datalit/controls/page.js";
+import { Rect } from "../lib/datalit/controls/rect.js";
+import { Section } from "../lib/datalit/controls/section.js";
+import { LabelButton } from "../lib/datalit/controls/labelButton.js";
+import utils from "../lib/datalit/utils.js";
 
 export class WelcomePage extends Page {
     constructor() {
         super();
 
-        this.contentDirection = ContentDirection.HORIZONTAL;
         this.debugName = "welcomePage";
+        this.contentDirection = ContentDirection.HORIZONTAL;
 
         let main = new Section({
             contentDirection: ContentDirection.VERTICAL,
@@ -26,16 +27,24 @@ export class WelcomePage extends Page {
             zValue: 1,
             debugName: "main"
         });
-        let text = new TextButton("Hello Scott", () => console.log("hello scott"), {
-            fontSize: 16,
-            fontColor: "dd",
-            halign: HAlign.CENTER,
-            valign: VAlign.CENTER
-        });
-        text.addStyle(ControlState.HOVERED, [["fontColor", Color.WHITE]]);
-        text.addStyle(ControlState.DISABLED, [["fontColor", "99"]]);
-        text.addStyle(ControlState.DEPRESSED, [["fontColor", "bb"], ["margin", [2, 2, 0, 0]]]);
-        main.addChild(text);
+
+        // main.addChild(new Button("Click Me", () => console.log("Y'all gone dun it")));
+
+        // let topbar = new Section({
+        //     contentDirection: ContentDirection.HORIZONTAL,
+        //     halign: HAlign.FILL,
+        //     valign: VAlign.TOP,
+        //     vfillTarget: -1,
+        //     debugName: "topbar"
+        // });
+        // topbar.addChild(
+        //     new Icon(Assets.Images.searchPurple, [24, 24], { halign: HAlign.CENTER, valign: VAlign.CENTER })
+        // );
+        // topbar.addChild(new Label("Hello Katie", { halign: HAlign.CENTER }));
+        // topbar.addChild(new LabelButton("Click Me", () => console.log("do stuff"), { halign: HAlign.CENTER }));
+
+        // main.addChild(topbar);
+
         let left = new Section({
             contentDirection: ContentDirection.VERTICAL,
             halign: HAlign.LEFT,
@@ -49,8 +58,6 @@ export class WelcomePage extends Page {
         this.addSection(left);
 
         Events.register(App.Canvas, "keyup", (ev, data) => this.handleKeypress(ev, data));
-
-        this.text = text;
     }
 
     handleKeypress(event, data) {
@@ -58,10 +65,8 @@ export class WelcomePage extends Page {
 
         switch (data.key) {
             case "a":
-                this.text.disable();
                 break;
             case "b":
-                this.text.enable();
                 break;
         }
     }

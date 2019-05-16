@@ -1,42 +1,41 @@
-import { Color, ContentDirection, HAlign, VAlign } from "../enums.js";
 import { App } from "../app.js";
-import { DynamicControl } from "./dynamicControl.js";
-import { Rect } from "./rect.js";
+import { Color, ContentDirection, HAlign, VAlign } from "../enums.js";
 import { datalitError } from "../errors.js";
+import { DynamicControl } from "./dynamicControl.js";
 import { Events } from "../events/events.js";
+import { Rect } from "./rect.js";
 import utils from "../utils.js";
 
 export class Section extends DynamicControl {
     constructor(initialProperties = {}) {
-        // console.log("Section constructor");
         super();
 
-        // Keep track of child event registrations
-        this.childEventRegisters = {};
+        this.childEventRegisters = {}; // Keep track of child event registrations
+        this.isArranger = true;
+        this.requiresRender = true;
+        this.children = [];
+        this.orderedChildren = []; // For zValue drawing
 
         // Unique property definitions
         this._contentDirection = ContentDirection.VERTICAL;
         this._backgroundColor = Color.TRANSPARENT;
         this._borderColor = null;
         this._borderThickness = [0, 0, 0, 0];
+        this.registerProperty("backgroundColor");
+        this.registerProperty("borderColor");
+        this.registerProperty("borderThickness", false, true, utils.compareSides);
 
-        this.isArranger = true;
-        this.requiresRender = true;
-        this.children = [];
-        this.orderedChildren = []; // For zValue drawing
+        // Apply base theme before customized properties
+        this.applyTheme("Section");
 
         this.updateProperties(initialProperties);
 
         this.background = new Rect({
             fillColor: this.backgroundColor,
-            viewSize: this.viewSize
+            size: this.size
         });
         if (this.borderColor) this.background.borderColor = this.borderColor;
         if (this.borderThickness) this.background.borderThickness = this.borderThickness;
-
-        this.registerProperty("backgroundColor");
-        this.registerProperty("borderColor");
-        this.registerProperty("borderThickness", false, true, utils.compareSides);
     }
 
     isParentOf(child) {
@@ -62,7 +61,7 @@ export class Section extends DynamicControl {
         if (centers.length > 0) {
             if (this.contentDirection == ContentDirection.HORIZONTAL) {
                 let combinedWidth = 0;
-                for (let ctrl of centers) combinedWidth += ctrl.requestWidth(totalSpace[0], this.viewWidth);
+                for (let ctrl of centers) combinedWidth += ctrl.requestWidth(totalSpace[0], this.width);
                 if (combinedWidth > totalSpace[0])
                     datalitError("invalidAlignment", [
                         this.debugName,
@@ -70,7 +69,7 @@ export class Section extends DynamicControl {
                     ]);
             } else if (this.contentDirection == ContentDirection.VERTICAL) {
                 let combinedHeight = 0;
-                for (let ctrl of centers) combinedHeight += ctrl.requestHeight(totalSpace[1], this.viewHeight);
+                for (let ctrl of centers) combinedHeight += ctrl.requestHeight(totalSpace[1], this.height);
                 if (combinedHeight > totalSpace[1])
                     datalitError("invalidAlignment", [
                         this.debugName,
@@ -89,8 +88,8 @@ export class Section extends DynamicControl {
         let origins = [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.margin[1],
-            this._arrangedPosition[0] + this.viewSize[0] - this.margin[2],
-            this._arrangedPosition[1] + this.viewSize[1] - this.margin[3]
+            this._arrangedPosition[0] + this.margin[0] + this.size[0],
+            this._arrangedPosition[1] + this.margin[1] + this.size[1]
         ];
         let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
 
@@ -302,7 +301,11 @@ export class Section extends DynamicControl {
         if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
 
         super.arrangePosition(arranger, newPosition);
-        if (this.background) this.background.arrangePosition(arranger, newPosition);
+        if (this.background)
+            this.background.arrangePosition(arranger, [
+                newPosition[0] != -1 ? newPosition[0] + this.margin[0] : -1,
+                newPosition[1] != -1 ? newPosition[1] + this.margin[1] : -1
+            ]);
 
         this.scheduleRender();
     }
@@ -328,7 +331,7 @@ export class Section extends DynamicControl {
             }
         } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
         else if (this.contentDirection == ContentDirection.FREE) return this.viewWidth;
-        else return this._viewSize[0];
+        else return this.viewWidth;
     }
 
     requestHeight(availableHeight, parentHeight) {
@@ -355,17 +358,18 @@ export class Section extends DynamicControl {
     }
     //#endregion
 
-    // Property overrides
-    get viewSize() {
-        return super.viewSize;
+    //#region Property overrides
+    get size() {
+        return super.size;
     }
-    set viewSize(newSize) {
-        super.viewSize = newSize;
-        if (this.background) this.background.viewSize = newSize;
+    set size(newSize) {
+        super.size = newSize;
+        if (this.background) this.background.size = newSize;
 
         // This render can now determine the size and alignment of nested sections and elements
         this.scheduleRender();
     }
+    //#endregion
 
     //#region Unique Properties
     get backgroundColor() {
@@ -410,7 +414,6 @@ export class Section extends DynamicControl {
 
             this._borderThickness = thickness;
         }
-
         if (this.background) this.background.borderThickness = this._borderThickness;
         this.notifyPropertyChange("borderThickness");
     }

@@ -14,18 +14,20 @@ export class Page extends Section {
         // Unique property fields
         this._pageState = PageState.READY;
         this._focusedControl = null;
+        this.registerProperty("pageState", false, false);
+        this.registerProperty("focusedControl", false, false);
 
         this.requiresRender = true;
 
-        this.updateProperties(initialProperties);
+        // Apply base theme before customized properties
+        this.applyTheme("Page");
 
-        this.registerProperty("pageState", false, false);
-        this.registerProperty("focusedControl", false, false);
+        this.updateProperties(initialProperties);
     }
 
     //region Method Overrides
     render() {
-        this.viewSize = [App.Canvas.width, App.Canvas.height];
+        this.size = [App.Canvas.width, App.Canvas.height];
         super.render();
     }
 

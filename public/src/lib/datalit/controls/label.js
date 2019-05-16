@@ -13,35 +13,35 @@ export class Label extends Control {
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
-
-        this.updateProperties(initialProperties);
+        this.registerProperty("text", true);
+        this.registerProperty("fontSize", true);
+        this.registerProperty("fontColor");
+        this.registerProperty("fontType", true);
 
         if (this.halign == HAlign.FILL || this.valign == VAlign.FILL) {
             throw new Error("Text-based elements cannot have a FILL align");
         }
 
-        this.calculateSize();
+        // Apply base theme before customized properties
+        this.applyTheme("Label");
 
-        this.registerProperty("text", true);
-        this.registerProperty("fontSize", true);
-        this.registerProperty("fontColor");
-        this.registerProperty("fontType", true);
+        // Override theme with explicit properties
+        this.updateProperties(initialProperties);
+
+        this.calculateSize();
     }
 
     calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        super.viewSize = [
-            App.Context.measureText(this._text).width + this.margin[0] + this.margin[2],
-            this._fontSize + this.margin[1] + this.margin[3]
-        ];
+        super.size = [App.Context.measureText(this._text).width, this._fontSize];
     }
 
     //#region Override Method
-    get viewSize() {
-        return super.viewSize;
+    get size() {
+        return super.size;
     }
-    set viewSize(size) {
-        // throw new Error("Can't set the viewSize of a label! It is generated from fontSize, text, and margins");
+    set size(newSize) {
+        // throw new Error("Can't set the size of a label! It is generated from fontSize, text, and margins");
         return;
     }
     //#endregion
