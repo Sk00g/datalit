@@ -1,3 +1,11 @@
+import { Cursor } from "./enums.js";
+
+export function changeCursor(newCursor) {
+    if (!Cursor.hasOwnProperty(newCursor.toUpperCase())) throw new Error("Invalid cursor: " + String(newCursor));
+
+    document.body.style.cursor = newCursor;
+}
+
 export function resolveObjectPath(path, obj = self) {
     return path.reduce((prev, curr) => prev && prev[curr], obj);
 }
@@ -43,5 +51,6 @@ export default {
     hexColor,
     comparePoints,
     distanceBetweenPoints,
-    compareSides
+    compareSides,
+    changeCursor
 };

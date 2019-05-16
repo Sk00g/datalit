@@ -2,34 +2,35 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/05/14 23:41
-SYSTEM:				Styles & Themes
+LAST UPDATE:		2019/05/15 23:15
+SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Test
+STAGE:				Design
 
 IMMEDIATE:
-- Build the regular button control to test out the advanced theme and style systems to date
-* Need to implement the freaking margin for Section objects... what the heck
+- TextInput
+    * Finished working on the cursor positioning and blinking activity. Didn't really get anywhere
     
 ----------
 TASK LIST
 ----------
 
+- Line
+- Circular button
+- TextEdit
+- ListView
+- ScrollSection
+- DropdownList
+- Popup
+- Checkbox
+- Link
+- Slider
 
 ----------
 COMPLETED
 ----------
 
-- design and build style data objects
-- incorporate style data object into codebase
-* Taking an urgent detour from style system to address the delayed property update shenanigans
-- make styles automatically switch on state change, which occur from events
-- design and build theme data object
-- incorporate theme data object into codebase
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
-* Might be worth going back and changing the structure of control constructors to have ALL property registration in the base Control / DynamicControl classes, and just pass the property names in... not sure
-* The way Style class receives its property definitions parameter in constructor is somewhat counterintuitive. It is a list of lists where everything else in the library seems to work off regular JS kvp objects for properties. Should probably go in and change this at some point for consistency
-

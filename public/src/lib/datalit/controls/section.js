@@ -422,8 +422,7 @@ export class Section extends DynamicControl {
         return this._contentDirection;
     }
     set contentDirection(dir) {
-        if (!ContentDirection.hasOwnProperty(dir))
-            datalitError("propertySet", ["Section.contentDirection", String(dir), "ContentDirection"]);
+        i;
 
         this._contentDirection = dir;
     }

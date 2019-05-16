@@ -63,8 +63,8 @@ export class LabelButton extends DynamicControl {
         return [
             this._arrangedPosition[0] + this.margin[0] - 2,
             this._arrangedPosition[1] + this.margin[1] - 2,
-            this.viewSize[0] - this.margin[2] - this.margin[0] + 4,
-            this.viewSize[1] - this.margin[3] - this.margin[1] + 4
+            this.size[0] + 4,
+            this.size[1] + 4
         ];
     }
     //#endregion

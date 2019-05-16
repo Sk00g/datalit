@@ -11,8 +11,8 @@ Overarching Systems
 * Setup                 |X|
 * Core Library          |X|
 * Event handling        |X|
-* Styles & Themes       |-|
-* Special Elements      | |
+* Styles & Themes       |X|
+* Special Controls      |-|
 * Back-End              | |
 * Data Binding          | |
 * Drag & Drop           | |
@@ -37,6 +37,6 @@ IMPROVEMENTS WHEN APPLICABLE
 - Make a definitive list of properties and an associated compatbility matrix matching controls with their relevant properties for easy lookup
 - Improve the asset-loader.py script to do error checking on asset names (no '-' char), and also build in a nesting system to handle directories and such
 - Add in custom fonts feature by local file or URL
-- For documentation would be great to have a master list of all properties involved in alignment and arrangement so that I (and others) can easily see how to achieve our desired layouts. Otherwise it is confusing with flowType, align, contentAlignment, margin, and how those all relate to each other
+- For documentation would be great to have a master list of all properties involved in alignment and arrangement so that I (and others) can easily see how to achieve our desired layouts. Otherwise it is confusing with contentDirection, [h|v]align, [h|v]fillTarget, margin, and how those all relate to each other
 - For the event system, need to go in and write a ton of error handling stuff
 - May need to revisit the mousenter/leave logic to improve the precision. Just not sure if this would be helpful yet

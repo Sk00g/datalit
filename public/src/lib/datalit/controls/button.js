@@ -18,10 +18,23 @@ export class Button extends Section {
             size: [100, 30]
         });
 
+        // Must be built before registering properties, as they directly access this object
+        this.label = new Label(text, {
+            fontSize: App.GlobalState.DefaultFontSize,
+            fontColor: Color.BLACK,
+            fontType: "sans-serif",
+            margin: 0,
+            halign: HAlign.CENTER,
+            valign: VAlign.CENTER
+        });
+        this.addChild(this.label);
+
+        this._textOffset = 0;
         this.registerProperty("text", true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
+        this.registerProperty("textOffset", true);
 
         // Apply base theme before customized properties
         this.applyTheme("Button");
@@ -33,16 +46,6 @@ export class Button extends Section {
 
         if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);
-
-        this.label = new Label(text, {
-            fontSize: App.GlobalState.DefaultFontSize,
-            fontColor: Color.BLACK,
-            fontType: "sans-serif",
-            margin: 0,
-            halign: HAlign.CENTER,
-            valign: VAlign.CENTER
-        });
-        this.addChild(this.label);
     }
 
     handleMouseUp() {
@@ -98,6 +101,19 @@ export class Button extends Section {
 
         this.label.fontType = font;
         this.notifyPropertyChange("fontType");
+    }
+
+    get textOffset() {
+        return this._textOffset;
+    }
+    set textOffset(offset) {
+        if (!Number.isInteger(offset)) datalitError("propertySet", ["Button.textOffset", String(offset), "int"]);
+
+        if (offset > 0) this.label.margin = [offset, offset, 0, 0];
+        else if (offset < 0) this.label.margin = [0, 0, -offset, -offset];
+        else this.label.margin = 0;
+        this._textOffset = offset;
+        this.notifyPropertyChange("textOffset");
     }
     //#endregion
 }

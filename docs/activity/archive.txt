@@ -28,10 +28,21 @@ Event and Arrangement: 2019/05/04
 - Build align.FREE logic for sections
 - Build in redraw / rerender logic to redraw and rerender as necessary. Just redraw/rendering the whole shebang for now, optimize later
 
+Styles & Themes: 2019/05/15
+
+- design and build style data objects
+- incorporate style data object into codebase
+* Taking an urgent detour from style system to address the delayed property update shenanigans
+- make styles automatically switch on state change, which occur from events
+- design and build theme data object
+- incorporate theme data object into codebase
+* Need to implement the freaking margin for Section objects... what the heck
+- Build the regular button control to test out the advanced theme and style systems to date
 
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
 - Build 'focus' system handled by page (easier to do after styling stuff is finished)
-
+* Might be worth going back and changing the structure of control constructors to have ALL property registration in the base Control / DynamicControl classes, and just pass the property names in... not sure
+* The way Style class receives its property definitions parameter in constructor is somewhat counterintuitive. It is a list of lists where everything else in the library seems to work off regular JS kvp objects for properties. Should probably go in and change this at some point for consistency

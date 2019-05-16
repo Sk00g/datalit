@@ -201,7 +201,7 @@ export class Control {
         if (this.state == ControlState.DISABLED && newState != ControlState.READY)
             datalitError("illogical", ["newState", newState, "previousState", "DISABLED"]);
 
-        // console.log(`Swapping state from ${this._state} to ${newState}`);
+        console.log(`Swapping state from ${this._state} to ${newState}`);
 
         this._state = newState;
         this.notifyPropertyChange("state");
@@ -302,8 +302,8 @@ export class Control {
         return [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.margin[1],
-            this.size[0] - this.margin[2] - this.margin[0],
-            this.size[1] - this.margin[3] - this.margin[1]
+            this.size[0],
+            this.size[1]
         ];
     }
 

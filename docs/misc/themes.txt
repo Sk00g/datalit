@@ -18,4 +18,3 @@ THEME CONTENT:
 * BaseTheme - There will be an App-wide 'BaseTheme' that is loaded from file (still code file) immediately upon startup. This theme will be applied to all created controls by default.
 
 * Sub-themes - All Theme objects used that aren't the BaseTheme are considered sub-themes. These should be used for styling groups of objects within a subset of the GUI, such as a list of buttons or rows in a table.
-    -

@@ -1,3 +1,12 @@
+export const Cursor = Object.freeze({
+    TEXT: "text",
+    DEFAULT: "default",
+    WAIT: "wait",
+    RESIZE: "resize",
+    POINTER: "pointer",
+    PROGRESS: "progress"
+});
+
 export const Color = Object.freeze({
     TRANSPARENT: "00000000",
     BLACK: "00",
@@ -61,6 +70,7 @@ export const PageState = Object.freeze({
 });
 
 export default {
+    Cursor,
     Color,
     ControlState,
     HAlign,

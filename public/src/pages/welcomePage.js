@@ -6,10 +6,11 @@ import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/da
 import { Events } from "../lib/datalit/events/events.js";
 import { Icon } from "../lib/datalit/controls/icon.js";
 import { Label } from "../lib/datalit/controls/label.js";
+import { LabelButton } from "../lib/datalit/controls/labelButton.js";
 import { Page } from "../lib/datalit/controls/page.js";
 import { Rect } from "../lib/datalit/controls/rect.js";
 import { Section } from "../lib/datalit/controls/section.js";
-import { LabelButton } from "../lib/datalit/controls/labelButton.js";
+import { TextInput } from "../lib/datalit/controls/textInput.js";
 import utils from "../lib/datalit/utils.js";
 
 export class WelcomePage extends Page {
@@ -28,22 +29,8 @@ export class WelcomePage extends Page {
             debugName: "main"
         });
 
-        // main.addChild(new Button("Click Me", () => console.log("Y'all gone dun it")));
-
-        // let topbar = new Section({
-        //     contentDirection: ContentDirection.HORIZONTAL,
-        //     halign: HAlign.FILL,
-        //     valign: VAlign.TOP,
-        //     vfillTarget: -1,
-        //     debugName: "topbar"
-        // });
-        // topbar.addChild(
-        //     new Icon(Assets.Images.searchPurple, [24, 24], { halign: HAlign.CENTER, valign: VAlign.CENTER })
-        // );
-        // topbar.addChild(new Label("Hello Katie", { halign: HAlign.CENTER }));
-        // topbar.addChild(new LabelButton("Click Me", () => console.log("do stuff"), { halign: HAlign.CENTER }));
-
-        // main.addChild(topbar);
+        main.addChild(new Button("Click Me", () => console.log("Y'all gone dun it")));
+        main.addChild(new TextInput({ size: [400, 32], margin: 8 }));
 
         let left = new Section({
             contentDirection: ContentDirection.VERTICAL,
