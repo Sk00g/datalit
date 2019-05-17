@@ -1,5 +1,14 @@
 import { App } from "../app.js";
-import { Color, ContentDirection, ControlState, Cursor, HAlign, VAlign } from "../enums.js";
+import {
+    Color,
+    ContentDirection,
+    ControlState,
+    Cursor,
+    HAlign,
+    VAlign,
+    TEXT_KEYSTROKES,
+    MOTION_KEYSTROKES
+} from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import { Label } from "./label.js";
@@ -10,6 +19,7 @@ import utils from "../utils.js";
 export class TextInput extends Section {
     constructor(initialProperties = {}) {
         super({
+            isFocusable: true,
             contentDirection: ContentDirection.HORIZONTAL,
             backgroundColor: "DD",
             borderColor: Color.BLACK,
@@ -29,13 +39,14 @@ export class TextInput extends Section {
         this.addChild(this.label);
 
         // Don't add cursor as a child, it needs to be drawn via absolute coordinates
-        this.cursor = new Rect({ size: [1, 24], fillColor: "33" });
+        this.cursor = new Rect({ size: [1, 24], fillColor: "FF0000" });
         this.cursorTimeSinceChange = 0;
 
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
+        this._selectPos = -1;
 
-        this.registerProperty("text", true);
+        this.registerProperty("text", false); // Text doesn't determine arrangement
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
@@ -43,6 +54,7 @@ export class TextInput extends Section {
         this.registerProperty("cursorColor");
         this.registerProperty("cursorSize");
         this.registerProperty("cursorPos");
+        this.registerProperty("selectPos");
 
         // Apply base theme before customized properties
         this.applyTheme("TextInput");
@@ -51,9 +63,18 @@ export class TextInput extends Section {
 
         // Set the initial or default properties as the ControlState.READY style
         this.generateDefaultStyle();
+
+        // Subsribe to self events for rendering
+        Events.register(this, "propertyChanged", (event, data) => {
+            if (data.property == "cursorPos") this.renderCursor();
+            else if (data.property == "selectPos") this.renderSelection();
+        });
+
+        // Listen for keyboard input
+        Events.register(this, "keydown", (event, data) => this.handleKeyDown(event, data));
     }
 
-    updateCursorPosition() {
+    renderCursor() {
         let origin = this._arrangedPosition;
 
         // let preText =
@@ -61,6 +82,15 @@ export class TextInput extends Section {
         let newY = origin[1];
 
         this.cursor.arrangePosition(this, [newX, newY]);
+    }
+
+    renderSelection() {}
+
+    handleKeyDown(event, data) {
+        console.log(`Text Input Receives: KEY: ${data.key} | CODE: ${data.code}`);
+
+        if (MOTION_KEYSTROKES.includes(data.key)) console.log("received motion");
+        else if (TEXT_KEYSTROKES.includes(data.key)) console.log("received text");
     }
 
     //#region Override Method
@@ -72,16 +102,34 @@ export class TextInput extends Section {
         super.handleMouseLeave(event, data);
         utils.changeCursor(Cursor.DEFAULT);
     }
+    handleMouseDown(event, data) {
+        // ----- DEBUG / DEV ONLY CODE -----
+        Events.activePage.focusedControl = this;
+        this.focused = true;
+        console.log("text input receives artifical focus");
+        // ----- DO NOT FORGET TO REMOVE LATER -----
+    }
     //#endregion
 
     //#region Override Properties
     arrangePosition(arranger, newPosition) {
         super.arrangePosition(arranger, newPosition);
-        this.updateCursorPosition();
+        this.renderCursor();
     }
     //#endregion
 
     //#region Unique Properties
+    get selectPos() {
+        return this._selectPos;
+    }
+    set selectPos(newPos) {
+        if (!Number.isInteger(newPos) || newPos < -1 || newPos > this.label.text.length - 1)
+            datalitError("propertySet", ["Button.selectPos", String(newPos), "int (-1) - (text.length - 1)"]);
+
+        this._selectPos = newPos;
+        this.notifyPropertyChange("selectPos");
+    }
+
     get cursorPos() {
         return this._cursorPos;
     }
@@ -171,6 +219,8 @@ export class TextInput extends Section {
     //#endregion
 
     update(elapsed) {
+        super.update(elapsed);
+
         this.cursorTimeSinceChange += elapsed;
         if (this.cursorTimeSinceChange >= this.cursorBlinkRate) {
             this.cursorTimeSinceChange = 0;
@@ -179,6 +229,8 @@ export class TextInput extends Section {
     }
 
     draw() {
-        if (this.cursor.visible) this.cursor.draw();
+        super.draw();
+
+        // if (this.cursor.visible) this.cursor.draw();
     }
 }

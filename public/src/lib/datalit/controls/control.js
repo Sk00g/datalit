@@ -201,7 +201,7 @@ export class Control {
         if (this.state == ControlState.DISABLED && newState != ControlState.READY)
             datalitError("illogical", ["newState", newState, "previousState", "DISABLED"]);
 
-        console.log(`Swapping state from ${this._state} to ${newState}`);
+        // console.log(`Swapping state from ${this._state} to ${newState}`);
 
         this._state = newState;
         this.notifyPropertyChange("state");

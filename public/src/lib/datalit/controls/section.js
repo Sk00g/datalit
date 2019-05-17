@@ -82,7 +82,7 @@ export class Section extends DynamicControl {
     render() {
         if (this.children.length < 1) return;
 
-        console.log(`rendering section... ${this.debugName} (${this.children.length})`);
+        // console.log(`rendering section... ${this.debugName} (${this.children.length})`);
         App.GlobalState.RedrawRequired = true;
 
         let origins = [
@@ -422,7 +422,8 @@ export class Section extends DynamicControl {
         return this._contentDirection;
     }
     set contentDirection(dir) {
-        i;
+        if (!ContentDirection.hasOwnProperty(dir))
+            datalitError("propertySet", ["Section.contentDirection", String(dir), "ContentDirection"]);
 
         this._contentDirection = dir;
     }

@@ -9,12 +9,13 @@ STAGE:				Design
 
 IMMEDIATE:
 - TextInput
-    * Finished working on the cursor positioning and blinking activity. Didn't really get anywhere
+    * In the middle of stuff, currently working on receiving keyboard text and motion keystrokes
     
 ----------
 TASK LIST
 ----------
 
+* Detour to add focus management to control (via click or tab)
 - Line
 - Circular button
 - TextEdit
