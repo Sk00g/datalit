@@ -15,7 +15,7 @@ export class LabelButton extends DynamicControl {
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
-        this.registerProperty("text", true);
+        this.registerProperty("text", true, true, true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);

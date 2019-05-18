@@ -21,7 +21,7 @@ export class TextInput extends Section {
         super({
             isFocusable: true,
             contentDirection: ContentDirection.HORIZONTAL,
-            backgroundColor: "DD",
+            backgroundColor: "F9",
             borderColor: Color.BLACK,
             borderThickness: 1,
             size: [200, 30]
@@ -29,7 +29,7 @@ export class TextInput extends Section {
 
         // Must be built before registering properties, as they directly access this object
         this.label = new Label("", {
-            fontSize: App.GlobalState.DefaultFontSize,
+            fontSize: App.GlobalState.DefaultFontSize - 2,
             fontColor: Color.BLACK,
             fontType: "sans-serif",
             margin: [8, 0, 8, 0],
@@ -39,22 +39,22 @@ export class TextInput extends Section {
         this.addChild(this.label);
 
         // Don't add cursor as a child, it needs to be drawn via absolute coordinates
-        this.cursor = new Rect({ size: [1, 24], fillColor: "FF0000" });
+        this.cursor = new Rect({ size: [1, 18], fillColor: "22" });
         this.cursorTimeSinceChange = 0;
 
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
         this._selectPos = -1;
 
-        this.registerProperty("text", false); // Text doesn't determine arrangement
+        this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
         this.registerProperty("fontMargin", true);
         this.registerProperty("cursorColor");
         this.registerProperty("cursorSize");
-        this.registerProperty("cursorPos");
-        this.registerProperty("selectPos");
+        this.registerProperty("cursorPos", false, true, true);
+        this.registerProperty("selectPos", false, true, true);
 
         // Apply base theme before customized properties
         this.applyTheme("TextInput");
@@ -75,22 +75,64 @@ export class TextInput extends Section {
     }
 
     renderCursor() {
-        let origin = this._arrangedPosition;
+        let origin = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
+        let text = this.label.text;
 
-        // let preText =
-        let newX = origin[0] + this.label.margin[0];
-        let newY = origin[1];
+        App.Context.font = this._fontSize + "pt " + this._fontType;
+        let preTextWidth = App.Context.measureText(text.substr(0, this.cursorPos)).width;
+        let newX = origin[0] + this.label.margin[0] + preTextWidth;
+        let newY = origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2);
 
         this.cursor.arrangePosition(this, [newX, newY]);
     }
 
     renderSelection() {}
 
-    handleKeyDown(event, data) {
-        console.log(`Text Input Receives: KEY: ${data.key} | CODE: ${data.code}`);
+    handleMotion(key) {
+        this.cursorTimeSinceChange = 0;
+        this.cursor.visible = true;
 
-        if (MOTION_KEYSTROKES.includes(data.key)) console.log("received motion");
-        else if (TEXT_KEYSTROKES.includes(data.key)) console.log("received text");
+        let text = this.label.text;
+        switch (key) {
+            case "Backspace":
+                if (this.cursorPos > 0) {
+                    this.label.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
+                    this.cursorPos--;
+                }
+                break;
+            case "ArrowLeft":
+                if (this.cursorPos > 0) this.cursorPos--;
+                break;
+            case "ArrowRight":
+                if (this.cursorPos < text.length) this.cursorPos++;
+                break;
+            case "Home":
+                this.cursorPos = 0;
+                break;
+            case "End":
+                this.cursorPos = text.length;
+                break;
+        }
+    }
+
+    handleText(key) {
+        let text = this.label.text;
+        if (this.cursorPos == text.length) this.label.text += key;
+        else this.label.text = text.slice(0, this.cursorPos) + key + text.slice(this.cursorPos);
+        this.cursorPos++;
+    }
+
+    handleKeyDown(event, data) {
+        // console.log(`Text Input Receives: KEY: ${data.key} | CODE: ${data.code}`);
+        this.cursorTimeSinceChange = 0;
+        this.cursor.visible = true;
+
+        // hotkey support
+        if (data.code == "KeyA" && data.modifiers.ctrl) {
+        }
+
+        if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key);
+        else if (TEXT_KEYSTROKES.includes(data.key)) this.handleText(data.key);
     }
 
     //#region Override Method
@@ -221,16 +263,18 @@ export class TextInput extends Section {
     update(elapsed) {
         super.update(elapsed);
 
-        this.cursorTimeSinceChange += elapsed;
-        if (this.cursorTimeSinceChange >= this.cursorBlinkRate) {
-            this.cursorTimeSinceChange = 0;
-            this.cursor.visible = !this.cursor.visible;
+        if (this.focused) {
+            this.cursorTimeSinceChange += Math.floor(elapsed);
+            if (this.cursorTimeSinceChange >= this.cursorBlinkRate) {
+                this.cursorTimeSinceChange = 0;
+                this.cursor.visible = !this.cursor.visible;
+            }
         }
     }
 
     draw() {
         super.draw();
 
-        // if (this.cursor.visible) this.cursor.draw();
+        if (this.focused && this.cursor.visible) this.cursor.draw();
     }
 }

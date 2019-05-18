@@ -23,7 +23,7 @@ export class Section extends DynamicControl {
         this._borderThickness = [0, 0, 0, 0];
         this.registerProperty("backgroundColor");
         this.registerProperty("borderColor");
-        this.registerProperty("borderThickness", false, true, utils.compareSides);
+        this.registerProperty("borderThickness", false, true, false, utils.compareSides);
 
         // Apply base theme before customized properties
         this.applyTheme("Section");

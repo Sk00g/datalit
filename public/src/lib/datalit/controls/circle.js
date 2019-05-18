@@ -16,7 +16,7 @@ export class Circle extends Control {
         this.registerProperty("radius", true);
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
-        this.registerProperty("borderThickness", false, true, utils.compareSides);
+        this.registerProperty("borderThickness", false, true, false, utils.compareSides);
 
         // Apply base theme before customized properties
         this.applyTheme("Circle");

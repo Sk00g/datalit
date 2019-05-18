@@ -23,7 +23,7 @@ export class DynamicControl extends Control {
     generateDefaultStyle() {
         let propertyDefinitions = [];
         for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
-            propertyDefinitions.push([name, this[name]]);
+            if (!metadata.styleProtected) propertyDefinitions.push([name, this[name]]);
         }
         this.__styles.push(new Style(this, ControlState.READY, propertyDefinitions));
         // console.log("generated default style: " + JSON.stringify(this.__styles[0].propertyDefinitions));

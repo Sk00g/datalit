@@ -14,8 +14,8 @@ export class Page extends Section {
         // Unique property fields
         this._pageState = PageState.READY;
         this._focusedControl = null;
-        this.registerProperty("pageState", false, false);
-        this.registerProperty("focusedControl", false, false);
+        this.registerProperty("pageState", false, false, true);
+        this.registerProperty("focusedControl", false, false, true);
 
         this.requiresRender = true;
 

@@ -2,6 +2,7 @@ import { App } from "../app.js";
 import { Assets } from "../assetManager.js";
 import { Control } from "./control.js";
 import { datalitError } from "../errors.js";
+import utils from "../utils.js";
 
 export class Icon extends Control {
     constructor(imageName, size, initialProperties = {}) {
@@ -9,7 +10,7 @@ export class Icon extends Control {
 
         // Unique properties
         this._sourceRect = null;
-        this.registerProperty("sourceRect");
+        this.registerProperty("sourceRect", false, true, false, utils.compareSides);
 
         this.image = Assets.getImage(imageName);
 

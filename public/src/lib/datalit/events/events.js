@@ -54,8 +54,13 @@ class EventManager {
     _setupKeyboardEvent(eventName) {
         window.addEventListener(eventName, ev => {
             // console.log(
-            //     `Handling ${eventName} event: ${ev.code}/${ev.key} (${JSON.stringify(this.keyboardModifiers)}) | (repeat: ${ev.repeat})`
+            //     `Handling ${eventName} event: ${ev.code}/${ev.key} (${JSON.stringify(
+            //         this.keyboardModifiers
+            //     )}) | (repeat: ${ev.repeat})`
             // );
+
+            // Stop problem events
+            if (eventName == "keydown" && (ev.code == "Tab" || ev.key == "'" || ev.key == "/")) ev.preventDefault();
 
             // Sends this event out to helper class ControlEventLayer to determine which control(s)
             // this keyboard event should be sourced by. It then calls handleEvent with each control as source

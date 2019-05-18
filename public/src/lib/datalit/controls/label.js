@@ -13,7 +13,7 @@ export class Label extends Control {
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
-        this.registerProperty("text", true);
+        this.registerProperty("text", true, true, true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
@@ -100,6 +100,7 @@ export class Label extends Control {
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.fontSize + this.margin[1]
         ];
+        // console.log(`draw text ${this.text} at ${truePosition}`);
         App.Context.fillText(this.text, ...truePosition);
     }
 }

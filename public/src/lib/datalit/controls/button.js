@@ -30,7 +30,7 @@ export class Button extends Section {
         this.addChild(this.label);
 
         this._textOffset = 0;
-        this.registerProperty("text", true);
+        this.registerProperty("text", true, true, true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);

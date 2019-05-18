@@ -29,16 +29,16 @@ export class Control {
 
         // Members used for property event functions
         this.propertyMetadata = {};
-        this.registerProperty("state", false, false);
+        this.registerProperty("state", false, false, true);
         this.registerProperty("visible", true);
-        this.registerProperty("size", true, true, utils.comparePoints);
-        this.registerProperty("margin", true, true, utils.compareSides);
+        this.registerProperty("size", true, true, false, utils.comparePoints);
+        this.registerProperty("margin", true, true, false, utils.compareSides);
         this.registerProperty("halign", true);
         this.registerProperty("valign", true);
         this.registerProperty("hfillTarget", true);
         this.registerProperty("vfillTarget", true);
-        this.registerProperty("focused", false, false);
-        this.registerProperty("localPosition", true, true, utils.comparePoints);
+        this.registerProperty("focused", false, false, true);
+        this.registerProperty("localPosition", true, true, false, utils.comparePoints);
         this.registerProperty("zValue");
 
         // All controls must register with the event system for 'propertyChanged' events
@@ -82,12 +82,19 @@ export class Control {
         this.eventListeners[eventName].push(callback);
     }
 
-    registerProperty(propertyName, rerenderOnChange = false, redrawOnChange = true, comparisonFunc = null) {
+    registerProperty(
+        propertyName,
+        rerenderOnChange = false,
+        redrawOnChange = true,
+        styleProtected = false,
+        comparisonFunc = null
+    ) {
         this.propertyMetadata[propertyName] = {
             previousValue: this[propertyName],
             redraw: redrawOnChange,
             rerender: rerenderOnChange,
-            compare: comparisonFunc == null ? (a, b) => a === b : comparisonFunc
+            compare: comparisonFunc == null ? (a, b) => a === b : comparisonFunc,
+            styleProtected: styleProtected
         };
     }
 
