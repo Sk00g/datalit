@@ -9,7 +9,7 @@ STAGE:				Write
 
 IMMEDIATE:
 - TextInput
-    * Finished cursor placement, now working on selection handling, lots to be done but making good progress
+    * Working on visual display of selection handling, there is a bug in sizing and placing the selection rect
     
 ----------
 TASK LIST

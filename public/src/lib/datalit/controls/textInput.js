@@ -38,6 +38,10 @@ export class TextInput extends Section {
         });
         this.addChild(this.label);
 
+        // Don't draw selection rect as a child, it needs absolute coordinates
+        this.selectionRect = new Rect({ fillColor: "88AACC99" });
+        this._selectionFill = "BBDDFF99";
+
         // Don't add cursor as a child, it needs to be drawn via absolute coordinates
         this.cursor = new Rect({ size: [1, 18], fillColor: "22" });
         this.cursorTimeSinceChange = 0;
@@ -45,7 +49,7 @@ export class TextInput extends Section {
 
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
-        this._selectPos = -1;
+        this._selectPos = 0;
 
         this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
         this.registerProperty("fontSize", true);
@@ -56,6 +60,7 @@ export class TextInput extends Section {
         this.registerProperty("cursorSize");
         this.registerProperty("cursorPos", false, true, true);
         this.registerProperty("selectPos", false, true, true);
+        this.registerProperty("selectionFill");
 
         // Apply base theme before customized properties
         this.applyTheme("TextInput");
@@ -68,7 +73,6 @@ export class TextInput extends Section {
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
             if (data.property == "cursorPos") this.renderCursor();
-            else if (data.property == "selectPos") this.renderSelection();
         });
 
         // Listen for keyboard input
@@ -85,9 +89,32 @@ export class TextInput extends Section {
         let newY = origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2);
 
         this.cursor.arrangePosition(this, [newX, newY]);
+
+        if (this.selectPos != this.cursorPos) this.renderSelection();
     }
 
-    renderSelection() {}
+    renderSelection() {
+        let origin = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
+        let text = this.label.text;
+
+        App.Context.font = this._fontSize + "pt " + this._fontType;
+
+        let rectWidth, preTextWidth;
+        if (this.selectPos < this.cursorPos) {
+            rectWidth = Math.floor(App.Context.measureText(text.slice(this.selectPos, this.cursorPos)).width);
+            preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.selectPos)).width);
+        } else {
+            rectWidth = Math.floor(App.Context.measureText(text.slice(this.cursorPos, this.selectPos)).width);
+            preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos + 1)).width);
+        }
+
+        this.selectionRect.arrangePosition(this, [
+            origin[0] + preTextWidth,
+            origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2)
+        ]);
+        this.selectionRect.size = [rectWidth, this.cursorSize[1]];
+        console.log("setup selection rect... wtf is it");
+    }
 
     handleMotion(key, modifiers) {
         this.cursorTimeSinceChange = 0;
@@ -98,6 +125,7 @@ export class TextInput extends Section {
             case "Backspace":
                 if (this.cursorPos > 0) {
                     this.label.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
+                    this.selectPos = this.cursorPos - 1;
                     this.cursorPos--;
                 }
                 break;
@@ -106,8 +134,12 @@ export class TextInput extends Section {
                     if (modifiers.ctrl) {
                         let newPos = this.cursorPos - 1;
                         while (text[newPos - 1] != " " && newPos > 0) newPos--;
+                        if (!modifiers.shift) this.selectPos = newPos;
                         this.cursorPos = newPos;
-                    } else this.cursorPos--;
+                    } else {
+                        if (!modifiers.shift) this.selectPos = this.cursorPos - 1;
+                        this.cursorPos--;
+                    }
                 }
                 break;
             case "ArrowRight":
@@ -115,14 +147,20 @@ export class TextInput extends Section {
                     if (modifiers.ctrl) {
                         let newPos = this.cursorPos + 1;
                         while (text[newPos] != " " && newPos < text.length) newPos++;
+                        if (!modifiers.shift) this.selectPos = newPos;
                         this.cursorPos = newPos;
-                    } else this.cursorPos++;
+                    } else {
+                        if (!modifiers.shift) this.selectPos = this.cursorPos + 1;
+                        this.cursorPos++;
+                    }
                 }
                 break;
             case "Home":
+                this.selectPos = 0;
                 this.cursorPos = 0;
                 break;
             case "End":
+                this.selectPos = text.length;
                 this.cursorPos = text.length;
                 break;
         }
@@ -132,6 +170,7 @@ export class TextInput extends Section {
         let text = this.label.text;
         if (this.cursorPos == text.length) this.label.text += key;
         else this.label.text = text.slice(0, this.cursorPos) + key + text.slice(this.cursorPos);
+        this.selectPos = this.cursorPos + 1;
         this.cursorPos++;
     }
 
@@ -163,9 +202,6 @@ export class TextInput extends Section {
             App.Context.font = this.fontSize + "pt " + this.fontType;
             let index = 0;
             while (originX + App.Context.measureText(text.substr(0, index)).width < px) {
-                console.log(
-                    `Checking ${originX + App.Context.measureText(text.substr(0, index)).width} vs mouse point ${px}`
-                );
                 index++;
             }
             return index;
@@ -197,7 +233,11 @@ export class TextInput extends Section {
 
         console.log(`Text Index from ${data.position[0]}: ${this._getTextIndexFromPosition(data.position)}`);
 
-        if (this.focused) this.cursorPos = this._getTextIndexFromPosition(data.position);
+        if (this.focused) {
+            let newPos = this._getTextIndexFromPosition(data.position);
+            if (!data.modifiers.shift) this.selectPos = newPos;
+            this.cursorPos = newPos;
+        }
         this.cursorTimeSinceChange = 0;
         this.cursor.visible = true;
         this.cursorDragging = true;
@@ -212,12 +252,23 @@ export class TextInput extends Section {
     //#endregion
 
     //#region Unique Properties
+    get selectionFill() {
+        return this._selectionFill;
+    }
+    set selectionFill(color) {
+        if (typeof utils.hexColor(color) != "string")
+            datalitError("propertySet", ["TextInput.selectionFill", String(color), "string"]);
+
+        this.selectionRect.fillColor = color;
+        this.notifyPropertyChange("selectionFill");
+    }
+
     get selectPos() {
         return this._selectPos;
     }
     set selectPos(newPos) {
-        if (!Number.isInteger(newPos) || newPos < -1 || newPos > this.label.text.length - 1)
-            datalitError("propertySet", ["Button.selectPos", String(newPos), "int (-1) - (text.length - 1)"]);
+        if (!Number.isInteger(newPos) || newPos < -1 || newPos > this.label.text.length)
+            datalitError("propertySet", ["TextInput.selectPos", String(newPos), "int (-1) - (text.length - 1)"]);
 
         this._selectPos = newPos;
         this.notifyPropertyChange("selectPos");
@@ -228,7 +279,7 @@ export class TextInput extends Section {
     }
     set cursorPos(newPos) {
         if (!Number.isInteger(newPos) || newPos < 0 || newPos > this.label.text.length)
-            datalitError("propertySet", ["Button.cursorPos", String(newPos), "int 0 - text.length"]);
+            datalitError("propertySet", ["TextInput.cursorPos", String(newPos), "int 0 - text.length"]);
 
         this._cursorPos = newPos;
         this.notifyPropertyChange("cursorPos");
@@ -239,7 +290,7 @@ export class TextInput extends Section {
     }
     set cursorBlinkRate(newRate) {
         if (!Number.isInteger(newRate) || newRate < 50 || newRate > 2000)
-            datalitError("propertySet", ["Button.cursorBlinkRate", String(newRate), "int 50 - 2000"]);
+            datalitError("propertySet", ["TextInput.cursorBlinkRate", String(newRate), "int 50 - 2000"]);
 
         this._cursorBlinkRate = newRate;
     }
@@ -264,7 +315,7 @@ export class TextInput extends Section {
         return this.label.text;
     }
     set text(newText) {
-        if (typeof newText != "string") datalitError("propertySet", ["Button.text", String(newText), "string"]);
+        if (typeof newText != "string") datalitError("propertySet", ["TextInput.text", String(newText), "string"]);
 
         this.label.text = newText;
         this.notifyPropertyChange("text");
@@ -275,7 +326,7 @@ export class TextInput extends Section {
     }
     set fontSize(size) {
         if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["Button.fontSize", String(size), "int > 2"]);
+            datalitError("propertySet", ["TextInput.fontSize", String(size), "int > 2"]);
 
         this.label.fontSize = size;
         this.notifyPropertyChange("fontSize");
@@ -286,7 +337,7 @@ export class TextInput extends Section {
     }
     set fontColor(color) {
         if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["Button.fontColor", String(color), "string"]);
+            datalitError("propertySet", ["TextInput.fontColor", String(color), "string"]);
 
         this.label.fontColor = color;
         this.notifyPropertyChange("fontColor");
@@ -296,7 +347,7 @@ export class TextInput extends Section {
         return this.label.fontType;
     }
     set fontType(font) {
-        if (typeof font != "string") datalitError("propertySet", ["Button.fontType", String(font), "string"]);
+        if (typeof font != "string") datalitError("propertySet", ["TextInput.fontType", String(font), "string"]);
 
         this.label.fontType = font;
         this.notifyPropertyChange("fontType");
@@ -327,5 +378,7 @@ export class TextInput extends Section {
         super.draw();
 
         if (this.focused && this.cursor.visible) this.cursor.draw();
+
+        if (this.selectPos != this.cursorPos) this.selectionRect.draw();
     }
 }
