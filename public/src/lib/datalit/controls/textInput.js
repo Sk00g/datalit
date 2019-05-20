@@ -41,6 +41,7 @@ export class TextInput extends Section {
         // Don't add cursor as a child, it needs to be drawn via absolute coordinates
         this.cursor = new Rect({ size: [1, 18], fillColor: "22" });
         this.cursorTimeSinceChange = 0;
+        this.cursorDragging = false;
 
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
@@ -79,7 +80,7 @@ export class TextInput extends Section {
         let text = this.label.text;
 
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        let preTextWidth = App.Context.measureText(text.substr(0, this.cursorPos)).width;
+        let preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos)).width);
         let newX = origin[0] + this.label.margin[0] + preTextWidth;
         let newY = origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2);
 
@@ -88,7 +89,7 @@ export class TextInput extends Section {
 
     renderSelection() {}
 
-    handleMotion(key) {
+    handleMotion(key, modifiers) {
         this.cursorTimeSinceChange = 0;
         this.cursor.visible = true;
 
@@ -101,10 +102,22 @@ export class TextInput extends Section {
                 }
                 break;
             case "ArrowLeft":
-                if (this.cursorPos > 0) this.cursorPos--;
+                if (this.cursorPos > 0) {
+                    if (modifiers.ctrl) {
+                        let newPos = this.cursorPos - 1;
+                        while (text[newPos - 1] != " " && newPos > 0) newPos--;
+                        this.cursorPos = newPos;
+                    } else this.cursorPos--;
+                }
                 break;
             case "ArrowRight":
-                if (this.cursorPos < text.length) this.cursorPos++;
+                if (this.cursorPos < text.length) {
+                    if (modifiers.ctrl) {
+                        let newPos = this.cursorPos + 1;
+                        while (text[newPos] != " " && newPos < text.length) newPos++;
+                        this.cursorPos = newPos;
+                    } else this.cursorPos++;
+                }
                 break;
             case "Home":
                 this.cursorPos = 0;
@@ -127,12 +140,36 @@ export class TextInput extends Section {
         this.cursorTimeSinceChange = 0;
         this.cursor.visible = true;
 
-        // hotkey support
+        // command shortcut support
         if (data.code == "KeyA" && data.modifiers.ctrl) {
         }
 
-        if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key);
+        if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key, data.modifiers);
         else if (TEXT_KEYSTROKES.includes(data.key)) this.handleText(data.key);
+    }
+
+    _getSelection() {
+        return this.label.text.substr(this.selectPos, this.cursorPos + 1);
+    }
+
+    _getTextIndexFromPosition(point) {
+        let text = this.label.text;
+        let px = point[0];
+        let originX = this.label.hitRect[0];
+        if (px <= originX) return 0;
+        else if (px >= originX + this.label.hitRect[2]) return text.length;
+        else {
+            // Gather width of growing string until we pass our x value
+            App.Context.font = this.fontSize + "pt " + this.fontType;
+            let index = 0;
+            while (originX + App.Context.measureText(text.substr(0, index)).width < px) {
+                console.log(
+                    `Checking ${originX + App.Context.measureText(text.substr(0, index)).width} vs mouse point ${px}`
+                );
+                index++;
+            }
+            return index;
+        }
     }
 
     //#region Override Method
@@ -144,12 +181,26 @@ export class TextInput extends Section {
         super.handleMouseLeave(event, data);
         utils.changeCursor(Cursor.DEFAULT);
     }
+    handleMouseMove(event, data) {
+        if (this.cursorDraggin) {
+        }
+    }
+    handleMouseUp(event, data) {
+        this.cursorDragging = false;
+    }
     handleMouseDown(event, data) {
         // ----- DEBUG / DEV ONLY CODE -----
         Events.activePage.focusedControl = this;
         this.focused = true;
-        console.log("text input receives artifical focus");
+        // console.log("text input receives artifical focus");
         // ----- DO NOT FORGET TO REMOVE LATER -----
+
+        console.log(`Text Index from ${data.position[0]}: ${this._getTextIndexFromPosition(data.position)}`);
+
+        if (this.focused) this.cursorPos = this._getTextIndexFromPosition(data.position);
+        this.cursorTimeSinceChange = 0;
+        this.cursor.visible = true;
+        this.cursorDragging = true;
     }
     //#endregion
 

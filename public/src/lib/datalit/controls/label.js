@@ -33,7 +33,7 @@ export class Label extends Control {
 
     calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
-        super.size = [App.Context.measureText(this._text).width, this._fontSize];
+        super.size = [Math.floor(App.Context.measureText(this._text).width), this._fontSize];
     }
 
     //#region Override Method

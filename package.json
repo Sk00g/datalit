@@ -7,7 +7,7 @@
         "doc": "docs"
     },
     "scripts": {
-        "build-assets": "cd public && python3 ../tools/asset_loader.py assets",
+        "build-assets": "cd public && python ../tools/asset_loader.py assets",
         "build": "cd public && webpack --mode=development"
     },
     "repository": {

@@ -2,14 +2,14 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/05/15 23:15
+LAST UPDATE:		2019/05/17 23:28
 SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Design
+STAGE:				Write
 
 IMMEDIATE:
 - TextInput
-    * In the middle of stuff, currently working on receiving keyboard text and motion keystrokes
+    * Finished cursor placement, now working on selection handling, lots to be done but making good progress
     
 ----------
 TASK LIST

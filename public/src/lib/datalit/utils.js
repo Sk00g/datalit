@@ -1,5 +1,9 @@
 import { Cursor } from "./enums.js";
 
+export function getWords(input) {
+    return input.split(" ");
+}
+
 export function changeCursor(newCursor) {
     if (!Cursor.hasOwnProperty(newCursor.toUpperCase())) throw new Error("Invalid cursor: " + String(newCursor));
 
