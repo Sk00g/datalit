@@ -20,7 +20,7 @@ export class TextInput extends Section {
     constructor(initialProperties = {}) {
         super({
             isFocusable: true,
-            contentDirection: ContentDirection.HORIZONTAL,
+            contentDirection: ContentDirection.FREE,
             backgroundColor: "F9",
             borderColor: Color.BLACK,
             borderThickness: 1,
@@ -33,19 +33,22 @@ export class TextInput extends Section {
             fontColor: Color.BLACK,
             fontType: "sans-serif",
             margin: [8, 0, 8, 0],
-            halign: HAlign.LEFT,
-            valign: VAlign.CENTER
+            zValue: 2
         });
         this.addChild(this.label);
 
         // Don't draw selection rect as a child, it needs absolute coordinates
-        this.selectionRect = new Rect({ fillColor: "88AACC99" });
-        this._selectionFill = "BBDDFF99";
+        this.selectionRect = new Rect({ fillColor: "99BBEE99", zValue: 1, visible: false });
+        this._selectionFill = "99BBEE99";
+        this.addChild(this.selectionRect);
 
         // Don't add cursor as a child, it needs to be drawn via absolute coordinates
-        this.cursor = new Rect({ size: [1, 18], fillColor: "22" });
+        this.cursor = new Rect({ size: [1, 18], fillColor: "22", zValue: 3, visible: false });
         this.cursorTimeSinceChange = 0;
+        this.cursorDragStart = 0;
         this.cursorDragging = false;
+        this.renderCursor();
+        this.addChild(this.cursor);
 
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
@@ -73,47 +76,53 @@ export class TextInput extends Section {
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
             if (data.property == "cursorPos") this.renderCursor();
+            else if (data.property == "focused") this.cursor.visible = this.focused;
         });
 
         // Listen for keyboard input
         Events.register(this, "keydown", (event, data) => this.handleKeyDown(event, data));
+
+        // Listen for double-click selection
+        Events.register(this, "dblclick", (event, data) => this.handleDoubleClick(event, data));
     }
 
     renderCursor() {
-        let origin = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
         let text = this.label.text;
 
         App.Context.font = this._fontSize + "pt " + this._fontType;
         let preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos)).width);
-        let newX = origin[0] + this.label.margin[0] + preTextWidth;
-        let newY = origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2);
+        let newX = this.label.margin[0] + preTextWidth;
+        let newY = Math.floor((this.height - this.cursorSize[1]) / 2);
 
-        this.cursor.arrangePosition(this, [newX, newY]);
+        this.cursor.localPosition = [newX, newY];
 
-        if (this.selectPos != this.cursorPos) this.renderSelection();
+        if (this._hasSelection()) this.renderSelection();
+        else this.selectionRect.visible = false;
     }
 
     renderSelection() {
-        let origin = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
+        this.selectionRect.visible = true;
         let text = this.label.text;
 
         App.Context.font = this._fontSize + "pt " + this._fontType;
 
         let rectWidth, preTextWidth;
+        // Shift + Right
         if (this.selectPos < this.cursorPos) {
             rectWidth = Math.floor(App.Context.measureText(text.slice(this.selectPos, this.cursorPos)).width);
             preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.selectPos)).width);
-        } else {
+        }
+        // Shift + Left
+        else {
             rectWidth = Math.floor(App.Context.measureText(text.slice(this.cursorPos, this.selectPos)).width);
-            preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos + 1)).width);
+            preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos)).width);
         }
 
-        this.selectionRect.arrangePosition(this, [
-            origin[0] + preTextWidth,
-            origin[1] + Math.floor((this.height - this.cursorSize[1]) / 2)
-        ]);
+        this.selectionRect.localPosition = [
+            this.label.margin[0] + preTextWidth,
+            Math.floor((this.height - this.cursorSize[1]) / 2)
+        ];
         this.selectionRect.size = [rectWidth, this.cursorSize[1]];
-        console.log("setup selection rect... wtf is it");
     }
 
     handleMotion(key, modifiers) {
@@ -123,7 +132,16 @@ export class TextInput extends Section {
         let text = this.label.text;
         switch (key) {
             case "Backspace":
-                if (this.cursorPos > 0) {
+                if (this._hasSelection()) {
+                    let previousCursor = this.cursorPos;
+                    let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
+                    let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
+                    this.label.text = firstText + secondText;
+                    this.selectPos = Math.min(this.selectPos, this.cursorPos);
+                    this.cursorPos = Math.min(this.selectPos, this.cursorPos);
+                    // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
+                    if (previousCursor == this.cursorPos) this.renderSelection();
+                } else if (this.cursorPos > 0) {
                     this.label.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
                     this.selectPos = this.cursorPos - 1;
                     this.cursorPos--;
@@ -168,10 +186,34 @@ export class TextInput extends Section {
 
     handleText(key) {
         let text = this.label.text;
-        if (this.cursorPos == text.length) this.label.text += key;
-        else this.label.text = text.slice(0, this.cursorPos) + key + text.slice(this.cursorPos);
-        this.selectPos = this.cursorPos + 1;
-        this.cursorPos++;
+
+        // Replace selected text if present
+        if (this._hasSelection()) {
+            let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
+            let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
+            this.label.text = firstText + key + secondText;
+            this.selectPos = Math.min(this.selectPos, this.cursorPos) + 1;
+            this.cursorPos = this.selectPos;
+        } else {
+            if (this.cursorPos == text.length) this.label.text += key;
+            else this.label.text = text.slice(0, this.cursorPos) + key + text.slice(this.cursorPos);
+            this.selectPos = this.cursorPos + 1;
+            this.cursorPos++;
+        }
+    }
+
+    handleDoubleClick(event, data) {
+        let text = this.label.text;
+        // let text = "hello there scott";
+        let clickPos = this._getTextIndexFromPosition(data.position);
+
+        let wordStart = clickPos;
+        let wordEnd = clickPos;
+        while (text[wordStart] != " " && wordStart >= 0) wordStart--;
+        while (text[wordEnd] != " " && wordEnd < text.length) wordEnd++;
+
+        this.selectPos = wordStart + 1;
+        this.cursorPos = wordEnd;
     }
 
     handleKeyDown(event, data) {
@@ -180,15 +222,25 @@ export class TextInput extends Section {
         this.cursor.visible = true;
 
         // command shortcut support
-        if (data.code == "KeyA" && data.modifiers.ctrl) {
-        }
+        if (data.modifiers.ctrl && data.code == "KeyA") {
+            let previousCursor = this.cursorPos;
+            this.selectPos = 0;
+            this.cursorPos = this.label.text.length;
+            // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
+            if (previousCursor == this.cursorPos) this.renderSelection();
+        } else if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key, data.modifiers);
+        else if (!data.modifiers.ctrl && !data.modifiers.alt && TEXT_KEYSTROKES.includes(data.key))
+            this.handleText(data.key);
+    }
 
-        if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key, data.modifiers);
-        else if (TEXT_KEYSTROKES.includes(data.key)) this.handleText(data.key);
+    _hasSelection() {
+        return this.selectPos != this.cursorPos;
     }
 
     _getSelection() {
-        return this.label.text.substr(this.selectPos, this.cursorPos + 1);
+        if (this.selectPos == this.cursorPos) return null;
+        else if (this.selectPos < this.cursorPos) return this.label.text.slice(this.selectPos, this.cursorPos);
+        else return this.label.text.slice(this.cursorPos, this.selectPos);
     }
 
     _getTextIndexFromPosition(point) {
@@ -201,7 +253,9 @@ export class TextInput extends Section {
             // Gather width of growing string until we pass our x value
             App.Context.font = this.fontSize + "pt " + this.fontType;
             let index = 0;
-            while (originX + App.Context.measureText(text.substr(0, index)).width < px) {
+            // Estimate halfway point for average character
+            let halfway = Math.floor(this.fontSize / 2);
+            while (originX + App.Context.measureText(text.substr(0, index)).width + halfway < px) {
                 index++;
             }
             return index;
@@ -209,6 +263,12 @@ export class TextInput extends Section {
     }
 
     //#region Override Method
+    render() {
+        // Before arranging Align.FREE elements, calculate their positions
+        this.label.localPosition = [0, Math.floor((this.height - this.label.height) / 2)];
+
+        super.render();
+    }
     handleMouseEnter(event, data) {
         super.handleMouseEnter(event, data);
         utils.changeCursor(Cursor.TEXT);
@@ -218,20 +278,25 @@ export class TextInput extends Section {
         utils.changeCursor(Cursor.DEFAULT);
     }
     handleMouseMove(event, data) {
-        if (this.cursorDraggin) {
+        if (this.cursorDragging) {
+            this.cursorPos = this._getTextIndexFromPosition(data.position);
         }
     }
     handleMouseUp(event, data) {
+        if (this.cursorDragging) {
+            this.cursorPos = this._getTextIndexFromPosition(data.position);
+        }
         this.cursorDragging = false;
     }
     handleMouseDown(event, data) {
         // ----- DEBUG / DEV ONLY CODE -----
+        console.log("focused: " + this.focused);
         Events.activePage.focusedControl = this;
         this.focused = true;
         // console.log("text input receives artifical focus");
         // ----- DO NOT FORGET TO REMOVE LATER -----
 
-        console.log(`Text Index from ${data.position[0]}: ${this._getTextIndexFromPosition(data.position)}`);
+        // console.log(`Text Index from ${data.position[0]}: ${this._getTextIndexFromPosition(data.position)}`);
 
         if (this.focused) {
             let newPos = this._getTextIndexFromPosition(data.position);
@@ -241,13 +306,13 @@ export class TextInput extends Section {
         this.cursorTimeSinceChange = 0;
         this.cursor.visible = true;
         this.cursorDragging = true;
+        this.cursorDragStart = data.position;
     }
     //#endregion
 
     //#region Override Properties
     arrangePosition(arranger, newPosition) {
         super.arrangePosition(arranger, newPosition);
-        this.renderCursor();
     }
     //#endregion
 
@@ -372,13 +437,5 @@ export class TextInput extends Section {
                 this.cursor.visible = !this.cursor.visible;
             }
         }
-    }
-
-    draw() {
-        super.draw();
-
-        if (this.focused && this.cursor.visible) this.cursor.draw();
-
-        if (this.selectPos != this.cursorPos) this.selectionRect.draw();
     }
 }

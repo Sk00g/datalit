@@ -394,6 +394,7 @@ export class Control {
             datalitError("illogical", ["Control.focused", true, "Control.isFocusable", false]);
 
         this._focused = flag;
+        this.notifyPropertyChange("focused");
     }
 
     get localPosition() {

@@ -81,10 +81,7 @@ class EventManager {
 
     _setupMouseEvent(eventName) {
         this.canvas.addEventListener(eventName, ev => {
-            let mods = [];
-            if (ev.altKey) mods.push(enums.Modifier.ALT);
-            if (ev.shiftKey) mods.push(enums.Modifier.SHIFT);
-            if (ev.ctrlKey) mods.push(enums.Modifier.CTRL);
+            let mods = { alt: ev.altKey, shift: ev.shiftKey, ctrl: ev.ctrlKey };
 
             // Sends this event out to helper class ControlEventLayer to determine which control(s)
             // this mouse event falls under. It then calls handleEvent with each control as source
