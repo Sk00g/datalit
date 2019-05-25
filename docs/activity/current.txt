@@ -9,7 +9,9 @@ STAGE:				Write
 
 IMMEDIATE:
 - TextInput
-    * Working on visual display of selection handling, there is a bug in sizing and placing the selection rect
+    * Finished selection handling.
+    * Implement Ctrl + Z / Y behaviour. Cut / copy / paste
+    * Finalize and clean code-base, ensure styling and property changing works properly
     
 ----------
 TASK LIST
