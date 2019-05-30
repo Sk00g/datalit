@@ -13,6 +13,12 @@ export class Control {
         // As the name suggests, main use is for identifying controls during debugging
         this._debugName = null;
 
+        // This field should only ever be called in a constructor.
+        // If == 'true', propertyChange events will be ignored
+        // Always withold events until next child constructor,
+        // since new Control() is never called directly (abstract class)
+        this._withholdingEvents = true;
+
         this._state = ControlState.READY;
         this._visible = true;
         this._arrangedPosition = [0, 0];
@@ -99,6 +105,9 @@ export class Control {
     }
 
     notifyPropertyChange(name) {
+        // Check for withholding
+        if (this._withholdingEvents) return;
+
         const metadata = this.propertyMetadata[name];
 
         // Can't notify before registering

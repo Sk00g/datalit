@@ -4,7 +4,7 @@ import { Events } from "../events/events.js";
 import { Style } from "../styling/style.js";
 
 export class DynamicControl extends Control {
-    constructor(initialProperties = {}) {
+    constructor() {
         super();
 
         // Internal list of styles, should never be used externally
@@ -16,8 +16,6 @@ export class DynamicControl extends Control {
         Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
         Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
         Events.register(this, "mousemove", (ev, data) => this.handleMouseMove(ev, data));
-
-        this.updateProperties(initialProperties);
     }
 
     generateDefaultStyle() {

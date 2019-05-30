@@ -2,22 +2,21 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/05/17 23:28
+LAST UPDATE:		2019/05/29 23:49
 SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Write
 
 IMMEDIATE:
-- TextInput
-    * Finished selection handling.
-    * Implement Ctrl + Z / Y behaviour. Cut / copy / paste
-    * Finalize and clean code-base, ensure styling and property changing works properly
+- Finalize and clean code-base to date, ensure styling and property changing works properly
+    * Working on 'withholding' init pattern, to avoid redundant activity when constructing controls. The code is done, it just needs to be tested and applied and such
     
 ----------
 TASK LIST
 ----------
 
 * Detour to add focus management to control (via click or tab)
+* Another detour to have some form of unit testing otherwise I will go crazy soon
 - Line
 - Circular button
 - TextEdit
@@ -32,8 +31,10 @@ TASK LIST
 ----------
 COMPLETED
 ----------
-
+- TextInput
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
+* Implement Ctrl + Z / Y behaviour for TextInput
+* Implement hold-shift-click selection, multiple area selection, deselection logic via keyboard, etc.

@@ -11,12 +11,15 @@ import utils from "../utils.js";
 
 export class Button extends Section {
     constructor(text, action, initialProperties = {}) {
-        super({
-            contentDirection: ContentDirection.HORIZONTAL,
-            borderColor: Color.BLACK,
-            borderThickness: 1,
-            size: [100, 30]
-        });
+        super(
+            {
+                contentDirection: ContentDirection.HORIZONTAL,
+                borderColor: Color.BLACK,
+                borderThickness: 1,
+                size: [100, 30]
+            },
+            true
+        );
 
         // Must be built before registering properties, as they directly access this object
         this.label = new Label(text, {
@@ -43,6 +46,9 @@ export class Button extends Section {
 
         // Set the initial or default properties as the ControlState.READY style
         this.generateDefaultStyle();
+
+        // Release propertyChanged events
+        this._withholdingEvents = false;
 
         if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);

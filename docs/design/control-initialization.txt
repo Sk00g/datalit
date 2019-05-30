@@ -1,0 +1,40 @@
+---------------
+CONTROL INITIALIZATION PROCESS
+---------------
+
+- New Object is instantiated
+- class Control constructor:
+    * Private fields behind properties are initialized to inline defaults
+    * this.propertyMetadata is instantiated
+    * All Control properties are registered
+    * Control is registered as an event source, producing "propertyChanged" events
+- class Section constructor:
+    * Setup Section-specific fields 
+    * Private fields behind properties are initialized to inline defaults
+    * Section properties are registered
+    * The current Section theme is applied
+    * initialProperties (still inline) passed to the constructor are applied (should NOT be visual)
+    * Section background control is created but NOT added as child
+- (NESTED?) class [NEW OBJECT] constructor:
+    * Create child controls and call this.addChild(newControl)
+    * Private fields behind properties are initialized to inline defaults
+    * Unique properties are registered
+    [*] The current [NEW OBJECT] theme is applied
+    [*] initialProperties passed to constructor are applied
+    [*] default style (ControlState.READY) is generated using current property snapshot
+    [*] witholdingEvents is removed, and all future property changes will raise events
+    * Any special event registrations or other initialization logic
+
+---------------
+VISUAL STEPS
+---------------
+
+1. Control properties set to defaults
+2. Section properties set to defaults
+3. Current Section theme is applied
+4. CHILD properties set to defaults
+5. Current CHILD theme is applied
+6. initialProperties from constructor are applied
+7. ControlState.READY style is generated
+
+

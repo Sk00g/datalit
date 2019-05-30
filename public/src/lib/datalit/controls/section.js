@@ -7,7 +7,7 @@ import { Rect } from "./rect.js";
 import utils from "../utils.js";
 
 export class Section extends DynamicControl {
-    constructor(initialProperties = {}) {
+    constructor(initialProperties = {}, withholdEvents = false) {
         super();
 
         this.childEventRegisters = {}; // Keep track of child event registrations
@@ -29,6 +29,10 @@ export class Section extends DynamicControl {
         this.applyTheme("Section");
 
         this.updateProperties(initialProperties);
+
+        // Will typically continue to withold events until child constructor sets = false
+        // However, new Section() will sometimes be called directly
+        this._withholdingEvents = withholdEvents;
 
         this.background = new Rect({
             fillColor: this.backgroundColor,

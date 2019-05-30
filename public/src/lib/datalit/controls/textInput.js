@@ -1,14 +1,5 @@
 import { App } from "../app.js";
-import {
-    Color,
-    ContentDirection,
-    ControlState,
-    Cursor,
-    HAlign,
-    VAlign,
-    TEXT_KEYSTROKES,
-    MOTION_KEYSTROKES
-} from "../enums.js";
+import { Color, ContentDirection, Cursor, TEXT_KEYSTROKES, MOTION_KEYSTROKES } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import { Label } from "./label.js";
@@ -18,16 +9,16 @@ import utils from "../utils.js";
 
 export class TextInput extends Section {
     constructor(initialProperties = {}) {
-        super({
-            isFocusable: true,
-            contentDirection: ContentDirection.FREE,
-            backgroundColor: "F9",
-            borderColor: Color.BLACK,
-            borderThickness: 1,
-            size: [200, 30]
-        });
+        super(
+            {
+                isFocusable: true,
+                contentDirection: ContentDirection.FREE,
+                size: [200, 30]
+            },
+            true
+        );
 
-        // Must be built before registering properties, as they directly access this object
+        // Holds the text the user inputs
         this.label = new Label("", {
             fontSize: App.GlobalState.DefaultFontSize - 2,
             fontColor: Color.BLACK,
@@ -37,12 +28,12 @@ export class TextInput extends Section {
         });
         this.addChild(this.label);
 
-        // Don't draw selection rect as a child, it needs absolute coordinates
+        // Rectangle showing the selected text
         this.selectionRect = new Rect({ fillColor: "99BBEE99", zValue: 1, visible: false });
         this._selectionFill = "99BBEE99";
         this.addChild(this.selectionRect);
 
-        // Don't add cursor as a child, it needs to be drawn via absolute coordinates
+        // Blinking cursor to show current typing location
         this.cursor = new Rect({ size: [1, 18], fillColor: "22", zValue: 3, visible: false });
         this.cursorTimeSinceChange = 0;
         this.cursorDragStart = 0;
@@ -50,6 +41,7 @@ export class TextInput extends Section {
         this.renderCursor();
         this.addChild(this.cursor);
 
+        // Private fields behind properties
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
         this._selectPos = 0;
@@ -72,6 +64,9 @@ export class TextInput extends Section {
 
         // Set the initial or default properties as the ControlState.READY style
         this.generateDefaultStyle();
+
+        // Release propertyChanged events
+        this._withholdingEvents = false;
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
@@ -131,17 +126,14 @@ export class TextInput extends Section {
 
         let text = this.label.text;
         switch (key) {
+            case "Delete":
+                if (this._hasSelection()) this._removeSelection();
+                else if (this.cursorPos < text.length)
+                    this.label.text = text.slice(0, this.cursorPos) + text.slice(this.cursorPos + 1);
+                break;
             case "Backspace":
-                if (this._hasSelection()) {
-                    let previousCursor = this.cursorPos;
-                    let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
-                    let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
-                    this.label.text = firstText + secondText;
-                    this.selectPos = Math.min(this.selectPos, this.cursorPos);
-                    this.cursorPos = Math.min(this.selectPos, this.cursorPos);
-                    // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
-                    if (previousCursor == this.cursorPos) this.renderSelection();
-                } else if (this.cursorPos > 0) {
+                if (this._hasSelection()) this._removeSelection();
+                else if (this.cursorPos > 0) {
                     this.label.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
                     this.selectPos = this.cursorPos - 1;
                     this.cursorPos--;
@@ -184,22 +176,17 @@ export class TextInput extends Section {
         }
     }
 
-    handleText(key) {
+    handleText(newText) {
         let text = this.label.text;
 
         // Replace selected text if present
-        if (this._hasSelection()) {
-            let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
-            let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
-            this.label.text = firstText + key + secondText;
-            this.selectPos = Math.min(this.selectPos, this.cursorPos) + 1;
-            this.cursorPos = this.selectPos;
-        } else {
-            if (this.cursorPos == text.length) this.label.text += key;
-            else this.label.text = text.slice(0, this.cursorPos) + key + text.slice(this.cursorPos);
-            this.selectPos = this.cursorPos + 1;
-            this.cursorPos++;
-        }
+        if (this._hasSelection()) this._removeSelection();
+
+        if (this.cursorPos == text.length) this.label.text += newText;
+        else this.label.text = text.slice(0, this.cursorPos) + newText + text.slice(this.cursorPos);
+
+        this.selectPos = this.cursorPos + newText.length;
+        this.cursorPos = this.selectPos;
     }
 
     handleDoubleClick(event, data) {
@@ -228,9 +215,32 @@ export class TextInput extends Section {
             this.cursorPos = this.label.text.length;
             // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
             if (previousCursor == this.cursorPos) this.renderSelection();
+        } else if (data.modifiers.ctrl && data.code == "KeyC") {
+            if (this._hasSelection()) App.GlobalState.Clipboard = this._getSelection();
+        } else if (data.modifiers.ctrl && data.code == "KeyX") {
+            if (this._hasSelection()) {
+                App.GlobalState.Clipboard = this._getSelection();
+                this._removeSelection();
+                console.log(`select: ${this.selectPos} | cursor: ${this.cursorPos}`);
+            }
+        } else if (data.modifiers.ctrl && data.code == "KeyV") {
+            if (this._hasSelection()) this._removeSelection();
+            this.handleText(App.GlobalState.Clipboard);
         } else if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key, data.modifiers);
         else if (!data.modifiers.ctrl && !data.modifiers.alt && TEXT_KEYSTROKES.includes(data.key))
             this.handleText(data.key);
+    }
+
+    _removeSelection() {
+        let previousCursor = this.cursorPos;
+        let text = this.label.text;
+        let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
+        let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
+        this.label.text = firstText + secondText;
+        this.selectPos = Math.min(this.selectPos, this.cursorPos);
+        this.cursorPos = this.selectPos;
+        // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
+        if (previousCursor == this.cursorPos) this.renderSelection();
     }
 
     _hasSelection() {

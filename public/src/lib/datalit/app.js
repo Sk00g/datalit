@@ -12,7 +12,8 @@ class DatalitApp {
             DefaultMargin: [0, 0, 0, 0],
             DefaultFontSize: 12,
             RedrawRequired: true,
-            ClearRegions: []
+            ClearRegions: [],
+            Clipboard: ""
         };
 
         // Specify the alpha resolution strategy
