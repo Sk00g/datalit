@@ -29,7 +29,9 @@ export class Style {
     }
 
     activate() {
-        for (let def of this.propertyDefinitions) this.host[def[0]] = def[1];
+        for (let def of this.propertyDefinitions) {
+            if (!this.host.propertyMetadata[def[0]].styleProtected) this.host[def[0]] = def[1];
+        }
     }
 
     handleStateChange(ev, data) {

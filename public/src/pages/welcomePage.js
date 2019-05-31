@@ -30,7 +30,7 @@ export class WelcomePage extends Page {
         });
 
         main.addChild(new Button("Click Me", () => console.log("Y'all gone dun it")));
-        main.addChild(new TextInput({ size: [400, 32], margin: 8 }));
+        main.addChild(new TextInput({ size: [400, 32] }));
 
         let left = new Section({
             contentDirection: ContentDirection.VERTICAL,

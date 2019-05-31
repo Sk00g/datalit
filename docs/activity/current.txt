@@ -8,14 +8,12 @@ SYSTEM:				Special Controls
 STAGE:				Write
 
 IMMEDIATE:
-- Finalize and clean code-base to date, ensure styling and property changing works properly
-    * Working on 'withholding' init pattern, to avoid redundant activity when constructing controls. The code is done, it just needs to be tested and applied and such
+* Detour to add focus management to control (via click or tab)
     
 ----------
 TASK LIST
 ----------
 
-* Detour to add focus management to control (via click or tab)
 * Another detour to have some form of unit testing otherwise I will go crazy soon
 - Line
 - Circular button

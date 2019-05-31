@@ -6,7 +6,7 @@ import { PageState } from "../enums.js";
 
 // Keep in mind a Page defaults to ContentDirection.VERTICAL, but this can be changed manually
 export class Page extends Section {
-    constructor(initialProperties = {}) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super();
         // console.log("Page Constructor - 2");
         this.isPage = true;
@@ -23,6 +23,8 @@ export class Page extends Section {
         this.applyTheme("Page");
 
         this.updateProperties(initialProperties);
+
+        this._withholdingEvents = withholdingEvents;
     }
 
     //region Method Overrides

@@ -19,15 +19,19 @@ CONTROL INITIALIZATION PROCESS
     * Create child controls and call this.addChild(newControl)
     * Private fields behind properties are initialized to inline defaults
     * Unique properties are registered
-    [*] The current [NEW OBJECT] theme is applied
-    [*] initialProperties passed to constructor are applied
-    [*] default style (ControlState.READY) is generated using current property snapshot
-    [*] witholdingEvents is removed, and all future property changes will raise events
+   [*] The current [NEW OBJECT] theme is applied
+   [*] initialProperties passed to constructor are applied
+   [*] default style (ControlState.READY) is generated using current property snapshot
+   [*] witholdingEvents is removed, and all future property changes will raise events
     * Any special event registrations or other initialization logic
+
+[*] Represents logic that needs to be repeated in every Control subclass, and should be refactored out
 
 ---------------
 VISUAL STEPS
 ---------------
+
+Keep in mind that earlier steps will be overridden by later steps
 
 1. Control properties set to defaults
 2. Section properties set to defaults
@@ -35,6 +39,5 @@ VISUAL STEPS
 4. CHILD properties set to defaults
 5. Current CHILD theme is applied
 6. initialProperties from constructor are applied
-7. ControlState.READY style is generated
 
 

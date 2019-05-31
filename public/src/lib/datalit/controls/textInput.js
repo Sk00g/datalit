@@ -221,7 +221,6 @@ export class TextInput extends Section {
             if (this._hasSelection()) {
                 App.GlobalState.Clipboard = this._getSelection();
                 this._removeSelection();
-                console.log(`select: ${this.selectPos} | cursor: ${this.cursorPos}`);
             }
         } else if (data.modifiers.ctrl && data.code == "KeyV") {
             if (this._hasSelection()) this._removeSelection();
@@ -281,26 +280,34 @@ export class TextInput extends Section {
     }
     handleMouseEnter(event, data) {
         super.handleMouseEnter(event, data);
+
         utils.changeCursor(Cursor.TEXT);
     }
     handleMouseLeave(event, data) {
         super.handleMouseLeave(event, data);
+
         utils.changeCursor(Cursor.DEFAULT);
     }
     handleMouseMove(event, data) {
+        super.handleMouseMove(event, data);
+
         if (this.cursorDragging) {
             this.cursorPos = this._getTextIndexFromPosition(data.position);
         }
     }
     handleMouseUp(event, data) {
+        super.handleMouseUp(event, data);
+
         if (this.cursorDragging) {
             this.cursorPos = this._getTextIndexFromPosition(data.position);
         }
         this.cursorDragging = false;
     }
     handleMouseDown(event, data) {
+        super.handleMouseDown(event, data);
+
         // ----- DEBUG / DEV ONLY CODE -----
-        console.log("focused: " + this.focused);
+        // console.log("focused: " + this.focused);
         Events.activePage.focusedControl = this;
         this.focused = true;
         // console.log("text input receives artifical focus");

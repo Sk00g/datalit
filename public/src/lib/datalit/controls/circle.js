@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Circle extends Control {
-    constructor(radius, initialProperties = {}) {
+    constructor(radius, initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
@@ -22,6 +22,8 @@ export class Circle extends Control {
         this.applyTheme("Circle");
 
         this.updateProperties(initialProperties);
+
+        this._withholdingEvents = withholdingEvents;
     }
 
     // Method overrides

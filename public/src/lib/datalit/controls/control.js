@@ -37,7 +37,7 @@ export class Control {
         this.propertyMetadata = {};
         this.registerProperty("state", false, false, true);
         this.registerProperty("visible", true);
-        this.registerProperty("size", true, true, false, utils.comparePoints);
+        this.registerProperty("size", true, true, true, utils.comparePoints);
         this.registerProperty("margin", true, true, false, utils.compareSides);
         this.registerProperty("halign", true);
         this.registerProperty("valign", true);

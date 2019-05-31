@@ -10,7 +10,7 @@ import { Section } from "./section.js";
 import utils from "../utils.js";
 
 export class Button extends Section {
-    constructor(text, action, initialProperties = {}) {
+    constructor(text, action, initialProperties = {}, withholdingEvents = false) {
         super(
             {
                 contentDirection: ContentDirection.HORIZONTAL,
@@ -48,7 +48,7 @@ export class Button extends Section {
         this.generateDefaultStyle();
 
         // Release propertyChanged events
-        this._withholdingEvents = false;
+        this._withholdingEvents = withholdingEvents;
 
         if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);

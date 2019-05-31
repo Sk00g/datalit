@@ -7,7 +7,7 @@ import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
 export class LabelButton extends DynamicControl {
-    constructor(text, action, initialProperties = {}) {
+    constructor(text, action, initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
@@ -33,6 +33,8 @@ export class LabelButton extends DynamicControl {
 
         // Set the initial or default properties as the ControlState.READY style
         this.generateDefaultStyle();
+
+        this._withholdingEvents = withholdingEvents;
 
         if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);

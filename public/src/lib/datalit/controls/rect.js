@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Rect extends Control {
-    constructor(initialProperties = {}) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
@@ -20,6 +20,8 @@ export class Rect extends Control {
         this.applyTheme("Rect");
 
         this.updateProperties(initialProperties);
+
+        this._withholdingEvents = withholdingEvents;
     }
 
     //#region Unique Properties

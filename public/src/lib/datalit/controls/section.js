@@ -19,7 +19,7 @@ export class Section extends DynamicControl {
         // Unique property definitions
         this._contentDirection = ContentDirection.VERTICAL;
         this._backgroundColor = Color.TRANSPARENT;
-        this._borderColor = null;
+        this._borderColor = Color.BLACK;
         this._borderThickness = [0, 0, 0, 0];
         this.registerProperty("backgroundColor");
         this.registerProperty("borderColor");

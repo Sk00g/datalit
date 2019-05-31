@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Icon extends Control {
-    constructor(imageName, size, initialProperties = {}) {
+    constructor(imageName, size, initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
@@ -20,6 +20,8 @@ export class Icon extends Control {
         this.applyTheme("Icon");
 
         this.updateProperties(initialProperties);
+
+        this._withholdingEvents = withholdingEvents;
     }
 
     //#region Unique Properties

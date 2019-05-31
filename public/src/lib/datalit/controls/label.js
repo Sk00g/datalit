@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Label extends Control {
-    constructor(text, initialProperties = {}) {
+    constructor(text, initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
@@ -27,6 +27,8 @@ export class Label extends Control {
 
         // Override theme with explicit properties
         this.updateProperties(initialProperties);
+
+        this._withholdingEvents = withholdingEvents;
 
         this.calculateSize();
     }
