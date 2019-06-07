@@ -37,13 +37,13 @@ export class Icon extends Control {
     }
     //#endregion
 
-    draw() {
+    draw(context = App.Context) {
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
 
         if (this.sourceRect) {
-            App.Context.drawImage(this.image, ...this.sourceRect, ...truePosition, ...this.size);
+            context.drawImage(this.image, ...this.sourceRect, ...truePosition, ...this.size);
         } else {
-            App.Context.drawImage(this.image, ...truePosition, ...this.size);
+            context.drawImage(this.image, ...truePosition, ...this.size);
         }
     }
 }

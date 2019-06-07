@@ -2,24 +2,23 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/05/29 23:49
+LAST UPDATE:		2019/06/01 15:17
 SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Write
+STAGE:				Research
 
 IMMEDIATE:
-* Detour to add focus management to control (via click or tab)
+- ScrollSection
+    * Figure out a good way to actually implement this... probably write to set-size Canvas
     
 ----------
 TASK LIST
 ----------
 
-* Another detour to have some form of unit testing otherwise I will go crazy soon
 - Line
 - Circular button
 - TextEdit
 - ListView
-- ScrollSection
 - DropdownList
 - Popup
 - Checkbox
@@ -30,9 +29,11 @@ TASK LIST
 COMPLETED
 ----------
 - TextInput
+* Added focus management to Page (via click or tab)
 
 --------------------
 DIVERTED OR DROPPED
 --------------------
 * Implement Ctrl + Z / Y behaviour for TextInput
 * Implement hold-shift-click selection, multiple area selection, deselection logic via keyboard, etc.
+* Design and implement dynamic ordering of focus (for tab stack), either customizable, based on section direction, or based on Y coordinate, etc.

@@ -33,6 +33,19 @@ export class TextInput extends Section {
         this._selectionFill = "99BBEE99";
         this.addChild(this.selectionRect);
 
+        // Rectangle showing focus
+        this.focusRect = new Rect({
+            fillColor: Color.TRANSPARENT,
+            borderColor: "1133CC88",
+            borderThickness: 1,
+            localPosition: [-1, -1],
+            zValue: 4,
+            visible: false,
+            size: [this.size[0] + 2, this.size[1] + 2]
+        });
+        this._focusColor = "1133CC88";
+        this.addChild(this.focusRect);
+
         // Blinking cursor to show current typing location
         this.cursor = new Rect({ size: [1, 18], fillColor: "22", zValue: 3, visible: false });
         this.cursorTimeSinceChange = 0;
@@ -56,6 +69,7 @@ export class TextInput extends Section {
         this.registerProperty("cursorPos", false, true, true);
         this.registerProperty("selectPos", false, true, true);
         this.registerProperty("selectionFill");
+        this.registerProperty("focusColor", false, true, true);
 
         // Apply base theme before customized properties
         this.applyTheme("TextInput");
@@ -71,7 +85,14 @@ export class TextInput extends Section {
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
             if (data.property == "cursorPos") this.renderCursor();
-            else if (data.property == "focused") this.cursor.visible = this.focused;
+            else if (data.property == "focused") {
+                this.cursor.visible = this.focused;
+                this.focusRect.visible = this.focused;
+                if (!this.focused) {
+                    this.selectPos = this.cursorPos;
+                    this.renderSelection();
+                }
+            }
         });
 
         // Listen for keyboard input
@@ -177,10 +198,10 @@ export class TextInput extends Section {
     }
 
     handleText(newText) {
-        let text = this.label.text;
-
         // Replace selected text if present
         if (this._hasSelection()) this._removeSelection();
+
+        let text = this.label.text;
 
         if (this.cursorPos == text.length) this.label.text += newText;
         else this.label.text = text.slice(0, this.cursorPos) + newText + text.slice(this.cursorPos);
@@ -204,7 +225,6 @@ export class TextInput extends Section {
     }
 
     handleKeyDown(event, data) {
-        // console.log(`Text Input Receives: KEY: ${data.key} | CODE: ${data.code}`);
         this.cursorTimeSinceChange = 0;
         this.cursor.visible = true;
 
@@ -226,8 +246,7 @@ export class TextInput extends Section {
             if (this._hasSelection()) this._removeSelection();
             this.handleText(App.GlobalState.Clipboard);
         } else if (MOTION_KEYSTROKES.includes(data.key)) this.handleMotion(data.key, data.modifiers);
-        else if (!data.modifiers.ctrl && !data.modifiers.alt && TEXT_KEYSTROKES.includes(data.key))
-            this.handleText(data.key);
+        else if (!data.modifiers.ctrl && TEXT_KEYSTROKES.includes(data.key)) this.handleText(data.key);
     }
 
     _removeSelection() {
@@ -306,13 +325,6 @@ export class TextInput extends Section {
     handleMouseDown(event, data) {
         super.handleMouseDown(event, data);
 
-        // ----- DEBUG / DEV ONLY CODE -----
-        // console.log("focused: " + this.focused);
-        Events.activePage.focusedControl = this;
-        this.focused = true;
-        // console.log("text input receives artifical focus");
-        // ----- DO NOT FORGET TO REMOVE LATER -----
-
         // console.log(`Text Index from ${data.position[0]}: ${this._getTextIndexFromPosition(data.position)}`);
 
         if (this.focused) {
@@ -328,12 +340,29 @@ export class TextInput extends Section {
     //#endregion
 
     //#region Override Properties
-    arrangePosition(arranger, newPosition) {
-        super.arrangePosition(arranger, newPosition);
+    get size() {
+        return super.size;
+    }
+    set size(newSize) {
+        // Match focusRect size to this.size
+        if (this.focusRect) this.focusRect.size = [newSize[0] + 2, newSize[1] + 2];
+
+        super.size = newSize;
     }
     //#endregion
 
     //#region Unique Properties
+    get focusColor() {
+        return this._focusColor;
+    }
+    set focusColor(color) {
+        if (typeof utils.hexColor(color) != "string")
+            datalitError("propertySet", ["TextInput.focusColor", String(color), "string"]);
+
+        this.focusRect.borderColor = color;
+        this.notifyPropertyChange("focusColor");
+    }
+
     get selectionFill() {
         return this._selectionFill;
     }

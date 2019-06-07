@@ -68,34 +68,34 @@ export class Rect extends Control {
     }
     //#endregion
 
-    draw() {
-        App.Context.fillStyle = utils.hexColor(this.fillColor);
+    draw(context = App.Context) {
+        context.fillStyle = utils.hexColor(this.fillColor);
         let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
         // console.log(`drawing rect at ${truePosition} (${this.size})`);
-        App.Context.fillRect(...truePosition, ...this.size);
+        context.fillRect(...truePosition, ...this.size);
 
         if (!this.borderColor) return;
 
         // Draw borders
-        App.Context.fillStyle = utils.hexColor(this.borderColor);
+        context.fillStyle = utils.hexColor(this.borderColor);
         const bt = this.borderThickness;
         if (bt[0] != 0) {
             let size = [bt[0], this.size[1]];
-            App.Context.fillRect(...truePosition, ...size);
+            context.fillRect(...truePosition, ...size);
         }
         if (bt[1] != 0) {
             let size = [this.size[0], bt[1]];
-            App.Context.fillRect(...truePosition, ...size);
+            context.fillRect(...truePosition, ...size);
         }
         if (bt[2] != 0) {
             let pos = [truePosition[0] + this.size[0] - bt[2], truePosition[1]];
             let size = [bt[2], this.size[1]];
-            App.Context.fillRect(...pos, ...size);
+            context.fillRect(...pos, ...size);
         }
         if (bt[3] != 0) {
             let pos = [truePosition[0], truePosition[1] + this.size[1] - bt[3]];
             let size = [this.size[0], bt[3]];
-            App.Context.fillRect(...pos, ...size);
+            context.fillRect(...pos, ...size);
         }
     }
 }

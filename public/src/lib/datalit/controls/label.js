@@ -95,14 +95,14 @@ export class Label extends Control {
     }
     //#endregion
 
-    draw() {
-        App.Context.fillStyle = utils.hexColor(this.fontColor);
-        App.Context.font = this.fontSize + "pt " + this.fontType;
+    draw(context = App.Context) {
+        context.fillStyle = utils.hexColor(this.fontColor);
+        context.font = this.fontSize + "pt " + this.fontType;
         let truePosition = [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.fontSize + this.margin[1]
         ];
         // console.log(`draw text ${this.text} at ${truePosition}`);
-        App.Context.fillText(this.text, ...truePosition);
+        context.fillText(this.text, ...truePosition);
     }
 }

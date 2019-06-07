@@ -40,10 +40,23 @@ export class Section extends DynamicControl {
         });
         if (this.borderColor) this.background.borderColor = this.borderColor;
         if (this.borderThickness) this.background.borderThickness = this.borderThickness;
+
+        // Attach to Event system as a source for 'childrenChanged' events
+        this.eventListeners.childrenChanged = [];
+        Events.attachSource(this, ["childrenChanged"]);
     }
 
     isParentOf(child) {
         return this.children.indexOf(child) != -1;
+    }
+
+    getDescendants(includeSelf = true) {
+        let kids = includeSelf ? [this] : [];
+        for (let ctrl of this.children) {
+            if (ctrl.isArranger) kids = kids.concat(ctrl.getDescendants());
+            else kids.push(ctrl);
+        }
+        return kids;
     }
 
     scheduleRender() {
@@ -288,6 +301,9 @@ export class Section extends DynamicControl {
         // Use this with care
         newChild.__parent = this;
 
+        // Alert subscribers to change in children
+        this.dispatchEvent("childrenChanged", { action: "add", child: newChild });
+
         this.scheduleRender();
     }
     removeChild(child) {
@@ -296,6 +312,12 @@ export class Section extends DynamicControl {
         this.children.splice(this.children.indexOf(child), 1);
         this.orderedChildren.splice(this.orderedChildren.indexOf(child), 1);
         Events.unregister(this.childEventRegisters[child]);
+
+        // Use this with care
+        child.__parent = null;
+
+        // Alert subscribers to change in children
+        this.dispatchEvent("childrenChanged", { action: "remove", child: child });
 
         this.scheduleRender();
     }
@@ -444,12 +466,12 @@ export class Section extends DynamicControl {
         }
     }
 
-    draw() {
-        if (this.background) this.background.draw();
+    draw(context = App.Context) {
+        if (this.background) this.background.draw(context);
 
         for (let child of this.orderedChildren) {
             if (child.visible) {
-                child.draw();
+                child.draw(context);
             }
         }
     }

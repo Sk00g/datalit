@@ -1,20 +1,12 @@
-class Person {
-    constructor() {
-        console.log("made person");
-    }
-}
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const port = 9080;
 
-class Teacher extends Person {
-    constructor() {
-        super();
-        console.log("who is a teacher");
-    }
-}
+app.use(cors());
+app.use(express.static("public"));
 
-scott = new Person();
-katie = new Teacher();
+app.get("/", (req, res) => res.redirect("index.html"));
+// app.get("/", (req, res) => res.send('you are great'));
 
-console.log(scott instanceof Person);
-console.log(scott instanceof Teacher);
-console.log(katie instanceof Person);
-console.log(katie instanceof Teacher);
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

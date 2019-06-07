@@ -43,7 +43,7 @@ export class Control {
         this.registerProperty("valign", true);
         this.registerProperty("hfillTarget", true);
         this.registerProperty("vfillTarget", true);
-        this.registerProperty("focused", false, false, true);
+        this.registerProperty("focused", false, true, true);
         this.registerProperty("localPosition", true, true, false, utils.comparePoints);
         this.registerProperty("zValue");
 
@@ -51,6 +51,13 @@ export class Control {
         this.eventListeners = { propertyChanged: [] };
         Events.attachSource(this, ["propertyChanged"]);
     }
+
+    //#region Method Overrides
+    toString() {
+        let str = this.constructor.name;
+        return this.debugName ? `${str} - ${this.debugName}` : `${str} (${this._arrangedPosition})`;
+    }
+    //#endregion
 
     //#region Methods
     applyTheme(className, newTheme = Assets.BaseTheme) {

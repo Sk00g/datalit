@@ -18,31 +18,28 @@ export class WelcomePage extends Page {
         super();
 
         this.debugName = "welcomePage";
-        this.contentDirection = ContentDirection.HORIZONTAL;
+        this.contentDirection = ContentDirection.VERTICAL;
+
+        let nav = new Section({
+            contentDirection: ContentDirection.HORIZONTAL,
+            halign: HAlign.FILL,
+            valign: VAlign.TOP,
+            vfillTarget: 0.12,
+            backgroundColor: Assets.BaseTheme.colors.BackgroundMain,
+            zValue: 1,
+            debugName: "nav"
+        });
 
         let main = new Section({
             contentDirection: ContentDirection.VERTICAL,
             halign: HAlign.FILL,
             valign: VAlign.FILL,
-            backgroundColor: Assets.BaseTheme.colors.BackgroundMain,
-            zValue: 1,
+            backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
             debugName: "main"
         });
 
-        main.addChild(new Button("Click Me", () => console.log("Y'all gone dun it")));
-        main.addChild(new TextInput({ size: [400, 32] }));
-
-        let left = new Section({
-            contentDirection: ContentDirection.VERTICAL,
-            halign: HAlign.LEFT,
-            valign: VAlign.FILL,
-            backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
-            hfillTarget: 0.3,
-            debugName: "left"
-        });
-
+        this.addSection(nav);
         this.addSection(main);
-        this.addSection(left);
 
         Events.register(App.Canvas, "keyup", (ev, data) => this.handleKeypress(ev, data));
     }
@@ -54,6 +51,8 @@ export class WelcomePage extends Page {
             case "a":
                 break;
             case "b":
+                break;
+            case "c":
                 break;
         }
     }

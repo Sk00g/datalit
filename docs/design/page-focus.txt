@@ -1,0 +1,21 @@
+---------------
+PAGE FOCUS
+---------------
+
+* Goal is to implement a standard 'focus' system within each Page in a datalit application
+* Clicking a focusable item will move focus
+* Hitting tab will cycle through focusable items
+* Keyboard input will go to the focused item
+* If a Section derivative control is focusable, and it has children that are also focusable... error or some sort of layered logic?
+    - natural thought would be to go by specificity. The lowest level control (last child) will be focused
+* Conflicts of overlapping, unrelated-tree (not children of one another) controls are resolved by zIndex. If not present, they can just be random, this is customer problem dear
+
+
+- pages must maintain an accurate list of all 'focusable' controls within itself, in order to cycle properly
+- this list should be updated when:
+    - a focusable control is added to a child of Page
+    - a focusable control is removed from a page
+
+* Going to see if we can simplify the focus process by making isFocusable immutable
+
+* Focus should be updated on mouse down, rather than mouseup, for obvious reasons

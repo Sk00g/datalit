@@ -62,6 +62,7 @@
             "borderThickness": 1,
             "backgroundColor": "FFFFFF",
             "fontColor": "222222",
+            "focusColor": "4477EE88",
             "styles": {
                 "HOVERED": {
                     "fontColor": "000000",

@@ -100,24 +100,24 @@ export class Circle extends Control {
     }
     //#endregion
 
-    draw() {
-        App.Context.beginPath();
-        App.Context.fillStyle = utils.hexColor(this.fillColor);
+    draw(context = App.Context) {
+        context.beginPath();
+        context.fillStyle = utils.hexColor(this.fillColor);
         let center = [
             this._arrangedPosition[0] + this.radius + this.margin[0],
             this._arrangedPosition[1] + this.radius + this.margin[1]
         ];
-        App.Context.arc(...center, this.radius, 0, Math.PI * 2);
-        App.Context.fill();
+        context.arc(...center, this.radius, 0, Math.PI * 2);
+        context.fill();
 
         if (!this.borderColor) return;
 
-        App.Context.strokeStyle = utils.hexColor(this.borderColor);
+        context.strokeStyle = utils.hexColor(this.borderColor);
         var count = 1;
         while (count <= this.borderThickness) {
-            App.Context.beginPath();
-            App.Context.arc(...center, this.radius - (count - 1), 0, Math.PI * 2);
-            App.Context.stroke();
+            context.beginPath();
+            context.arc(...center, this.radius - (count - 1), 0, Math.PI * 2);
+            context.stroke();
             count++;
         }
     }
