@@ -1,0 +1,4 @@
+[
+    { "id": 100, "shiftStart": "2019-08-11T09:08", "shiftEnd": "2019-08-11T17:34", "notes": ["STAT"] },
+    { "id": 100, "shiftStart": "2019-08-12T09:08", "shiftEnd": "2019-08-12T17:34", "notes": ["skipped lunch"] }
+]

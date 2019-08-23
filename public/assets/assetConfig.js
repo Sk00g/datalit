@@ -1,1 +1,1 @@
-export default {"themeBase": "default.json", "themeDir": "themes", "themeCount": 2, "imagePaths": ["char.png", "searchPurple.png", "infinitiLogo.png", "loginTeal.png"], "baseDir": "assets", "imageDir": "images", "imageCount": 4, "themePaths": ["default.json", "theme1.json"]}
+export default {"baseDir": "assets", "imageDir": "images", "imagePaths": ["char.png", "infinitiLogo.png", "loginTeal.png", "searchPurple.png"], "imageCount": 4, "themeDir": "themes", "themePaths": ["default.json", "theme1.json"], "themeBase": "default.json", "themeCount": 2}

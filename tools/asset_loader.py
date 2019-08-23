@@ -14,6 +14,7 @@ THEME_MAP_FILE = "themeMap.js"
 BASE_DIR = "assets"
 IMAGE_DIR = "images"
 THEME_DIR = "themes"
+FILE_SEPARATOR = '/' if os.name == 'posix' else '\\'
 # ------------
 
 
@@ -37,7 +38,7 @@ with open(CONFIG_FILE, 'w+') as config_file:
         map_data = {}
 
         for root, dirs, files in os.walk(os.getcwd()):
-            if root.split('/')[-1] == IMAGE_DIR:
+            if root.split(FILE_SEPARATOR)[-1] == IMAGE_DIR:
                 for img_file in files:
                     config_data['imagePaths'].append(img_file)
                     config_data['imageCount'] += 1
@@ -54,7 +55,7 @@ with open(CONFIG_FILE, 'w+') as config_file:
         map_data = {}
 
         for root, dirs, files in os.walk(os.getcwd()):
-            if root.split('/')[-1] == THEME_DIR:
+            if root.split(FILE_SEPARATOR)[-1] == THEME_DIR:
                 for data_file in files:
                     # Open file to check if it's the base or not
                     print(os.path.join(root, data_file))

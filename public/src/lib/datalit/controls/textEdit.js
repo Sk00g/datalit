@@ -7,26 +7,19 @@ import { Rect } from "./rect.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
 
-export class TextInput extends Section {
+export class TextEdit extends Section {
     constructor(initialProperties = {}) {
         super(
             {
                 isFocusable: true,
                 contentDirection: ContentDirection.FREE,
-                size: [200, 30]
+                size: [300, 80]
             },
             true
         );
 
-        // Holds the text the user inputs
-        this.label = new Label("", {
-            fontSize: App.GlobalState.DefaultFontSize - 2,
-            fontColor: Color.BLACK,
-            fontType: "sans-serif",
-            margin: [8, 0, 8, 0],
-            zValue: 2
-        });
-        this.addChild(this.label);
+        // Holds each line of text in this array
+        this.lines = [];
 
         // Rectangle showing the selected text
         this.selectionRect = new Rect({ fillColor: "99BBEE99", zValue: 1, visible: false });
@@ -56,8 +49,9 @@ export class TextInput extends Section {
 
         // Private fields behind properties
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
-        this._cursorPos = 0;
-        this._selectPos = 0;
+        this._cursorPos = [0, 0];
+        this._selectPos = [0, 0];
+        this._lineSpace = 8;
 
         this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
         this.registerProperty("fontSize", true);
@@ -70,9 +64,10 @@ export class TextInput extends Section {
         this.registerProperty("selectPos", false, true, true);
         this.registerProperty("selectionFill");
         this.registerProperty("focusColor", false, true, true);
+        this.registerProperty("lineSpace", true, true, true);
 
         // Apply base theme before customized properties
-        this.applyTheme("TextInput");
+        this.applyTheme("TextEdit");
 
         this.updateProperties(initialProperties);
 
@@ -105,10 +100,10 @@ export class TextInput extends Section {
     renderCursor() {
         let text = this.label.text;
 
-        App.Context.font = this.fontSize + "pt " + this.fontType;
-        let preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos)).width);
+        App.Context.font = this._fontSize + "pt " + this._fontType;
+        let preTextWidth = Math.floor(App.Context.measureText(text.substr(0, this.cursorPos[0])).width);
         let newX = this.label.margin[0] + preTextWidth;
-        let newY = Math.floor((this.height - this.cursorSize[1]) / 2);
+        let newY = this.fontMargin[1] + (this.fontSize / 2) * (this.cursorPos[1] + 1);
 
         this.cursor.localPosition = [newX, newY];
 
@@ -120,7 +115,7 @@ export class TextInput extends Section {
         this.selectionRect.visible = true;
         let text = this.label.text;
 
-        App.Context.font = this.fontSize + "pt " + this.fontType;
+        App.Context.font = this._fontSize + "pt " + this._fontType;
 
         let rectWidth, preTextWidth;
         // Shift + Right
@@ -184,6 +179,16 @@ export class TextInput extends Section {
                         if (!modifiers.shift) this.selectPos = this.cursorPos + 1;
                         this.cursorPos++;
                     }
+                }
+                break;
+            case "ArrowUp":
+                if (this.cursorPos[1] > 0) {
+                    this.cursorPos[1]--;
+                }
+                break;
+            case "ArrowDown":
+                if (this.cursorPos[1] < this.lines.length - 1) {
+                    this.cursorPos[1]++;
                 }
                 break;
             case "Home":
@@ -352,12 +357,23 @@ export class TextInput extends Section {
     //#endregion
 
     //#region Unique Properties
+    get lineSpace() {
+        return this._lineSpace;
+    }
+    set lineSpace(newSpace) {
+        if (!Number.isInteger(newSpace) || newSpace < 0 || newSpace > 100)
+            datalitError("propertySet", ["TextEdit.lineSpace", String(newSpace), "int 0 - 100"]);
+
+        this._lineSpace = newSpace;
+        this.notifyPropertyChange("newSpace");
+    }
+
     get focusColor() {
         return this._focusColor;
     }
     set focusColor(color) {
         if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["TextInput.focusColor", String(color), "string"]);
+            datalitError("propertySet", ["TextEdit.focusColor", String(color), "string"]);
 
         this.focusRect.borderColor = color;
         this.notifyPropertyChange("focusColor");
@@ -368,7 +384,7 @@ export class TextInput extends Section {
     }
     set selectionFill(color) {
         if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["TextInput.selectionFill", String(color), "string"]);
+            datalitError("propertySet", ["TextEdit.selectionFill", String(color), "string"]);
 
         this.selectionRect.fillColor = color;
         this.notifyPropertyChange("selectionFill");
@@ -379,7 +395,7 @@ export class TextInput extends Section {
     }
     set selectPos(newPos) {
         if (!Number.isInteger(newPos) || newPos < -1 || newPos > this.label.text.length)
-            datalitError("propertySet", ["TextInput.selectPos", String(newPos), "int (-1) - (text.length - 1)"]);
+            datalitError("propertySet", ["TextEdit.selectPos", String(newPos), "int (-1) - (text.length - 1)"]);
 
         this._selectPos = newPos;
         this.notifyPropertyChange("selectPos");
@@ -390,7 +406,7 @@ export class TextInput extends Section {
     }
     set cursorPos(newPos) {
         if (!Number.isInteger(newPos) || newPos < 0 || newPos > this.label.text.length)
-            datalitError("propertySet", ["TextInput.cursorPos", String(newPos), "int 0 - text.length"]);
+            datalitError("propertySet", ["TextEdit.cursorPos", String(newPos), "int 0 - text.length"]);
 
         this._cursorPos = newPos;
         this.notifyPropertyChange("cursorPos");
@@ -401,7 +417,7 @@ export class TextInput extends Section {
     }
     set cursorBlinkRate(newRate) {
         if (!Number.isInteger(newRate) || newRate < 50 || newRate > 2000)
-            datalitError("propertySet", ["TextInput.cursorBlinkRate", String(newRate), "int 50 - 2000"]);
+            datalitError("propertySet", ["TextEdit.cursorBlinkRate", String(newRate), "int 50 - 2000"]);
 
         this._cursorBlinkRate = newRate;
     }
@@ -426,7 +442,7 @@ export class TextInput extends Section {
         return this.label.text;
     }
     set text(newText) {
-        if (typeof newText != "string") datalitError("propertySet", ["TextInput.text", String(newText), "string"]);
+        if (typeof newText != "string") datalitError("propertySet", ["TextEdit.text", String(newText), "string"]);
 
         this.label.text = newText;
         this.notifyPropertyChange("text");
@@ -437,7 +453,7 @@ export class TextInput extends Section {
     }
     set fontSize(size) {
         if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["TextInput.fontSize", String(size), "int > 2"]);
+            datalitError("propertySet", ["TextEdit.fontSize", String(size), "int > 2"]);
 
         this.label.fontSize = size;
         this.notifyPropertyChange("fontSize");
@@ -448,7 +464,7 @@ export class TextInput extends Section {
     }
     set fontColor(color) {
         if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["TextInput.fontColor", String(color), "string"]);
+            datalitError("propertySet", ["TextEdit.fontColor", String(color), "string"]);
 
         this.label.fontColor = color;
         this.notifyPropertyChange("fontColor");
@@ -458,7 +474,7 @@ export class TextInput extends Section {
         return this.label.fontType;
     }
     set fontType(font) {
-        if (typeof font != "string") datalitError("propertySet", ["TextInput.fontType", String(font), "string"]);
+        if (typeof font != "string") datalitError("propertySet", ["TextEdit.fontType", String(font), "string"]);
 
         this.label.fontType = font;
         this.notifyPropertyChange("fontType");

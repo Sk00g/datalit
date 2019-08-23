@@ -55,7 +55,7 @@ export class Button extends Section {
     }
 
     handleMouseUp() {
-        if (this.state == ControlState.DEPRESSED) this.dispatchEvent("click", null);
+        if (this.state == ControlState.DEPRESSED) this.dispatchEvent("click", this);
 
         super.handleMouseUp();
     }

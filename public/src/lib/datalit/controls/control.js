@@ -38,7 +38,7 @@ export class Control {
         this.registerProperty("state", false, false, true);
         this.registerProperty("visible", true);
         this.registerProperty("size", true, true, true, utils.comparePoints);
-        this.registerProperty("margin", true, true, false, utils.compareSides);
+        this.registerProperty("margin", true, true, true, utils.compareSides);
         this.registerProperty("halign", true);
         this.registerProperty("valign", true);
         this.registerProperty("hfillTarget", true);
@@ -144,7 +144,8 @@ export class Control {
 
     updateProperties(newProperties) {
         for (const [key, value] of Object.entries(newProperties)) {
-            if (!this.hasOwnProperty("_" + key)) datalitError("propertyNotFound", ["Control", "_" + key]);
+            if (this.propertyMetadata[key] === undefined && !this.hasOwnProperty("_" + key))
+                datalitError("propertyNotFound", ["Control", key]);
             this[key] = value;
         }
     }

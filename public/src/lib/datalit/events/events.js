@@ -60,7 +60,8 @@ class EventManager {
             // );
 
             // Stop problem events
-            if (eventName == "keydown" && (ev.code == "Tab" || ev.key == "'" || ev.key == "/")) ev.preventDefault();
+            if (eventName == "keydown" && (ev.code == "Tab" || ev.key == "'" || ev.key == "/" || ev.key == "Backspace"))
+                ev.preventDefault();
 
             // Sends this event out to helper class ControlEventLayer to determine which control(s)
             // this keyboard event should be sourced by. It then calls handleEvent with each control as source

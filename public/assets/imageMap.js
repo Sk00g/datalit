@@ -1,1 +1,1 @@
-export default {"char": "char", "loginTeal": "loginTeal", "infinitiLogo": "infinitiLogo", "searchPurple": "searchPurple"}
+export default {"char": "char", "infinitiLogo": "infinitiLogo", "loginTeal": "loginTeal", "searchPurple": "searchPurple"}

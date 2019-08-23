@@ -50,10 +50,10 @@ export class Section extends DynamicControl {
         return this.children.indexOf(child) != -1;
     }
 
-    getDescendants(includeSelf = true) {
+    getDescendents(includeSelf = true) {
         let kids = includeSelf ? [this] : [];
         for (let ctrl of this.children) {
-            if (ctrl.isArranger) kids = kids.concat(ctrl.getDescendants());
+            if (ctrl.isArranger) kids = kids.concat(ctrl.getDescendents());
             else kids.push(ctrl);
         }
         return kids;

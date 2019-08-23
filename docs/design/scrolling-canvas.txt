@@ -1,0 +1,12 @@
+---------------
+SCROLLING CANVAS DESIGN
+---------------
+
+* each scrolling canvas draws to its own internal canvas, then in its 'draw' method it draws to the base Canvas
+* the canvas maintains ScrollPosition[X|Y] properties, which are passed to each child element. These child elements then 'offset' their own x/y placement based on these values passed in through the constuctor 
+* scrolling canvas's can check their children's 'relative visibility', and avoid drawing if the elements would not be visible anyways  
+* scroll wheel events have their Y-change functionality built into base class 
+* contain scroll bars based on which directions are enabled (y-only by default):
+    - first child of section, aligned to bottom / right by default
+    - contains buttons in top / bottom or left / right
+    - contains draggable 

@@ -107,13 +107,13 @@ export class Page extends Section {
         if (data.action == "add") {
             // Grab any existing children and add them to the stack
             if (data.child.isArranger) {
-                for (let ctrl of data.child.getDescendants()) this.addFocusableControl(ctrl);
+                for (let ctrl of data.child.getDescendents()) this.addFocusableControl(ctrl);
             } else {
                 this.addFocusableControl(data.child);
             }
         } else if (data.action == "remove") {
             if (data.child.isArranger) {
-                for (let ctrl of data.child.getDescendants()) this.removeFocusableControl(ctrl);
+                for (let ctrl of data.child.getDescendents()) this.removeFocusableControl(ctrl);
             } else {
                 this.removeFocusableControl(data.child);
             }
@@ -126,9 +126,16 @@ export class Page extends Section {
         if (!section.isArranger) throw new Error("Only Sections can be children of a Page");
 
         // Grab any existing children and add them to the stack
-        for (let ctrl of section.getDescendants()) this.addFocusableControl(ctrl);
+        for (let ctrl of section.getDescendents()) this.addFocusableControl(ctrl);
 
         super.addChild(section);
+    }
+
+    removeSection(section) {
+        // Grab all section children and remove them from the stack
+        for (let ctrl of section.getDescendents()) this.removeFocusableControl(ctrl);
+
+        super.removeChild(section);
     }
 
     // Extending classes should implement the following methods

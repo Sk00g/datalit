@@ -16,8 +16,8 @@
             "imageSize": [32, 32]
         },
         "Label": {
-            "margin": [12, 8, 12, 8],
-            "fontColor": "$colors.TextMain",
+            "margin": 12,
+            "fontColor": "$colors.TextLight",
             "fontSize": 12,
             "valign": "CENTER"
         },
@@ -60,17 +60,18 @@
             "margin": 8,
             "borderColor": "000000",
             "borderThickness": 1,
-            "backgroundColor": "FFFFFF",
+            "backgroundColor": "DDDDDD",
             "fontColor": "222222",
             "focusColor": "4477EE88",
+            "valign": "CENTER",
             "styles": {
                 "HOVERED": {
                     "fontColor": "000000",
-                    "borderColor": "FF0000"
+                    "borderColor": "222222"
                 },
                 "DEPRESSED": {
                     "fontColor": "000000",
-                    "borderColor": "00FF00"
+                    "borderColor": "224488"
                 }
             }
         }

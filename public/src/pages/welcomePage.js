@@ -6,7 +6,6 @@ import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/da
 import { Events } from "../lib/datalit/events/events.js";
 import { Icon } from "../lib/datalit/controls/icon.js";
 import { Label } from "../lib/datalit/controls/label.js";
-import { LabelButton } from "../lib/datalit/controls/labelButton.js";
 import { Page } from "../lib/datalit/controls/page.js";
 import { Rect } from "../lib/datalit/controls/rect.js";
 import { Section } from "../lib/datalit/controls/section.js";
@@ -29,6 +28,21 @@ export class WelcomePage extends Page {
             zValue: 1,
             debugName: "nav"
         });
+        nav.addChild(
+            new Label("DATALit", {
+                halign: HAlign.CENTER,
+                valign: VAlign.CENTER,
+                margin: 10,
+                fontSize: 20,
+                fontColor: Assets.BaseTheme.colors.BackgroundDark
+            })
+        );
+        nav.addChild(
+            new TextInput({
+                halign: HAlign.CENTER,
+                valign: VAlign.CENTER
+            })
+        );
 
         let main = new Section({
             contentDirection: ContentDirection.VERTICAL,

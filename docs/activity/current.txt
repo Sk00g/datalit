@@ -2,22 +2,19 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/06/01 15:17
+LAST UPDATE:		2019/08/03 21:58
 SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Research
+STAGE:				Design
 
 IMMEDIATE:
-- ScrollSection
-    * Figure out a good way to actually implement this... probably write to set-size Canvas
+- Bailed on a couple of attempts at more complicated controls. Doing some research, further testing, and possibly improving the documentation before continuing
     
 ----------
 TASK LIST
 ----------
 
-- Line
 - Circular button
-- TextEdit
 - ListView
 - DropdownList
 - Popup
@@ -37,3 +34,5 @@ DIVERTED OR DROPPED
 * Implement Ctrl + Z / Y behaviour for TextInput
 * Implement hold-shift-click selection, multiple area selection, deselection logic via keyboard, etc.
 * Design and implement dynamic ordering of focus (for tab stack), either customizable, based on section direction, or based on Y coordinate, etc.
+* ScrollSection (waiting until the rest of the system is more stabilized, as I realized this is actually a major undertaking)
+* TextEdit (Started doing a few changes then realized need a proper design phase before even attempting this)
