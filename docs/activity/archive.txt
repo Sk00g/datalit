@@ -39,6 +39,19 @@ Styles & Themes: 2019/05/15
 * Need to implement the freaking margin for Section objects... what the heck
 - Build the regular button control to test out the advanced theme and style systems to date
 
+First Test Run (Special Controls): 2019/08/26
+
+- TextInput
+* Added focus management to Page (via click or tab)
+* Built SectionHost
+* Built ListSection alongside dynamic content generation system via factory.js
+* Built a bare bones server implementation using node.js (server.js), mongodb, and WebSockets for communication
+* Bailed on a couple of attempts at more complicated controls. Doing some research, further testing, and possibly improving the documentation before continuing
+    * Have been working mainly on prototyping kempertime application, mostly just testing out work to date and getting a feel for actually using the framework
+* Basics are working enough to have a proper application... is definitely frustrating to design via Javascript/JSON code with no live view and no editor
+* The strategy for binding is becoming more clear now that we have actually designed an application that requires data
+* Even a basic GUI with content generation is taking an exorbitant amount of of memory, the CPU usage is reasonable but tough to tell because my computer is awesome
+
 
 --------------------
 DIVERTED OR DROPPED
@@ -46,3 +59,8 @@ DIVERTED OR DROPPED
 - Build 'focus' system handled by page (easier to do after styling stuff is finished)
 * Might be worth going back and changing the structure of control constructors to have ALL property registration in the base Control / DynamicControl classes, and just pass the property names in... not sure
 * The way Style class receives its property definitions parameter in constructor is somewhat counterintuitive. It is a list of lists where everything else in the library seems to work off regular JS kvp objects for properties. Should probably go in and change this at some point for consistency
+* Implement Ctrl + Z / Y behaviour for TextInput
+* Implement hold-shift-click selection, multiple area selection, deselection logic via keyboard, etc.
+* Design and implement dynamic ordering of focus (for tab stack), either customizable, based on section direction, or based on Y coordinate, etc.
+* ScrollSection (waiting until the rest of the system is more stabilized, as I realized this is actually a major undertaking)
+* TextEdit (Started doing a few changes then realized need a proper design phase before even attempting this)

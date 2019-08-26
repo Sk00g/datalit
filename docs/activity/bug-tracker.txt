@@ -14,12 +14,3 @@ This is the description of the bug that doesn't exit
 DATE: 2019/04/22	|	CONTEXT: Drawing Circle with Canvas API context.arc()
 ------------------------------
 When using the circle border properties, the border has black streaks in it and doesn't look proper if you go above 2, this is probably due to the method I'm drawing the border, will need investigation when this comes up. Is much more prevalent with certain colors
-
-
-
-
-
-
-
-
-

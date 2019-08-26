@@ -12,8 +12,8 @@ Overarching Systems
 * Core Library          |X|
 * Event handling        |X|
 * Styles & Themes       |X|
-* Special Controls      |-|
-* Back-End              | |
+* Special Controls      |-|     15%
+* Back-End              |-|     10%
 * Data Binding          | |
 * Drag & Drop           | |
 * Editor                | |
@@ -22,7 +22,7 @@ Overarching Systems
 * Miscellaneous         | |
 
 ------------------------------------
-Topics to Learn:
+TOPICS TO LEARN
 ------------------------------------
 - canvas optimization
 - general javascript optimization skills
@@ -40,3 +40,14 @@ IMPROVEMENTS WHEN APPLICABLE
 - For documentation would be great to have a master list of all properties involved in alignment and arrangement so that I (and others) can easily see how to achieve our desired layouts. Otherwise it is confusing with contentDirection, [h|v]align, [h|v]fillTarget, margin, and how those all relate to each other
 - For the event system, need to go in and write a ton of error handling stuff
 - May need to revisit the mousenter/leave logic to improve the precision. Just not sure if this would be helpful yet
+
+------------------------------------
+SPECIAL CONTROLS TODO
+------------------------------------
+- Circular button
+- ListView
+- DropdownList
+- Popup
+- Checkbox
+- Link
+- Slider
