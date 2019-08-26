@@ -5,11 +5,11 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Circle extends Control {
-    constructor(radius, initialProperties = {}, withholdingEvents = false) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
-        this._radius = radius;
+        this._radius = 1;
         this._fillColor = Color.BLACK;
         this._borderColor = null;
         this._borderThickness = 0;

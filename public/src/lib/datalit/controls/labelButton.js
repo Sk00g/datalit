@@ -7,14 +7,16 @@ import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
 export class LabelButton extends DynamicControl {
-    constructor(text, action, initialProperties = {}, withholdingEvents = false) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
-        this._text = text;
+        this._action = null;
+        this._text = initialProperties.text ? initialProperties.text : "";
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
+        this.registerProperty("action", false, false, true);
         this.registerProperty("text", true, true, true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
@@ -36,7 +38,6 @@ export class LabelButton extends DynamicControl {
 
         this._withholdingEvents = withholdingEvents;
 
-        if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);
     }
 
@@ -72,11 +73,25 @@ export class LabelButton extends DynamicControl {
     //#endregion
 
     //#region Unique Properties
+    get action() {
+        return this._action;
+    }
+    set action(newAction) {
+        if (typeof newAction != "function")
+            datalitError("propertySet", ["LabelButton.action", String(newAction), "function"]);
+
+        // Remove current action callback if present
+        if (this._action) this.removeEventListener("click", this._action);
+        this.addEventListener("click", newAction);
+
+        this._action = newAction;
+        this.notifyPropertyChange("action");
+    }
     get text() {
         return this._text;
     }
     set text(newText) {
-        if (typeof newText != "string") datalitError("propertySet", ["Label.text", String(newText), "string"]);
+        if (typeof newText != "string") datalitError("propertySet", ["LabelButton.text", String(newText), "string"]);
 
         this._text = newText;
         this.calculateSize();
@@ -88,7 +103,7 @@ export class LabelButton extends DynamicControl {
     }
     set fontSize(size) {
         if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["Label.fontSize", String(size), "int > 2"]);
+            datalitError("propertySet", ["LabelButton.fontSize", String(size), "int > 2"]);
 
         this._fontSize = size;
         this.calculateSize();
@@ -100,7 +115,7 @@ export class LabelButton extends DynamicControl {
     }
     set fontColor(color) {
         if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["Label.fontColor", String(color), "string"]);
+            datalitError("propertySet", ["LabelButton.fontColor", String(color), "string"]);
 
         this._fontColor = color;
         this.notifyPropertyChange("fontColor");
@@ -110,7 +125,7 @@ export class LabelButton extends DynamicControl {
         return this._fontType;
     }
     set fontType(font) {
-        if (typeof font != "string") datalitError("propertySet", ["Label.fontType", String(font), "string"]);
+        if (typeof font != "string") datalitError("propertySet", ["LabelButton.fontType", String(font), "string"]);
 
         this._fontType = font;
         this.calculateSize();

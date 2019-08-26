@@ -69,12 +69,12 @@ export class Section extends DynamicControl {
 
         let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
         // Cannot have both Align.CENTER and Align.FILL in the same parent
-        let fills = this.children.filter(ch => ch[alignProp] == HAlign.FILL);
-        let centers = this.children.filter(ch => ch[alignProp] == HAlign.CENTER);
+        let fills = this.children.filter(ch => ch[alignProp] === HAlign.FILL);
+        let centers = this.children.filter(ch => ch[alignProp] === HAlign.CENTER);
         if (fills.length > 0 && centers.length > 0)
             datalitError("invalidAlignment", [this.debugName, "Cannot have CENTER + FILL in same axis"]);
 
-        // Multiple CENTER children cannot have a combined width/height of great than totalSpace
+        // Multiple CENTER children cannot have a combined width/height of greater than totalSpace
         if (centers.length > 0) {
             if (this.contentDirection == ContentDirection.HORIZONTAL) {
                 let combinedWidth = 0;
@@ -87,11 +87,13 @@ export class Section extends DynamicControl {
             } else if (this.contentDirection == ContentDirection.VERTICAL) {
                 let combinedHeight = 0;
                 for (let ctrl of centers) combinedHeight += ctrl.requestHeight(totalSpace[1], this.height);
-                if (combinedHeight > totalSpace[1])
+                if (combinedHeight > totalSpace[1]) {
+                    console.log(`combinedHeight: ${combinedHeight} | totalSpace[1]: ${totalSpace[1]}`);
                     datalitError("invalidAlignment", [
                         this.debugName,
                         "Cannot have CENTER children with height sum > totalSpace[1]"
                     ]);
+                }
             }
         }
     }

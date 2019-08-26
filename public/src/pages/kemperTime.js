@@ -6,10 +6,12 @@ import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/da
 import { Events } from "../lib/datalit/events/events.js";
 import { Icon } from "../lib/datalit/controls/icon.js";
 import { Label } from "../lib/datalit/controls/label.js";
+import { ListSection } from "../lib/datalit/controls/listSection.js";
 import { Page } from "../lib/datalit/controls/page.js";
 import { Rect } from "../lib/datalit/controls/rect.js";
 import { Section } from "../lib/datalit/controls/section.js";
 import { TextInput } from "../lib/datalit/controls/textInput.js";
+import { SectionHost } from "../lib/datalit/controls/sectionHost.js";
 import utils from "../lib/datalit/utils.js";
 
 var shared = require("../../../tools/sharedFunc.js");
@@ -46,14 +48,24 @@ export class KTHomePage extends Page {
             valign: VAlign.TOP,
             vfillTarget: -1
         });
-        this.navbar.timeLabel = new Label("", {
+        topSection.addChild(
+            new Button({
+                text: "BACK",
+                action: () => this.mainContent.navigateBack(),
+                halign: HAlign.LEFT,
+                valign: VAlign.CENTER,
+                size: [140, 32],
+                margin: [8, 0, 8, 0]
+            })
+        );
+        this.navbar.timeLabel = new Label({
             halign: HAlign.RIGHT,
             valign: VAlign.CENTER,
             margin: 14,
             fontSize: 11,
             fontColor: Assets.BaseTheme.colors.BackgroundDark
         });
-        this.navbar.statusLabel = new Label("", {
+        this.navbar.statusLabel = new Label({
             halign: HAlign.LEFT,
             valign: VAlign.CENTER,
             margin: 14,
@@ -64,7 +76,8 @@ export class KTHomePage extends Page {
         topSection.addChild(this.navbar.statusLabel);
         this.navbar.addChild(topSection);
 
-        this.navbar.titleLabel = new Label("KEMPERTIME", {
+        this.navbar.titleLabel = new Label({
+            text: "KEMPERTIME",
             halign: HAlign.CENTER,
             valign: VAlign.CENTER,
             margin: [0, 8, 0, 10],
@@ -75,8 +88,49 @@ export class KTHomePage extends Page {
 
         this.homeSection = this._createHomeSection();
         this.shiftSection = this._createShiftSection();
+        this.historySection = this._createHistorySection();
+        this.mainContent = new SectionHost(
+            {
+                halign: HAlign.FILL,
+                valign: VAlign.FILL,
+                backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
+                debugName: "mainContent"
+            },
+            false,
+            [this.historySection, this.shiftSection, this.homeSection]
+        );
+
+        this.statusBar = new Section({
+            contentDirection: ContentDirection.HORIZONTAL,
+            halign: HAlign.FILL,
+            valign: VAlign.BOTTOM,
+            vfillTarget: 0.04,
+            backgroundColor: Assets.BaseTheme.colors.BackgroundMain,
+            zValue: 1,
+            debugName: "statusbar"
+        });
+        this.statusTimeLabel = new Label({
+            text: utils.formatDateFull(new Date()),
+            halign: HAlign.LEFT,
+            valign: VAlign.CENTER,
+            margin: 8,
+            fontSize: 11,
+            fontColor: Assets.BaseTheme.colors.BackgroundDark
+        });
+        this.statusTextLabel = new Label({
+            text: "... connecting",
+            halign: HAlign.LEFT,
+            valign: VAlign.CENTER,
+            margin: 8,
+            fontSize: 10,
+            fontColor: "33bb53"
+        });
+        this.statusBar.addChild(this.statusTimeLabel);
+        this.statusBar.addChild(this.statusTextLabel);
 
         this.addSection(this.navbar);
+        this.addSection(this.mainContent);
+        this.addSection(this.statusBar);
 
         Events.register(App.Canvas, "keyup", (ev, data) => this.handleKeypress(ev, data));
     }
@@ -87,7 +141,7 @@ export class KTHomePage extends Page {
         this.conn = new WebSocket(CONFIG.WS_URL);
 
         this.conn.onopen = () => {
-            console.log(`SUCCESS websocket connection to ${CONFIG.WS_URL}`);
+            this._updateStatusText(`SUCCESS websocket connection to ${CONFIG.WS_URL}`);
 
             // Gather active shift information
             this.conn.send("GET\tACTIVE_SHIFT");
@@ -111,8 +165,15 @@ export class KTHomePage extends Page {
         };
     }
 
+    _updateStatusText(newText, isError = false) {
+        console.log(newText);
+        this.statusTimeLabel.text = utils.formatDateFull(new Date()) + ":";
+        this.statusTextLabel.text = newText;
+        this.statusTextLabel.fontColor = isError ? "993333" : "228842";
+    }
+
     _updateActiveShiftGUI() {
-        console.log("updating shift GUI");
+        // this._updateStatusText("updating shift GUI");
         this.navbar.statusLabel.text = this.activeShift ? "SHIFT ACTIVE" : "READY";
         this.homeSection.startButton.text = this.activeShift ? "ACTIVE" : "START";
 
@@ -128,7 +189,7 @@ export class KTHomePage extends Page {
                 : "BREAK ACTIVE: false";
             this.shiftSection.breakActiveLabel.fontColor = this.activeShift.breakStart ? "33ee55" : "DDDDDD";
             var total = this.activeShift.breakStart
-                ? new Date() - this.activeShift.breakStart + this.activeShift.breakTotal
+                ? new Date() - new Date(this.activeShift.breakStart) + this.activeShift.breakTotal
                 : this.activeShift.breakTotal;
             this.shiftSection.breakTotal.text = this.activeShift.breakTotal != 0 ? utils.formatTimestamp(total) : "";
         } else {
@@ -146,7 +207,9 @@ export class KTHomePage extends Page {
             backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
             debugName: "home"
         });
-        home.startButton = new Button("START", btn => this.handleStartPress(btn), {
+        home.startButton = new Button({
+            text: "START",
+            action: btn => this.handleStartPress(btn),
             halign: HAlign.CENTER,
             valign: VAlign.TOP,
             size: [140, 32],
@@ -154,7 +217,9 @@ export class KTHomePage extends Page {
         });
         home.addChild(home.startButton);
         home.addChild(
-            new Button("HISTORY", btn => this.handleStartPress(btn), {
+            new Button({
+                text: "HISTORY",
+                action: btn => this.handleHistoryPress(btn),
                 halign: HAlign.CENTER,
                 valign: VAlign.TOP,
                 size: [140, 32],
@@ -162,7 +227,9 @@ export class KTHomePage extends Page {
             })
         );
         home.addChild(
-            new Button("STATS", btn => this.handleStartPress(btn), {
+            new Button({
+                text: "STATS",
+                action: btn => this.handleStartPress(btn),
                 halign: HAlign.CENTER,
                 valign: VAlign.TOP,
                 size: [140, 32],
@@ -190,7 +257,7 @@ export class KTHomePage extends Page {
             vfillTarget: -1,
             hfillTarget: -1
         });
-        sec.addChild(new Label("START"));
+        sec.addChild(new Label({ text: "START" }));
         shift.startInput = new TextInput({
             margin: 12,
             valign: VAlign.CENTER,
@@ -209,7 +276,7 @@ export class KTHomePage extends Page {
             vfillTarget: -1,
             hfillTarget: -1
         });
-        sec.addChild(new Label("END   "));
+        sec.addChild(new Label({ text: "END   " }));
         shift.endInput = new TextInput({
             margin: 12,
             valign: VAlign.CENTER,
@@ -222,7 +289,9 @@ export class KTHomePage extends Page {
 
         // End shift button
         shift.addChild(
-            new Button("END SHIFT", () => this.endShift(), {
+            new Button({
+                text: "END SHIFT",
+                action: () => this.endShift(),
                 halign: HAlign.CENTER,
                 size: [140, 32],
                 margin: 12
@@ -237,7 +306,7 @@ export class KTHomePage extends Page {
             vfillTarget: -1,
             hfillTarget: -1
         });
-        sec.addChild(new Label("BREAK"));
+        sec.addChild(new Label({ text: "BREAK" }));
         shift.breakTotal = new TextInput({
             margin: 12,
             valign: VAlign.CENTER,
@@ -246,11 +315,11 @@ export class KTHomePage extends Page {
             borderColor: "00000000"
         });
         sec.addChild(shift.breakTotal);
-        sec.addChild(new Label("HH:mm"));
+        sec.addChild(new Label({ text: "HH:mm" }));
         shift.addChild(sec);
 
         // Break active indicator
-        shift.breakActiveLabel = new Label("BREAK ACTIVE: false", { valign: VAlign.TOP, halign: HAlign.CENTER });
+        shift.breakActiveLabel = new Label({ text: "BREAK ACTIVE: false", valign: VAlign.TOP, halign: HAlign.CENTER });
         shift.addChild(shift.breakActiveLabel);
 
         // Start and end break buttons
@@ -262,13 +331,17 @@ export class KTHomePage extends Page {
             hfillTarget: -1
         });
         sec.addChild(
-            new Button("START BREAK", () => this.startBreak(), {
+            new Button({
+                text: "START BREAK",
+                action: () => this.startBreak(),
                 size: [140, 32],
                 margin: 12
             })
         );
         sec.addChild(
-            new Button("END BREAK", () => this.endBreak(), {
+            new Button({
+                text: "END BREAK",
+                action: () => this.endBreak(),
                 size: [140, 32],
                 margin: 12
             })
@@ -283,8 +356,8 @@ export class KTHomePage extends Page {
             vfillTarget: -1,
             hfillTarget: -1
         });
-        sec.addChild(new Label("SHIFT TOTAL: "));
-        shift.shiftTotalLabel = new Label(/*this.getShiftTotal()*/ "02:45", { fontColor: "88FF88" });
+        sec.addChild(new Label({ text: "SHIFT TOTAL: " }));
+        shift.shiftTotalLabel = new Label({ text: /*this.getShiftTotal()*/ "02:45", fontColor: "88FF88" });
         sec.addChild(shift.shiftTotalLabel);
         shift.addChild(sec);
 
@@ -295,34 +368,35 @@ export class KTHomePage extends Page {
             vfillTarget: -1,
             hfillTarget: -1
         });
-        sec.addChild(new Label("WEEK TOTAL: "));
-        shift.shiftWeekTotal = new Label(/*this.getShiftWeekTtoal()*/ "36:08", { fontColor: "88FF88" });
+        sec.addChild(new Label({ text: "WEEK TOTAL: " }));
+        shift.shiftWeekTotal = new Label({ text: /*this.getShiftWeekTtoal()*/ "36:08", fontColor: "88FF88" });
         sec.addChild(shift.shiftWeekTotal);
         shift.addChild(sec);
 
         // Label for friendly reminder when manually setting the dates
-        shift.addChild(new Label(CONFIG.DATE_FORMAT, { halign: HAlign.LEFT, valign: VAlign.BOTTOM, fontSize: 8 }));
+        shift.addChild(
+            new Label({ text: CONFIG.DATE_FORMAT, halign: HAlign.LEFT, valign: VAlign.BOTTOM, fontSize: 8 })
+        );
 
         // Back home option
         shift.addChild(
-            new Button(
-                "HOME",
-                () => {
-                    this.removeSection(this.shiftSection);
-                    this.addSection(this.homeSection);
+            new Button({
+                text: "HOME",
+                action: () => {
+                    this.mainContent.navigateTo(this.homeSection);
                 },
-                {
-                    size: [140, 32],
-                    margin: [0, 10, 0, 50],
-                    halign: HAlign.CENTER,
-                    valign: VAlign.BOTTOM
-                }
-            )
+                size: [140, 32],
+                margin: [0, 10, 0, 50],
+                halign: HAlign.CENTER,
+                valign: VAlign.BOTTOM
+            })
         );
 
         // Cancellation option
         shift.addChild(
-            new Button("CANCEL SHIFT", () => this.cancelShift(), {
+            new Button({
+                text: "CANCEL SHIFT",
+                action: () => this.cancelShift(),
                 size: [140, 32],
                 margin: 0,
                 halign: HAlign.CENTER,
@@ -331,6 +405,26 @@ export class KTHomePage extends Page {
         );
 
         return shift;
+    }
+
+    _createHistorySection() {
+        let history = new Section({
+            halign: HAlign.FILL,
+            valign: VAlign.FILL,
+            backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
+            debugName: "history"
+        });
+
+        history.listSection = new ListSection({
+            halign: HAlign.FILL,
+            valign: VAlign.FILL,
+            templatePath: "shiftLine",
+            instanceCount: 2,
+            debugName: "historyList"
+        });
+        history.addChild(history.listSection);
+
+        return history;
     }
 
     _calculateShiftTotal() {
@@ -393,14 +487,11 @@ export class KTHomePage extends Page {
         this.activeShift = null;
         this._updateActiveShiftGUI();
         this.conn.send(`DELETE\tACTIVE_SHIFT`);
-        this.removeSection(this.shiftSection);
-        this.addSection(this.homeSection);
+
+        this.mainContent.navigateTo(this.homeSection);
     }
 
     activate() {
-        this.addSection(this.homeSection);
-        // this.addSection(this.shiftSection);
-
         this._updateTime();
         setInterval(() => this._updateTime(), 1000);
     }
@@ -419,8 +510,15 @@ export class KTHomePage extends Page {
             this.conn.send("SET\tACTIVE_SHIFT\t" + JSON.stringify(this.activeShift));
         }
 
-        this.removeSection(this.homeSection);
-        this.addSection(this.shiftSection);
+        this.mainContent.navigateTo(this.shiftSection);
+    }
+
+    handleHistoryPress(btn) {
+        // Get updated history for the last week (default)
+        var now = new Date();
+        this.conn.send("GET\tSHIFTS\t" + JSON.stringify({ year: now.getFullYear(), month: now.getMonth() }));
+
+        this.mainContent.navigateTo(this.historySection);
     }
 
     handleKeypress(event, data) {

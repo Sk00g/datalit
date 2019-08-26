@@ -8,7 +8,7 @@ import { Section } from "./section.js";
 import utils from "../utils.js";
 
 export class TextInput extends Section {
-    constructor(initialProperties = {}) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super(
             {
                 isFocusable: true,
@@ -19,7 +19,8 @@ export class TextInput extends Section {
         );
 
         // Holds the text the user inputs
-        this.label = new Label("", {
+        this.label = new Label({
+            text: "",
             fontSize: App.GlobalState.DefaultFontSize - 2,
             fontColor: Color.BLACK,
             fontType: "sans-serif",
@@ -80,7 +81,7 @@ export class TextInput extends Section {
         this.generateDefaultStyle();
 
         // Release propertyChanged events
-        this._withholdingEvents = false;
+        this._withholdingEvents = withholdingEvents;
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {

@@ -1,0 +1,14 @@
+{
+    "type": "Section",
+    "id": "baseSection",
+    "properties": {
+        "contentDirection": "$e=ContentDirection.HORIZONTAL",
+        "halign": "$e=HAlign.FILL",
+        "valign": "$e=VAlign.TOP",
+        "vfillTarget": 0.4,
+        "backgroundColor": "3333aa",
+        "borderColor": "aa3333",
+        "borderThickness": [1, 1, 1, 1],
+        "margin": 10
+    }
+}

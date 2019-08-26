@@ -10,7 +10,7 @@ import { Section } from "./section.js";
 import utils from "../utils.js";
 
 export class Button extends Section {
-    constructor(text, action, initialProperties = {}, withholdingEvents = false) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super(
             {
                 contentDirection: ContentDirection.HORIZONTAL,
@@ -22,7 +22,8 @@ export class Button extends Section {
         );
 
         // Must be built before registering properties, as they directly access this object
-        this.label = new Label(text, {
+        this.label = new Label({
+            text: initialProperties.text ? initialProperties.text : "",
             fontSize: App.GlobalState.DefaultFontSize,
             fontColor: Color.BLACK,
             fontType: "sans-serif",
@@ -33,11 +34,13 @@ export class Button extends Section {
         this.addChild(this.label);
 
         this._textOffset = 0;
+        this._action = null;
         this.registerProperty("text", true, true, true);
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
         this.registerProperty("textOffset", true);
+        this.registerProperty("action", false, false, true);
 
         // Apply base theme before customized properties
         this.applyTheme("Button");
@@ -50,7 +53,6 @@ export class Button extends Section {
         // Release propertyChanged events
         this._withholdingEvents = withholdingEvents;
 
-        if (action) this.addEventListener("click", action);
         Events.attachSource(this, ["click"]);
     }
 
@@ -67,6 +69,20 @@ export class Button extends Section {
     //#endregion
 
     //#region Unique Properties
+    get action() {
+        return this._action;
+    }
+    set action(newAction) {
+        if (typeof newAction != "function")
+            datalitError("propertySet", ["Button.action", String(newAction), "function"]);
+
+        // Remove current action callback if present
+        if (this._action) this.removeEventListener("click", this._action);
+        this.addEventListener("click", newAction);
+
+        this._action = newAction;
+        this.notifyPropertyChange("action");
+    }
     get text() {
         return this.label.text;
     }

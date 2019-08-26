@@ -1,0 +1,19 @@
+---------------
+TEXT EDIT LOGIC
+---------------
+
+* subclass from Section not from TextInput, although they will share a lot of code
+
+Major Considerations:
+- text wrapping, will need to be calculating the width of each 'line' and wrapping accordingly each time the text changes. Have to wrap based on word awareness as well, meaning constantly collecting the list of words and calculating width right until it exceeds a line boundary, after which you have to switch lines and start again
+- selection rectangles are much more complicated than before because each line will need to have a selection rectangle that changes based on overall selection...
+- cursor and selection position should be managed by a cartesian coordinates system [x, y]
+- Ctrl + A, Home, End, up, down
+- mouse and arrow key selection logic now needs to take into account the x and y position of the mouse, and selecting / de-selecting multiple lines at a time must be possible, including replacing and deleting these sections
+
+
+Order of Creation:
+- typing a bunch of words and then performing a wrapCheck after each character, this should also affect the cursor position...
+- cursor movement using arrow keys  
+- add in ctrl
+- selection of multiple lines using Ctrl + A, and also holding shift while navigating

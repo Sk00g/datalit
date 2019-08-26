@@ -11,9 +11,11 @@ VERSION = "V1.02.190503"
 CONFIG_FILE = "assetConfig.js"
 IMAGE_MAP_FILE = "imageMap.js"
 THEME_MAP_FILE = "themeMap.js"
+MARKUP_MAP_FILE = "markupMap.js"
 BASE_DIR = "assets"
 IMAGE_DIR = "images"
 THEME_DIR = "themes"
+MARKUP_DIR = "markup"
 FILE_SEPARATOR = '/' if os.name == 'posix' else '\\'
 # ------------
 
@@ -32,6 +34,9 @@ with open(CONFIG_FILE, 'w+') as config_file:
         'themePaths': [],
         'themeBase': "",
         'themeCount': 0,
+        'markupDir': MARKUP_DIR,
+        'markupPaths': [],
+        'markupCount': 0
     }
 
     with open(IMAGE_MAP_FILE, 'w+') as map_file:
@@ -74,6 +79,25 @@ with open(CONFIG_FILE, 'w+') as config_file:
         map_file.write(json.dumps(map_data))
 
         print('> found %d theme files\n' % config_data['themeCount'])
+
+    with open(MARKUP_MAP_FILE, 'w+') as map_file:
+        map_data = {}
+
+        for root, dirs, files in os.walk(os.getcwd()):
+            if root.split(FILE_SEPARATOR)[-1] == MARKUP_DIR:
+                for data_file in files:
+                    print(os.path.join(root, data_file))
+                    
+                    config_data['markupPaths'].append(data_file)
+                    config_data['markupCount'] += 1
+
+                    map_key = data_file.split('.')[0]
+                    map_data[map_key] = map_key
+
+        map_file.write('export default ')
+        map_file.write(json.dumps(map_data))
+
+        print('> found %d markup files\n' % config_data['markupCount'])
 
     config_file.write("export default ")
     config_file.write(json.dumps(config_data))

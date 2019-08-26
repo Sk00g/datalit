@@ -2,13 +2,14 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/08/03 21:58
+LAST UPDATE:		2019/08/24 12:05
 SYSTEM:				Special Controls
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Design
 
 IMMEDIATE:
 - Bailed on a couple of attempts at more complicated controls. Doing some research, further testing, and possibly improving the documentation before continuing
+    * Have been working mainly on prototyping kempertime application, mostly just testing out work to date and getting a feel for actually using the framework
     
 ----------
 TASK LIST

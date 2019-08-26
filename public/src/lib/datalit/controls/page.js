@@ -23,8 +23,6 @@ export class Page extends Section {
         this.registerProperty("pageState", false, false, true);
         this.registerProperty("focusedControl", false, false, true);
 
-        this.requiresRender = true;
-
         // Apply base theme before customized properties
         this.applyTheme("Page");
 
@@ -119,7 +117,7 @@ export class Page extends Section {
             }
         }
 
-        console.log(`detected '${data.action}' change from ${event.source} (${data.child})`);
+        // console.log(`detected '${data.action}' change from ${event.source} (${data.child})`);
     }
 
     addSection(section) {

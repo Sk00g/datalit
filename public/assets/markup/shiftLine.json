@@ -1,0 +1,75 @@
+{
+    "type": "Section",
+    "id": "baseSection",
+    "properties": {
+        "contentDirection": "$e=ContentDirection.HORIZONTAL",
+        "halign": "$e=HAlign.FILL",
+        "vfillTarget": -1,
+        "borderThickness": [1, 1, 1, 1],
+        "borderColor": "DDDDDD",
+        "margin": [8, 4, 8, 4]
+    },
+    "children": [
+        {
+            "type": "Section",
+            "id": "dataLabelSection",
+            "properties": {
+                "contentDirection": "$e=ContentDirection.VERTICAL",
+                "halign": "$e=HAlign.LEFT",
+                "vfillTarget": -1,
+                "hfillTarget": -1,
+                "margin": 4
+            },
+            "children": [
+                {
+                    "id": "totalLabel",
+                    "type": "Label",
+                    "properties": { "text": "TOTAL:", "margin": 4, "valign": "TOP" }
+                },
+                {
+                    "id": "breakLabel",
+                    "type": "Label",
+                    "properties": { "text": "BREAK:", "margin": 4, "valign": "TOP" }
+                },
+                {
+                    "id": "weekPercentLabel",
+                    "type": "Label",
+                    "properties": { "text": "WEEK %:", "margin": 4, "valign": "TOP" }
+                },
+                {
+                    "id": "wageLabel",
+                    "type": "Label",
+                    "properties": { "text": "WAGE:", "margin": 4, "valign": "TOP" }
+                }
+            ]
+        },
+        {
+            "type": "Section",
+            "id": "timeSection",
+            "properties": {
+                "contentDirection": "$e=ContentDirection.VERTICAL",
+                "halign": "$e=HAlign.LEFT",
+                "vfillTarget": -1,
+                "hfillTarget": -1,
+                "margin": 4
+            },
+            "children": [
+                {
+                    "id": "startLabel",
+                    "type": "Label",
+                    "properties": { "text": "Sunday 24, AUG 2019", "margin": 4, "valign": "TOP" }
+                },
+                {
+                    "id": "toLabel",
+                    "type": "Label",
+                    "properties": { "text": "TO", "margin": 20, "valign": "CENTER", "halign": "CENTER" }
+                },
+                {
+                    "id": "endLabel",
+                    "type": "Label",
+                    "properties": { "text": "Thursday 29, AUG 2019", "margin": 4, "valign": "BOTTOM" }
+                }
+            ]
+        }
+    ]
+}

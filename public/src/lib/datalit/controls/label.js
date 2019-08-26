@@ -5,11 +5,11 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Label extends Control {
-    constructor(text, initialProperties = {}, withholdingEvents = false) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super();
 
         // Unique properties
-        this._text = text;
+        this._text = initialProperties.text ? initialProperties.text : "";
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";

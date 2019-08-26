@@ -89,6 +89,12 @@ export class Control {
         for (let cb of this.eventListeners[eventName]) cb(data);
     }
 
+    removeEventListener(eventName, callback) {
+        if (!(eventName in this.eventListeners)) return;
+
+        this.eventListeners[eventName].splice(this.eventListeners[eventName].indexOf(callback), 1);
+    }
+
     addEventListener(eventName, callback) {
         if (!(eventName in this.eventListeners)) this.eventListeners[eventName] = [];
 

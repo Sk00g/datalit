@@ -8,7 +8,7 @@ import { Section } from "./section.js";
 import utils from "../utils.js";
 
 export class TextEdit extends Section {
-    constructor(initialProperties = {}) {
+    constructor(initialProperties = {}, withholdingEvents = false) {
         super(
             {
                 isFocusable: true,
@@ -75,7 +75,7 @@ export class TextEdit extends Section {
         this.generateDefaultStyle();
 
         // Release propertyChanged events
-        this._withholdingEvents = false;
+        this._withholdingEvents = withholdingEvents;
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {

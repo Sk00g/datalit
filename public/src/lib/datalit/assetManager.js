@@ -1,6 +1,8 @@
 import configData from "../../../assets/assetConfig.js";
 import imageMap from "../../../assets/imageMap.js";
 import themeMap from "../../../assets/themeMap.js";
+import markupMap from "../../../assets/markupMap.js";
+import enums from "./enums.js";
 import utils from "./utils.js";
 
 // Handles all assets for the application.
@@ -8,8 +10,10 @@ class AssetManager {
     constructor() {
         this._images = {};
         this._themes = {};
+        this._markups = {};
         this._imageDir = configData.imageDir;
         this._themeDir = configData.themeDir;
+        this._markupDir = configData.markupDir;
 
         for (let file of configData.imagePaths) {
             let key = file;
@@ -30,9 +34,21 @@ class AssetManager {
                 });
         }
 
+        for (let file of configData.markupPaths) {
+            let key = file;
+            if (file.search(".") != -1) key = file.split(".")[0];
+            fetch(`http://localhost:9080/${configData.baseDir}/${configData.markupDir}/${file}`)
+                .then(rsp => rsp.json())
+                .then(rsp => {
+                    rsp = this.parseMarkupData(rsp);
+                    this._markups[key] = rsp;
+                });
+        }
+
         // Public maps so intellisense is awesome
         this.Images = imageMap;
         this.Themes = themeMap;
+        this.Markups = markupMap;
     }
 
     parseThemeData(themeObj) {
@@ -44,6 +60,21 @@ class AssetManager {
             // console.log(`Replace value: ${resolveObjectPath(tokens, themeObj)}`);
             let tokens = str.substr(1, str.length).split(".");
             return utils.resolveObjectPath(tokens, themeObj);
+        });
+
+        return JSON.parse(jsonString);
+    }
+
+    parseMarkupData(markupObj) {
+        let jsonString = JSON.stringify(markupObj);
+
+        /* $[CHAR]= -> represents replacement with existing value
+            e - Enum from enums.js
+            t - Template value, similar to theme data
+        */
+        jsonString = jsonString.replace(/\$[et]=[^"]{1,}/g, (str, offset, input) => {
+            let tokens = str.substr(3, str.length - 3).split(".");
+            return enums[tokens[0]][tokens[1]];
         });
 
         return JSON.parse(jsonString);
@@ -65,6 +96,14 @@ class AssetManager {
         }
 
         return this._themes[name];
+    }
+
+    getMarkup(name) {
+        if (!(name in this._markups)) {
+            throw new Error(`Theme ${name} not found in directory ${this._markupDir}`);
+        }
+
+        return this._markups[name];
     }
 }
 

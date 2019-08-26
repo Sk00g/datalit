@@ -29,7 +29,8 @@ export class WelcomePage extends Page {
             debugName: "nav"
         });
         nav.addChild(
-            new Label("DATALit", {
+            new Label({
+                text: "DATALit",
                 halign: HAlign.CENTER,
                 valign: VAlign.CENTER,
                 margin: 10,
