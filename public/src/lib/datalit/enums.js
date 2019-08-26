@@ -1,3 +1,5 @@
+export const MIN_SIZE = -1;
+
 export const Cursor = Object.freeze({
     TEXT: "text",
     DEFAULT: "default",
@@ -190,5 +192,6 @@ export default {
     PageState,
     EventSourceType,
     MouseButton,
-    Modifier
+    Modifier,
+    MIN_SIZE
 };

@@ -13,7 +13,9 @@ export class TextInput extends Section {
             {
                 isFocusable: true,
                 contentDirection: ContentDirection.FREE,
-                size: [200, 30]
+                size: [200, 30],
+                vfillTarget: null,
+                hfillTarget: null
             },
             true
         );

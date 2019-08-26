@@ -73,10 +73,13 @@ function parseClientMessage(conn, messageData) {
                 });
             } else if (designator === "SHIFTS") {
                 // Return entire collection for now
-                var cursor = mongo.collection("shifts").find();
                 shifts = [];
-                cursor.each((err, data) => shifts.push(data));
-                if (shifts) conn.send(`HEREIS\tSHIFTS\t${JSON.stringify(shifts)}`);
+                mongo
+                    .collection("shifts")
+                    .find()
+                    .toArray(function(err, values) {
+                        conn.send(`HEREIS\tSHIFTS\t${JSON.stringify(values)}`);
+                    });
             }
             break;
         case "UPDATE":

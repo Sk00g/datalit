@@ -3,8 +3,8 @@
     "id": "baseSection",
     "properties": {
         "contentDirection": "$e=ContentDirection.HORIZONTAL",
+        "valign": "$e=VAlign.TOP",
         "halign": "$e=HAlign.FILL",
-        "vfillTarget": -1,
         "borderThickness": [1, 1, 1, 1],
         "borderColor": "DDDDDD",
         "margin": [8, 4, 8, 4]
@@ -15,31 +15,62 @@
             "id": "dataLabelSection",
             "properties": {
                 "contentDirection": "$e=ContentDirection.VERTICAL",
+                "valign": "$e=VAlign.TOP",
                 "halign": "$e=HAlign.LEFT",
-                "vfillTarget": -1,
-                "hfillTarget": -1,
                 "margin": 4
             },
             "children": [
                 {
                     "id": "totalLabel",
                     "type": "Label",
-                    "properties": { "text": "TOTAL:", "margin": 4, "valign": "TOP" }
+                    "properties": { "text": "TOTAL:", "margin": [6, 8, 6, 0], "valign": "TOP" }
                 },
                 {
                     "id": "breakLabel",
                     "type": "Label",
-                    "properties": { "text": "BREAK:", "margin": 4, "valign": "TOP" }
+                    "properties": { "text": "BREAK:", "margin": [6, 14, 6, 0], "valign": "TOP" }
                 },
                 {
                     "id": "weekPercentLabel",
                     "type": "Label",
-                    "properties": { "text": "WEEK %:", "margin": 4, "valign": "TOP" }
+                    "properties": { "text": "WEEK %:", "margin": [6, 14, 6, 0], "valign": "TOP" }
                 },
                 {
                     "id": "wageLabel",
                     "type": "Label",
-                    "properties": { "text": "WAGE:", "margin": 4, "valign": "TOP" }
+                    "properties": { "text": "WAGE:", "margin": [6, 14, 6, 0], "valign": "TOP" }
+                }
+            ]
+        },
+        {
+            "type": "Section",
+            "id": "dataValueSection",
+            "properties": {
+                "contentDirection": "$e=ContentDirection.VERTICAL",
+                "valign": "$e=VAlign.TOP",
+                "halign": "$e=HAlign.LEFT",
+                "margin": 4
+            },
+            "children": [
+                {
+                    "id": "totalValue",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "size": [180, 22] }
+                },
+                {
+                    "id": "breakValue",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "size": [180, 22] }
+                },
+                {
+                    "id": "weekPercentValue",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "size": [180, 22] }
+                },
+                {
+                    "id": "wageValue",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "size": [180, 22] }
                 }
             ]
         },
@@ -48,26 +79,91 @@
             "id": "timeSection",
             "properties": {
                 "contentDirection": "$e=ContentDirection.VERTICAL",
+                "valign": "$e=VAlign.CENTER",
                 "halign": "$e=HAlign.LEFT",
-                "vfillTarget": -1,
-                "hfillTarget": -1,
                 "margin": 4
             },
             "children": [
                 {
                     "id": "startLabel",
                     "type": "Label",
-                    "properties": { "text": "Sunday 24, AUG 2019", "margin": 4, "valign": "TOP" }
+                    "properties": { "text": "09:12 SUN 24, AUG 2019", "margin": 4, "valign": "TOP" }
                 },
                 {
                     "id": "toLabel",
                     "type": "Label",
-                    "properties": { "text": "TO", "margin": 20, "valign": "CENTER", "halign": "CENTER" }
+                    "properties": { "text": "TO", "margin": 14, "valign": "CENTER", "halign": "CENTER" }
                 },
                 {
                     "id": "endLabel",
                     "type": "Label",
-                    "properties": { "text": "Thursday 29, AUG 2019", "margin": 4, "valign": "BOTTOM" }
+                    "properties": { "text": "17:53 SUN 24, AUG 2019", "margin": 4, "valign": "BOTTOM" }
+                }
+            ]
+        },
+        {
+            "type": "Section",
+            "id": "noteSection",
+            "properties": {
+                "contentDirection": "$e=ContentDirection.VERTICAL",
+                "valign": "$e=VAlign.TOP",
+                "halign": "$e=HAlign.FILL",
+                "margin": 4
+            },
+            "children": [
+                {
+                    "id": "noteLabel",
+                    "type": "Label",
+                    "properties": { "text": "NOTES", "margin": 4, "valign": "TOP", "fontSize": 10 }
+                },
+                {
+                    "id": "note1",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "halign": "FILL", "size": [0, 24] }
+                },
+                {
+                    "id": "note2",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "halign": "FILL", "size": [0, 24] }
+                },
+                {
+                    "id": "note3",
+                    "type": "TextInput",
+                    "properties": { "margin": 2, "valign": "TOP", "halign": "FILL", "size": [0, 24] }
+                }
+            ]
+        },
+        {
+            "type": "Section",
+            "id": "actionSection",
+            "properties": {
+                "contentDirection": "$e=ContentDirection.VERTICAL",
+                "valign": "$e=VAlign.TOP",
+                "halign": "$e=HAlign.RIGHT",
+                "margin": 4
+            },
+            "children": [
+                {
+                    "id": "saveButton",
+                    "type": "Button",
+                    "properties": {
+                        "text": "SAVE",
+                        "margin": 8,
+                        "valign": "TOP",
+                        "halign": "CENTER",
+                        "size": [140, 32]
+                    }
+                },
+                {
+                    "id": "resetButton",
+                    "type": "Button",
+                    "properties": {
+                        "text": "RESET",
+                        "margin": 8,
+                        "valign": "TOP",
+                        "halign": "CENTER",
+                        "size": [140, 32]
+                    }
                 }
             ]
         }

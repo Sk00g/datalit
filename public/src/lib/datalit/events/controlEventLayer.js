@@ -12,7 +12,7 @@ export class ControlEventLayer {
         let hits = section.children.filter(ctrl => ctrl.isPointWithin(point));
 
         // For each section hit, gather its children that are also hit, using recursion
-        let sections = hits.filter(ctrl => ctrl.constructor.name == "Section");
+        let sections = hits.filter(ctrl => ctrl.isArranger);
         for (let sec of sections) hits = hits.concat(this._gatherHitChildren(sec, point));
 
         return hits;

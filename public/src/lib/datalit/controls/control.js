@@ -26,8 +26,8 @@ export class Control {
         this._margin = App.GlobalState.DefaultMargin;
         this._halign = HAlign.LEFT;
         this._valign = VAlign.TOP;
-        this._hfillTarget = null; // This property only applies when HAlign is FILL
-        this._vfillTarget = null; // This property only applies when VAlign is FILL
+        this._hfillTarget = null;
+        this._vfillTarget = null;
         this._focused = false;
         this._isFocusable = false;
         this._localPosition = [0, 0];
@@ -341,7 +341,7 @@ export class Control {
         return this._hfillTarget;
     }
     set hfillTarget(newTarget) {
-        if (typeof newTarget != "number" || newTarget < 0 || newTarget > 1.0) {
+        if (newTarget < 0 || newTarget > 1.0) {
             if (!this.isArranger) datalitError("propertySet", ["Control.hfillTarget", String(newTarget), "0 -> 1.0"]);
             else if (this.isArranger && newTarget != -1)
                 datalitError("propertySet", ["Section.hfillTarget", String(newTarget), "-1 or 0 -> 1.0"]);

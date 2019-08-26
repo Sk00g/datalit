@@ -87,8 +87,9 @@ export class Page extends Section {
         }
 
         // Subscribe to child tree changes to update stack
-        if (ctrl.isArranger)
+        if (ctrl.isArranger) {
             Events.register(ctrl, "childrenChanged", (event, data) => this.handleChildChange(event, data));
+        }
     }
 
     removeFocusableControl(ctrl) {

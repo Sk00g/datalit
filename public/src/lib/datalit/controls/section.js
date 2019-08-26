@@ -1,5 +1,5 @@
 import { App } from "../app.js";
-import { Color, ContentDirection, HAlign, VAlign } from "../enums.js";
+import { Color, ContentDirection, HAlign, VAlign, MIN_SIZE } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { DynamicControl } from "./dynamicControl.js";
 import { Events } from "../events/events.js";
@@ -15,6 +15,10 @@ export class Section extends DynamicControl {
         this.requiresRender = true;
         this.children = [];
         this.orderedChildren = []; // For zValue drawing
+
+        // Default Control property values
+        this.hfillTarget = MIN_SIZE;
+        this.vfillTarget = MIN_SIZE;
 
         // Unique property definitions
         this._contentDirection = ContentDirection.VERTICAL;
@@ -338,11 +342,11 @@ export class Section extends DynamicControl {
         this.scheduleRender();
     }
 
-    // Sections can have [h|v]fillTarget == -1, meaning minimum size based on child elements
+    // Only Sections should have [h|v]fillTarget == MIN_SIZE, meaning minimum size based on child elements
     requestWidth(availableWidth, parentWidth) {
         if (this.halign == HAlign.FILL) return availableWidth;
         else if (this.halign == HAlign.STRETCH) return parentWidth;
-        else if (this.hfillTarget == -1) {
+        else if (this.hfillTarget == MIN_SIZE) {
             // If we have ContentDirection.VERTICAL, just get largest child width
             if (this.contentDirection == ContentDirection.VERTICAL) {
                 let largestWidth = 0;

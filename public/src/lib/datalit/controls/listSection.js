@@ -23,6 +23,9 @@ export class ListSection extends Section {
         // Begin reporting property change events
         this._withholdingEvents = withholdingEvents;
 
+        // Inform listeners when instance list is refreshed (re-generated)
+        Events.attachSource(this, ["instancesUpdated"]);
+
         // Now that initial properties are set, generate the first round of template instances
         this.refreshInstances();
 
@@ -50,6 +53,8 @@ export class ListSection extends Section {
             // console.log(`generating control from markup (${this.templatePath}): ${i}`);
             super.addChild(factory.generateControlFromMarkup(this.templatePath));
         }
+
+        this.dispatchEvent("instancesUpdated", this);
     }
     // --------------
 

@@ -21,7 +21,8 @@ const CONFIG = {
     MONGO_PORT: 8123,
     MONGO_HOST: "127.0.0.1",
     WS_URL: "ws://127.0.0.1:9080",
-    DATE_FORMAT: "HH:mm MMM dd, yyyy"
+    DATE_FORMAT: "HH:mm MMM dd, yyyy",
+    HOURLY_WAGE: 28.0
 };
 
 export class KTHomePage extends Page {
@@ -30,6 +31,7 @@ export class KTHomePage extends Page {
 
         this.setupSockets();
         this.activeShift = null;
+        this.shifts = [];
 
         this.debugName = "homePage";
 
@@ -159,6 +161,10 @@ export class KTHomePage extends Page {
                         if (data) delete data._id;
                         this.activeShift = data;
                         this._updateActiveShiftGUI();
+                    } else if (designator == "SHIFTS") {
+                        var data = JSON.parse(parts[2]);
+                        this.shifts = data;
+                        this._updateHistoryGUI();
                     }
                     break;
             }
@@ -197,6 +203,29 @@ export class KTHomePage extends Page {
             this.shiftSection.endInput.text = "";
             this.shiftSection.shiftTotalLabel.text = "";
             this.shiftSection.shiftWeekTotal.text = "";
+        }
+    }
+
+    _updateHistoryGUI() {
+        // Create the necessary number of instances
+        this.historySection.listSection.instanceCount = this.shifts.length;
+
+        for (let i = 0; i < this.shifts.length; i++) {
+            let shiftData = this.shifts[i];
+            let instance = this.historySection.listSection.children[i];
+
+            let startDate = new Date(shiftData.start);
+            let endDate = new Date(shiftData.end);
+            let duration = shiftData.end - shiftData.start;
+
+            instance.dataValueSection.totalValue.text = utils.formatTimestamp(duration);
+            instance.dataValueSection.breakValue.text = utils.formatTimestamp(shiftData.breakTotal);
+            instance.dataValueSection.weekPercentValue.text = "12.5%";
+            instance.dataValueSection.wageValue.text = `${(Math.round((duration / 1000 / 60 / 60) * 100) / 100) *
+                CONFIG.HOURLY_WAGE} $`;
+
+            instance.timeSection.startLabel.text = utils.formatDateFull(startDate);
+            instance.timeSection.endLabel.text = utils.formatDateFull(endDate);
         }
     }
 
@@ -419,7 +448,6 @@ export class KTHomePage extends Page {
             halign: HAlign.FILL,
             valign: VAlign.FILL,
             templatePath: "shiftLine",
-            instanceCount: 2,
             debugName: "historyList"
         });
         history.addChild(history.listSection);
@@ -428,9 +456,9 @@ export class KTHomePage extends Page {
     }
 
     _calculateShiftTotal() {
-        var totalShiftTime = new Date() - new Date(this.activeShift.start);
+        var totalShiftTime = new Date() - this.activeShift.start;
         var totalBreakTime = this.activeShift.breakStart
-            ? new Date() - new Date(this.activeShift.breakStart) + this.activeShift.breakTotal
+            ? new Date() - this.activeShift.breakStart + this.activeShift.breakTotal
             : this.activeShift.breakTotal;
         return totalShiftTime - totalBreakTime;
     }
@@ -443,8 +471,8 @@ export class KTHomePage extends Page {
             if (this.activeShift.breakStart)
                 this.shiftSection.breakTotal.text =
                     this.activeShift.breakTotal != 0
-                        ? utils.formatTimestamp(new Date() - this.activeShift.breakStart + this.activeShift.breakTotal)
-                        : utils.formatTimestamp(new Date() - this.activeShift.breakStart);
+                        ? utils.formatTimestamp(now - this.activeShift.breakStart + this.activeShift.breakTotal)
+                        : utils.formatTimestamp(now - this.activeShift.breakStart);
             else {
                 this.shiftSection.shiftTotalLabel.text = utils.formatTimestamp(this._calculateShiftTotal());
             }
@@ -463,23 +491,22 @@ export class KTHomePage extends Page {
     startBreak() {
         if (this.activeShift.breakStart) return;
 
-        this.activeShift.breakStart = new Date();
+        this.activeShift.breakStart = new Date().getTime();
         this.conn.send(`SET\tACTIVE_SHIFT\t${JSON.stringify(this.activeShift)}`);
         this._updateActiveShiftGUI();
     }
 
     endShift() {
-        const potentialDuration = utils.formatTimestamp(new Date() - new Date(this.activeShift.start));
+        const potentialDuration = utils.formatTimestamp(new Date() - this.activeShift.start);
         if (confirm(`End shift with duration '${potentialDuration}'?`)) {
-            this.activeShift.end = new Date();
+            this.activeShift.end = new Date().getTime();
 
             this.conn.send(`ADD\tSHIFTS\t${JSON.stringify(this.activeShift)}`);
             this.conn.send(`DELETE\tACTIVE_SHIFT`);
             this.activeShift = null;
             this._updateActiveShiftGUI();
 
-            this.removeSection(this.shiftSection);
-            this.addSection(this.homeSection);
+            this.mainContent.navigateTo(this.homeSection);
         }
     }
 
@@ -500,7 +527,7 @@ export class KTHomePage extends Page {
         // Start new shift if none is active
         if (!this.activeShift) {
             this.activeShift = {
-                start: new Date(),
+                start: new Date().getTime(),
                 end: null,
                 breakStart: null,
                 breakTotal: 0,
@@ -526,8 +553,10 @@ export class KTHomePage extends Page {
 
         switch (data.key) {
             case "a":
+                this.historySection.listSection.instanceCount++;
                 break;
             case "b":
+                this.historySection.listSection.instanceCount--;
                 break;
             case "c":
                 break;

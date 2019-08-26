@@ -16,6 +16,8 @@ export class Button extends Section {
                 contentDirection: ContentDirection.HORIZONTAL,
                 borderColor: Color.BLACK,
                 borderThickness: 1,
+                vfillTarget: null,
+                hfillTarget: null,
                 size: [100, 30]
             },
             true
