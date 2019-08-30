@@ -1,0 +1,38 @@
+{
+    "type": "Section",
+    "id": "statusBar",
+    "properties": {
+        "contentDirection": "HORIZONTAL",
+        "halign": "FILL",
+        "valign": "BOTTOM",
+        "vfillTarget": 0.04,
+        "backgroundColor": "$t=default.colors.BackgroundMain",
+        "zValue": 1
+    },
+    "children": [
+        {
+            "type": "Label",
+            "id": "timeLabel",
+            "properties": {
+                "text": "",
+                "halign": "LEFT",
+                "valign": "CENTER",
+                "margin": 8,
+                "fontSize": 11,
+                "fontColor": "$t=default.colors.BackgroundDark"
+            }
+        },
+        {
+            "type": "Label",
+            "id": "textLabel",
+            "properties": {
+                "text": "... connecting",
+                "halign": "LEFT",
+                "valign": "CENTER",
+                "margin": 8,
+                "fontSize": 10,
+                "fontColor": "33bb53"
+            }
+        }
+    ]
+}

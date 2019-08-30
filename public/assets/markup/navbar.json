@@ -1,0 +1,72 @@
+{
+    "type": "Section",
+    "id": "navbar",
+    "properties": {
+        "contentDirection": "VERTICAL",
+        "halign": "FILL",
+        "valign": "TOP",
+        "vfillTarget": 0.08,
+        "backgroundColor": "$t=default.colors.BackgroundMain",
+        "zValue": 1
+    },
+    "children": [
+        {
+            "type": "Section",
+            "id": "topSection",
+            "properties": {
+                "contentDirection": "HORIZONTAL",
+                "halign": "FILL",
+                "valign": "TOP",
+                "vfillTarget": -1
+            },
+            "children": [
+                {
+                    "type": "Button",
+                    "id": "backButton",
+                    "properties": {
+                        "text": "BACK",
+                        "action": "$c=backCommand",
+                        "halign": "LEFT",
+                        "valign": "CENTER",
+                        "size": [140, 32],
+                        "margin": [8, 0, 8, 0]
+                    }
+                },
+                {
+                    "type": "Label",
+                    "id": "timeLabel",
+                    "properties": {
+                        "halign": "RIGHT",
+                        "valign": "CENTER",
+                        "margin": 14,
+                        "fontSize": 11,
+                        "fontColor": "333353"
+                    }
+                },
+                {
+                    "type": "Label",
+                    "id": "statusLabel",
+                    "properties": {
+                        "halign": "LEFT",
+                        "valign": "CENTER",
+                        "margin": 14,
+                        "fontSize": 11,
+                        "fontColor": "333353"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Label",
+            "id": "titleLabel",
+            "properties": {
+                "text": "KEMPERTIME",
+                "halign": "CENTER",
+                "valign": "CENTER",
+                "margin": [0, 8, 0, 10],
+                "fontSize": 18,
+                "fontColor": "333353"
+            }
+        }
+    ]
+}

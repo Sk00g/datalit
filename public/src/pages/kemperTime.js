@@ -1,5 +1,6 @@
 import { App } from "../lib/datalit/app.js";
 import { Assets } from "../lib/datalit/assetManager.js";
+import { BindingContext } from "../lib/datalit/binding/bindingContext.js";
 import { Button } from "../lib/datalit/controls/button";
 import { Circle } from "../lib/datalit/controls/circle.js";
 import { ContentDirection, Color, HAlign, VAlign, ControlState } from "../lib/datalit/enums.js";
@@ -12,6 +13,7 @@ import { Rect } from "../lib/datalit/controls/rect.js";
 import { Section } from "../lib/datalit/controls/section.js";
 import { TextInput } from "../lib/datalit/controls/textInput.js";
 import { SectionHost } from "../lib/datalit/controls/sectionHost.js";
+import factory from "../lib/datalit/factory.js";
 import utils from "../lib/datalit/utils.js";
 
 var shared = require("../../../tools/sharedFunc.js");
@@ -29,68 +31,25 @@ export class KTHomePage extends Page {
     constructor() {
         super();
 
-        this.setupSockets();
+        this.debugName = "kempertimePage";
+
         this.activeShift = null;
         this.shifts = [];
+        this.setupSockets();
 
-        this.debugName = "homePage";
+        this.bindingContext = new BindingContext(this, {
+            backCommand: btn => this.mainContent.navigateBack(),
+            startCommand: btn => this.handleStartPress(btn),
+            historyCommand: btn => this.handleHistoryPress(btn),
+            statsCommand: btn => this.handleHistoryPress(btn)
+        });
 
-        this.navbar = new Section({
-            contentDirection: ContentDirection.VERTICAL,
-            halign: HAlign.FILL,
-            valign: VAlign.TOP,
-            vfillTarget: 0.08,
-            backgroundColor: Assets.BaseTheme.colors.BackgroundMain,
-            zValue: 1,
-            debugName: "navbar"
-        });
-        let topSection = new Section({
-            contentDirection: ContentDirection.HORIZONTAL,
-            halign: HAlign.FILL,
-            valign: VAlign.TOP,
-            vfillTarget: -1
-        });
-        topSection.addChild(
-            new Button({
-                text: "BACK",
-                action: () => this.mainContent.navigateBack(),
-                halign: HAlign.LEFT,
-                valign: VAlign.CENTER,
-                size: [140, 32],
-                margin: [8, 0, 8, 0]
-            })
-        );
-        this.navbar.timeLabel = new Label({
-            halign: HAlign.RIGHT,
-            valign: VAlign.CENTER,
-            margin: 14,
-            fontSize: 11,
-            fontColor: Assets.BaseTheme.colors.BackgroundDark
-        });
-        this.navbar.statusLabel = new Label({
-            halign: HAlign.LEFT,
-            valign: VAlign.CENTER,
-            margin: 14,
-            fontSize: 11,
-            fontColor: Assets.BaseTheme.colors.BackgroundDark
-        });
-        topSection.addChild(this.navbar.timeLabel);
-        topSection.addChild(this.navbar.statusLabel);
-        this.navbar.addChild(topSection);
+        this.navbar = factory.generateMarkupObjects("navbar", this.bindingContext);
+        this.statusBar = factory.generateMarkupObjects("statusBar", this.bindingContext);
 
-        this.navbar.titleLabel = new Label({
-            text: "KEMPERTIME",
-            halign: HAlign.CENTER,
-            valign: VAlign.CENTER,
-            margin: [0, 8, 0, 10],
-            fontSize: 18,
-            fontColor: Assets.BaseTheme.colors.BackgroundDark
-        });
-        this.navbar.addChild(this.navbar.titleLabel);
-
-        this.homeSection = this._createHomeSection();
+        this.homeSection = factory.generateMarkupObjects("homeSection", this.bindingContext);
         this.shiftSection = this._createShiftSection();
-        this.historySection = this._createHistorySection();
+        this.historySection = factory.generateMarkupObjects("historySection", this.bindingContext);
         this.mainContent = new SectionHost(
             {
                 halign: HAlign.FILL,
@@ -102,37 +61,12 @@ export class KTHomePage extends Page {
             [this.historySection, this.shiftSection, this.homeSection]
         );
 
-        this.statusBar = new Section({
-            contentDirection: ContentDirection.HORIZONTAL,
-            halign: HAlign.FILL,
-            valign: VAlign.BOTTOM,
-            vfillTarget: 0.04,
-            backgroundColor: Assets.BaseTheme.colors.BackgroundMain,
-            zValue: 1,
-            debugName: "statusbar"
-        });
-        this.statusTimeLabel = new Label({
-            text: utils.formatDateFull(new Date()),
-            halign: HAlign.LEFT,
-            valign: VAlign.CENTER,
-            margin: 8,
-            fontSize: 11,
-            fontColor: Assets.BaseTheme.colors.BackgroundDark
-        });
-        this.statusTextLabel = new Label({
-            text: "... connecting",
-            halign: HAlign.LEFT,
-            valign: VAlign.CENTER,
-            margin: 8,
-            fontSize: 10,
-            fontColor: "33bb53"
-        });
-        this.statusBar.addChild(this.statusTimeLabel);
-        this.statusBar.addChild(this.statusTextLabel);
-
         this.addSection(this.navbar);
         this.addSection(this.mainContent);
         this.addSection(this.statusBar);
+
+        // Map 'commandDefinitions' property to command bindings
+        this.bindingContext.initializeBindings();
 
         Events.register(App.Canvas, "keyup", (ev, data) => this.handleKeypress(ev, data));
     }
@@ -173,14 +107,14 @@ export class KTHomePage extends Page {
 
     _updateStatusText(newText, isError = false) {
         console.log(newText);
-        this.statusTimeLabel.text = utils.formatDateFull(new Date()) + ":";
-        this.statusTextLabel.text = newText;
-        this.statusTextLabel.fontColor = isError ? "993333" : "228842";
+        this.statusBar.timeLabel.text = utils.formatDateFull(new Date()) + ":";
+        this.statusBar.textLabel.text = newText;
+        this.statusBar.textLabel.fontColor = isError ? "993333" : "228842";
     }
 
     _updateActiveShiftGUI() {
         // this._updateStatusText("updating shift GUI");
-        this.navbar.statusLabel.text = this.activeShift ? "SHIFT ACTIVE" : "READY";
+        this.navbar.topSection.statusLabel.text = this.activeShift ? "SHIFT ACTIVE" : "READY";
         this.homeSection.startButton.text = this.activeShift ? "ACTIVE" : "START";
 
         if (this.activeShift) {
@@ -218,7 +152,7 @@ export class KTHomePage extends Page {
             let endDate = new Date(shiftData.end);
             let duration = shiftData.end - shiftData.start;
 
-            instance.dataValueSection.totalValue.text = utils.formatTimestamp(duration);
+            instance.dataValueSection.totalValue.text = utils.formatTimestamp(duration - shiftData.breakTotal);
             instance.dataValueSection.breakValue.text = utils.formatTimestamp(shiftData.breakTotal);
             instance.dataValueSection.weekPercentValue.text = "12.5%";
             instance.dataValueSection.wageValue.text = `${(Math.round((duration / 1000 / 60 / 60) * 100) / 100) *
@@ -227,46 +161,6 @@ export class KTHomePage extends Page {
             instance.timeSection.startLabel.text = utils.formatDateFull(startDate);
             instance.timeSection.endLabel.text = utils.formatDateFull(endDate);
         }
-    }
-
-    _createHomeSection() {
-        let home = new Section({
-            halign: HAlign.FILL,
-            valign: VAlign.FILL,
-            backgroundColor: Assets.BaseTheme.colors.BackgroundDark,
-            debugName: "home"
-        });
-        home.startButton = new Button({
-            text: "START",
-            action: btn => this.handleStartPress(btn),
-            halign: HAlign.CENTER,
-            valign: VAlign.TOP,
-            size: [140, 32],
-            margin: [0, 100, 0, 0]
-        });
-        home.addChild(home.startButton);
-        home.addChild(
-            new Button({
-                text: "HISTORY",
-                action: btn => this.handleHistoryPress(btn),
-                halign: HAlign.CENTER,
-                valign: VAlign.TOP,
-                size: [140, 32],
-                margin: [0, 100, 0, 0]
-            })
-        );
-        home.addChild(
-            new Button({
-                text: "STATS",
-                action: btn => this.handleStartPress(btn),
-                halign: HAlign.CENTER,
-                valign: VAlign.TOP,
-                size: [140, 32],
-                margin: [0, 100, 0, 0]
-            })
-        );
-
-        return home;
     }
 
     _createShiftSection() {
@@ -465,7 +359,7 @@ export class KTHomePage extends Page {
 
     _updateTime() {
         var now = new Date();
-        this.navbar.timeLabel.text = `${now.toTimeString()} @ ${now.toDateString()}`;
+        this.navbar.topSection.timeLabel.text = `${now.toTimeString()} @ ${now.toDateString()}`;
 
         if (this.activeShift) {
             if (this.activeShift.breakStart)

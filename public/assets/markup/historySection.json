@@ -1,0 +1,19 @@
+{
+    "type": "Section",
+    "id": "historySection",
+    "properties": {
+        "contentDirection": "VERTICAL",
+        "valign": "FILL",
+        "halign": "FILL",
+        "backgroundColor": "333353"
+    },
+    "children": [
+        {
+            "type": "ListSection",
+            "id": "listSection",
+            "properties": {
+                "templatePath": "shiftLine"
+            }
+        }
+    ]
+}

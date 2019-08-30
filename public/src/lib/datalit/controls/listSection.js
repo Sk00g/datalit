@@ -51,7 +51,7 @@ export class ListSection extends Section {
         for (var i = 0; i < this.instanceCount; i++) {
             // Create new control from template
             // console.log(`generating control from markup (${this.templatePath}): ${i}`);
-            super.addChild(factory.generateControlFromMarkup(this.templatePath));
+            super.addChild(factory.generateMarkupObjects(this.templatePath));
         }
 
         this.dispatchEvent("instancesUpdated", this);

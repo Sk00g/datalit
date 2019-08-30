@@ -40,6 +40,10 @@ export function generateControlFromControl(source) {
 }
 
 function _generateControl(source) {
+    // Delete any properties that equal null (binding path replacements)
+    Object.keys(source.properties)
+        .filter(val => source.properties[val] == null)
+        .map(key => delete source.properties[key]);
     var newControl = new CONTROL_CLASSES[source.type]({ debugName: source.id, ...source.properties });
 
     if (source.children && source.children.length > 0) {
@@ -52,18 +56,19 @@ function _generateControl(source) {
     return newControl;
 }
 
-export function generateControlFromMarkup(name) {
+export function generateMarkupObjects(name, bindingContext = null) {
     // Load in dynamic class object list
     if (!CONTROL_CLASSES) loadClasses();
 
-    const template = Assets.getMarkup(name);
+    let { object, commandBindings } = Assets.getMarkup(name);
+    if (bindingContext) bindingContext.addCommandBindings(commandBindings);
 
-    // console.log(JSON.stringify(template));
+    // console.log(JSON.stringify(object));
 
-    return _generateControl(template);
+    return _generateControl(object);
 }
 
 export default {
     generateControlFromControl,
-    generateControlFromMarkup
+    generateMarkupObjects
 };

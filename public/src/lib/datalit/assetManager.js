@@ -4,6 +4,7 @@ import themeMap from "../../../assets/themeMap.js";
 import markupMap from "../../../assets/markupMap.js";
 import enums from "./enums.js";
 import utils from "./utils.js";
+import { CommandBinding } from "./binding/commandBinding.js";
 
 // Handles all assets for the application.
 class AssetManager {
@@ -65,19 +66,54 @@ class AssetManager {
         return JSON.parse(jsonString);
     }
 
+    *traverse(obj, path = [], idPath = []) {
+        const newIdPath = obj.hasOwnProperty("id") ? idPath.concat(obj.id) : idPath;
+        for (var key of Object.keys(obj)) {
+            const itemPath = path.concat(key);
+            yield [key, obj[key], itemPath, newIdPath];
+            if (obj[key] !== null && typeof obj[key] == "object") {
+                //going one step down in the object tree!!
+                yield* this.traverse(obj[key], itemPath, newIdPath);
+            }
+        }
+    }
+
     parseMarkupData(markupObj) {
         let jsonString = JSON.stringify(markupObj);
 
         /* $[CHAR]= -> represents replacement with existing value
-            e - Enum from enums.js
-            t - Template value, similar to theme data
+            e - Enum from enums.js                      Ex/ $e=HAlign.CENTER
+            t - Theme data specified by resource path   Ex/ $t=default.colors.BackgroundMain
+            c - Command binding                         Ex/ $c=backAction
         */
-        jsonString = jsonString.replace(/\$[et]=[^"]{1,}/g, (str, offset, input) => {
+        jsonString = jsonString.replace(/\$e=[^"]{1,}/g, (str, offset, input) => {
             let tokens = str.substr(3, str.length - 3).split(".");
             return enums[tokens[0]][tokens[1]];
         });
+        jsonString = jsonString.replace(/\$t=[^"]{1,}/g, (str, offset, input) => {
+            let tokens = str.substr(3, str.length - 3).split(".");
 
-        return JSON.parse(jsonString);
+            // First token represents the theme filename, the remaining tokens are the path to the requested resource
+            return utils.resolveObjectPath(tokens.slice(1, tokens.length), this._themes[tokens[0]]);
+        });
+
+        let markupObject = JSON.parse(jsonString);
+
+        /* Traverse parsed object and create binding objects specified by the markup
+         */
+        let commandBindings = [];
+        for (var [key, value, path, idPath] of this.traverse(markupObject)) {
+            // console.log(`KEY: ${key} | VALUE: ${value} | PATH: ${path} | ID PATH: ${idPath}`);
+            if (typeof value === "string" && value.startsWith("$c="))
+                commandBindings.push(new CommandBinding(value.substr(3), idPath, key));
+        }
+
+        // Remove binding strings and replace with null for object creation
+        jsonString = jsonString.replace(/"\$c=[^"]{1,}"/g, (str, offset, input) => {
+            return "null";
+        });
+
+        return { object: JSON.parse(jsonString), commandBindings: commandBindings };
     }
 
     getImage(name) {

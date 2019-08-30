@@ -1,0 +1,48 @@
+{
+    "type": "Section",
+    "id": "homeSection",
+    "properties": {
+        "contentDirection": "VERTICAL",
+        "valign": "FILL",
+        "halign": "FILL",
+        "backgroundColor": "333353"
+    },
+    "children": [
+        {
+            "type": "Button",
+            "id": "startButton",
+            "properties": {
+                "text": "START",
+                "action": "$c=startCommand",
+                "valign": "TOP",
+                "halign": "CENTER",
+                "size": [140, 32],
+                "margin": [0, 100, 0, 0]
+            }
+        },
+        {
+            "type": "Button",
+            "id": "historyButton",
+            "properties": {
+                "text": "HISTORY",
+                "action": "$c=historyCommand",
+                "valign": "TOP",
+                "halign": "CENTER",
+                "size": [140, 32],
+                "margin": [0, 100, 0, 0]
+            }
+        },
+        {
+            "type": "Button",
+            "id": "statsButton",
+            "properties": {
+                "text": "STATS",
+                "action": "$c=statsCommand",
+                "valign": "TOP",
+                "halign": "CENTER",
+                "size": [140, 32],
+                "margin": [0, 100, 0, 0]
+            }
+        }
+    ]
+}

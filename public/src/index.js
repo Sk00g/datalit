@@ -1,7 +1,6 @@
 "use strict";
 
 import { App } from "./lib/datalit/app.js";
-import { WelcomePage } from "./pages/welcomePage.js";
 import { KTHomePage } from "./pages/kempertime.js";
 
 console.log(`... initialized application (${[window.innerWidth, window.innerHeight]})`);

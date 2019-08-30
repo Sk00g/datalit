@@ -1,5 +1,10 @@
 import { Cursor } from "./enums.js";
 
+export function getDescendentProperty(object, path) {
+    while (path.length) object = object[path.shift()];
+    return object;
+}
+
 export function monthNumberToName(month) {
     switch (month) {
         case 1:
@@ -110,5 +115,6 @@ export default {
     changeCursor,
     formatDateFull,
     formatTimestamp,
-    monthNumberToName
+    monthNumberToName,
+    getDescendentProperty
 };
