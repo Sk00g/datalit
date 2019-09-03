@@ -27,10 +27,6 @@ export class LabelButton extends DynamicControl {
 
         this.updateProperties(initialProperties);
 
-        if (this.halign == HAlign.FILL || this.valign == VAlign.FILL) {
-            throw new Error("Text-based elements cannot have a FILL align");
-        }
-
         this.calculateSize();
 
         // Set the initial or default properties as the ControlState.READY style
@@ -53,12 +49,6 @@ export class LabelButton extends DynamicControl {
     }
 
     //#region Override Method
-    get size() {
-        return super.size;
-    }
-    set size(newSize) {
-        return;
-    }
     //#endregion
 
     //#region Override Properties

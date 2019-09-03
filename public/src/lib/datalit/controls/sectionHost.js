@@ -1,4 +1,4 @@
-import { HAlign } from "../enums";
+import { HAlign, SizeTargetType } from "../enums";
 import { datalitError } from "../errors";
 import { Section } from "../controls/section.js";
 
@@ -68,8 +68,8 @@ export class SectionHost extends Section {
         if (!section.isArranger) throw new Error("Only Section objects can be added to a SectionHost");
 
         // Child sections must use the entire SectionHost visible space
-        section.halign = HAlign.FILL;
-        section.valign = VAlign.FILL;
+        section.hsizeTarget = [SizeTargetType.FILL, null];
+        section.vsizeTarget = [SizeTargetType.FILL, null];
 
         // Only push to stack, addChild / removeChild are used for deciding which section is actually displayed
         if (this.getActiveSection()) super.removeChild(this.getActiveSection());

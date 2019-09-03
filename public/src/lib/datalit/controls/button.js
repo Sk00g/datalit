@@ -1,8 +1,5 @@
-// Keep in mind this is meant to be a default implementation of a button, for more unique buttons
-// just subclass Section yourself and go nuts
-
 import { App } from "../app.js";
-import { Color, ContentDirection, ControlState, HAlign, VAlign } from "../enums.js";
+import { Color, ContentDirection, ControlState, HAlign, VAlign, SizeTargetType } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import { Label } from "./label.js";
@@ -16,9 +13,8 @@ export class Button extends Section {
                 contentDirection: ContentDirection.HORIZONTAL,
                 borderColor: Color.BLACK,
                 borderThickness: 1,
-                vfillTarget: null,
-                hfillTarget: null,
-                size: [100, 30]
+                hsizeTarget: [SizeTargetType.FIXED, 100],
+                vsizeTarget: [SizeTargetType.FIXED, 30]
             },
             true
         );

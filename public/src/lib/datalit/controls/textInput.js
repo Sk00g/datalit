@@ -1,5 +1,5 @@
 import { App } from "../app.js";
-import { Color, ContentDirection, Cursor, TEXT_KEYSTROKES, MOTION_KEYSTROKES } from "../enums.js";
+import { Color, ContentDirection, Cursor, TEXT_KEYSTROKES, MOTION_KEYSTROKES, SizeTargetType } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import { Label } from "./label.js";
@@ -13,9 +13,8 @@ export class TextInput extends Section {
             {
                 isFocusable: true,
                 contentDirection: ContentDirection.FREE,
-                size: [200, 30],
-                vfillTarget: null,
-                hfillTarget: null
+                hsizeTarget: [SizeTargetType.FIXED, 200],
+                vsizeTarget: [SizeTargetType.FIXED, 30]
             },
             true
         );

@@ -2,12 +2,16 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/09/01 19:48
+LAST UPDATE:		2019/09/02 20:10
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Write
 
 IMMEDIATE:
+* Ran into arrangement problems, so reworking the system now on a new branch
+    # Rework seems to be going well, also added some optimization which seems great
+    # Needs a lot further testing
+    # Also realized that a reasonably 'normal' app will also need popup logic
 - Scrollable Section
     
 ----------

@@ -1,4 +1,9 @@
-export const MIN_SIZE = -1;
+export const SizeTargetType = Object.freeze({
+    MIN: "MIN", // Requires alignment
+    FILL: "FILL", // Ignores alignment
+    PERCENT: "PERCENT", // Requires alignment
+    FIXED: "FIXED" // Requires alignment
+});
 
 export const Cursor = Object.freeze({
     TEXT: "text",
@@ -47,17 +52,13 @@ export const ControlState = Object.freeze({
 export const HAlign = Object.freeze({
     RIGHT: "RIGHT",
     LEFT: "LEFT",
-    CENTER: "CENTER",
-    FILL: "FILL",
-    STRETCH: "STRETCH"
+    CENTER: "CENTER"
 });
 
 export const VAlign = Object.freeze({
     TOP: "TOP",
     BOTTOM: "BOTTOM",
-    CENTER: "CENTER",
-    FILL: "FILL",
-    STRETCH: "STRETCH"
+    CENTER: "CENTER"
 });
 
 export const ContentDirection = Object.freeze({
@@ -193,5 +194,5 @@ export default {
     EventSourceType,
     MouseButton,
     Modifier,
-    MIN_SIZE
+    SizeTargetType
 };

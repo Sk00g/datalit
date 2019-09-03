@@ -11,14 +11,11 @@
         "TextLight": "DDDDDD"
     },
     "controlProperties": {
-        "Icon": {
-            "margin": 4
-        },
         "Label": {
             "margin": 12,
-            "fontColor": "$colors.TextLight",
+            "fontColor": "$colors.BackgroundDark",
             "fontSize": 12,
-            "valign": "CENTER"
+            "fontType": "Lato"
         },
         "Button": {
             "margin": 10,
@@ -37,6 +34,21 @@
                     "backgroundColor": "555575",
                     "borderColor": "FF",
                     "textOffset": 2
+                }
+            }
+        },
+        "IconButton": {
+            "halign": "LEFT",
+            "valign": "TOP",
+            "hsizeTarget": ["FIXED", 76],
+            "vsizeTarget": ["FIXED", 76],
+            "iconMargin": 20,
+            "styles": {
+                "HOVERED": {
+                    "backgroundColor": "ffffff22"
+                },
+                "DEPRESSED": {
+                    "backgroundColor": "00000011"
                 }
             }
         },

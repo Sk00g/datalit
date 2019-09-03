@@ -1,7 +1,7 @@
 import { Section } from "./section";
 import { Events } from "../events/events.js";
 import { Icon } from "./icon";
-import { HAlign, VAlign } from "../enums";
+import { HAlign, VAlign, ControlState } from "../enums";
 import utils from "../utils";
 
 export class IconButton extends Section {
@@ -14,7 +14,8 @@ export class IconButton extends Section {
         // Unique Properties
         this._action = null;
         this.registerProperty("action", false, false, true);
-        this.registerProperty("imagePath", false, true, false);
+        this.registerProperty("iconMargin", true, true, false, utils.compareSides);
+        this.registerProperty("imagePath", false, true, true);
         this.registerProperty("sourceRect", false, true, false, utils.compareSides);
 
         // Apply base theme before customized properties
@@ -42,8 +43,10 @@ export class IconButton extends Section {
     }
     set size(newSize) {
         super.size = newSize;
-        console.log("setting size to " + newSize);
-        if (newSize[0] < 40 && newSize[1] < 40) this.icon.size = newSize;
+        this.icon.size = [
+            newSize[0] - this.icon.margin[0] - this.icon.margin[2],
+            newSize[1] - this.icon.margin[1] - this.icon.margin[3]
+        ];
     }
 
     //#region Unique Properties
@@ -60,6 +63,14 @@ export class IconButton extends Section {
 
         this._action = newAction;
         this.notifyPropertyChange("action");
+    }
+
+    get iconMargin() {
+        return this.icon.margin;
+    }
+    set iconMargin(newMargin) {
+        this.icon.margin = newMargin;
+        this.notifyPropertyChange("iconMargin");
     }
 
     get imagePath() {

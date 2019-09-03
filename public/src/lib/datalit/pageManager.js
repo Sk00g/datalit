@@ -45,7 +45,7 @@ export class PageManager {
     update(elapsed) {
         if (this.pageStack.length < 1) throw new Error("Cannot update empty pageManager!");
 
-        if (elapsed) this.peek().update(elapsed);
+        this.peek().update(elapsed);
     }
 
     draw() {

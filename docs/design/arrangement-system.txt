@@ -17,15 +17,10 @@ Rules of Arrangement:
 
 2. When a control's parent has Direction.HORIZONTAL, its VAlign property is considered in complete isolation from the sibling controls. The reverse is true in the other axis.
 
-3. hfillTarget and vfillTarget are only applicable when [H|V]Align == FILL. They are logic checked before computing. The exception to this is when the == MIN_SIZE (-1), in which case they come in to play for all alignments except FILL and FREE
+3. [SizeTargetType description]
 
-4. [H|V]Align == STRETCH applies the parent size to the relevant axis, only difference from FILL is in requestHeight/Width classes:
-    if (this.halign == HAlign.FILL) return availableWidth;
-    else if (this.halign == HAlign.STRETCH) return parentWidth;
-So 'availableWidth' can sometimes be larger if the 'parentWidth' is defering because of MIN_SIZE 
+4. Primitives ALL have essentially FIXED sizes. To match their parent this can be done manually by overriding set size()
 
 5. Page and many other controls derive from Section which derives from Control but overwrites many of its subclasses. ALL custom or advanced components should subclass off Section or another child of Section. DO NOT subclass off control unless you don't plan on comprising the control off primitives, which is essentially impossible  
 
 6. The core function used in alignment is the render() function found in Section. This function sets both the size (when required) and location of all child controls. It also sets off recursive render() calls in child sub-sections. In this way when the active page is updated in loop, if a render is required it will render all children.
-
-7. Section's have a special option for [h|v]fillTarget == MIN_SIZE (-1). This sets its size to minimum fit the LARGEST child size in given axis. This allows for both dynamic Section sizing and a simpler design process for many layout schemes.

@@ -1,5 +1,5 @@
 import { App } from "../app.js";
-import { Color, ContentDirection, HAlign, VAlign, MIN_SIZE } from "../enums.js";
+import { Color, ContentDirection, HAlign, VAlign, SizeTargetType } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { DynamicControl } from "./dynamicControl.js";
 import { Events } from "../events/events.js";
@@ -16,18 +16,22 @@ export class Section extends DynamicControl {
         this.children = [];
         this.orderedChildren = []; // For zValue drawing
 
-        // Default Control property values
-        this.hfillTarget = MIN_SIZE;
-        this.vfillTarget = MIN_SIZE;
+        // Control property defaults
+        this._halign = null;
+        this._valign = null;
 
         // Unique property definitions
         this._contentDirection = ContentDirection.VERTICAL;
         this._backgroundColor = Color.TRANSPARENT;
         this._borderColor = Color.BLACK;
         this._borderThickness = [0, 0, 0, 0];
+        this._hsizeTarget = [SizeTargetType.FILL, 0];
+        this._vsizeTarget = [SizeTargetType.FILL, 0];
         this.registerProperty("backgroundColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness", false, true, false, utils.compareSides);
+        this.registerProperty("hsizeTarget", true, true, false, utils.compareSides);
+        this.registerProperty("vsizeTarget", true, true, false, utils.compareSides);
 
         // Apply base theme before customized properties
         this.applyTheme("Section");
@@ -67,35 +71,53 @@ export class Section extends DynamicControl {
         this.requiresRender = true;
     }
 
-    prerenderCheck(totalSpace) {
+    prerenderCheck(allocatedSpace) {
         // ContentDirection.FREE is always viable, just might not make sense
         if (this.contentDirection == ContentDirection.FREE) return;
 
         let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
-        // Cannot have both Align.CENTER and Align.FILL in the same parent
-        let fills = this.children.filter(ch => ch[alignProp] === HAlign.FILL);
+        let sizeTargetProp = this.contentDirection == ContentDirection.HORIZONTAL ? "hsizeTarget" : "vsizeTarget";
+        // Cannot have both Align.CENTER and SizeTargetType.FILL in the same parent
+        let fills = this.children.filter(ch => ch.isArranger && ch[sizeTargetProp][0] === SizeTargetType.FILL);
         let centers = this.children.filter(ch => ch[alignProp] === HAlign.CENTER);
         if (fills.length > 0 && centers.length > 0)
             datalitError("invalidAlignment", [this.debugName, "Cannot have CENTER + FILL in same axis"]);
 
-        // Multiple CENTER children cannot have a combined width/height of greater than totalSpace
+        // align can't be null when SizeTargetType != FILL
+        if (this.hsizeTarget[0] !== SizeTargetType.FILL && this.halign == null)
+            datalitError("invalidAlignment", [
+                this.debugName,
+                `Must have halign (${this.halign}) unless Type (${this.hsizeTarget[0]}) is FILL`
+            ]);
+        if (this.vsizeTarget[0] !== SizeTargetType.FILL && this.valign == null)
+            datalitError("invalidAlignment", [this.debugName, "Must have valign unless Type is FILL"]);
+
+        // align must be null when SizeTargetType == FILL
+        if (this.hsizeTarget[0] === SizeTargetType.FILL && this.halign !== null)
+            datalitError("invalidAlignment", [this.debugName, "halign must be null when Type is FILL"]);
+        if (this.vsizeTarget[0] === SizeTargetType.FILL && this.valign !== null)
+            datalitError("invalidAlignment", [this.debugName, "valign must be null when Type is FILL"]);
+
+        // Multiple CENTER children cannot have a combined width/height of greater than allocatedSpace
         if (centers.length > 0) {
             if (this.contentDirection == ContentDirection.HORIZONTAL) {
                 let combinedWidth = 0;
-                for (let ctrl of centers) combinedWidth += ctrl.requestWidth(totalSpace[0], this.width);
-                if (combinedWidth > totalSpace[0])
+                for (let ctrl of centers)
+                    combinedWidth += ctrl.isArranger ? ctrl.requestWidth(allocatedSpace[0]) : ctrl.viewWidth;
+                if (combinedWidth > allocatedSpace[0])
                     datalitError("invalidAlignment", [
                         this.debugName,
-                        "Cannot have CENTER children with width sum > totalSpace[0]"
+                        "Cannot have CENTER children with width sum > allocatedSpace[0]"
                     ]);
             } else if (this.contentDirection == ContentDirection.VERTICAL) {
                 let combinedHeight = 0;
-                for (let ctrl of centers) combinedHeight += ctrl.requestHeight(totalSpace[1], this.height);
-                if (combinedHeight > totalSpace[1]) {
-                    console.log(`combinedHeight: ${combinedHeight} | totalSpace[1]: ${totalSpace[1]}`);
+                for (let ctrl of centers)
+                    combinedHeight += ctrl.isArranger ? ctrl.requestHeight(allocatedSpace[1]) : ctrl.viewHeight;
+                if (combinedHeight > allocatedSpace[1]) {
+                    console.log(`combinedHeight: ${combinedHeight} | allocatedSpace[1]: ${allocatedSpace[1]}`);
                     datalitError("invalidAlignment", [
                         this.debugName,
-                        "Cannot have CENTER children with height sum > totalSpace[1]"
+                        "Cannot have CENTER children with height sum > allocatedSpace[1]"
                     ]);
                 }
             }
@@ -103,182 +125,209 @@ export class Section extends DynamicControl {
     }
 
     render() {
-        if (this.children.length < 1) return;
+        console.log(`rendering section '${this.debugName}' (${this.children.length})`);
+        if (this.children.length < 1) {
+            this.prerenderCheck(null);
+            this.requiresRender = false;
+            return;
+        }
 
-        // console.log(`rendering section... ${this.debugName} (${this.children.length})`);
-        App.GlobalState.RedrawRequired = true;
+        // If page is being rendered, redraw everything
+        if (this.isPage) App.GlobalState.RedrawRequired = true;
 
+        // Designate the space available for child Controls
         let origins = [
             this._arrangedPosition[0] + this.margin[0],
             this._arrangedPosition[1] + this.margin[1],
             this._arrangedPosition[0] + this.margin[0] + this.size[0],
             this._arrangedPosition[1] + this.margin[1] + this.size[1]
         ];
-        let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
 
-        this.prerenderCheck(totalSpace);
+        // Ensure this Section has valid properties for arrangement
+        let availableSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+        this.prerenderCheck(availableSpace);
 
-        // Set position and size of all child controls
+        // ContentDirection.FREE allocation is simple
+        if (this.contentDirection == ContentDirection.FREE) {
+            for (let child of this.children) {
+                child.arrangePosition(this, [origins[0] + child.localPosition[0], origins[1] + child.localPosition[1]]);
+            }
+            this.requiresRender = false;
+            return;
+        }
+
+        // Using available space, set position and size of direct children
         let fillChildren = null;
         let centeredChildren = null;
         let alignedChildren = null;
-        switch (this.contentDirection) {
-            case ContentDirection.FREE:
-                for (let child of this.children) {
-                    child.arrangePosition(this, [
-                        origins[0] + child.localPosition[0],
-                        origins[1] + child.localPosition[1]
-                    ]);
-                }
-                break;
-            case ContentDirection.HORIZONTAL:
-                fillChildren = this.children.filter(child => child.halign == HAlign.FILL);
-                centeredChildren = this.children.filter(child => child.halign == HAlign.CENTER);
-                alignedChildren = this.children.filter(
-                    child => child.halign != HAlign.CENTER && child.halign != HAlign.FILL
-                );
+        if (this.contentDirection == ContentDirection.HORIZONTAL) {
+            // Manage children in order: ALIGN -> CENTER -> FILL
+            alignedChildren = this.children.filter(
+                ch => ch.halign == HAlign.CENTER || ch.halign == HAlign.LEFT || ch.halign == HAlign.RIGHT
+            );
+            centeredChildren = this.children.filter(child => child.halign == HAlign.CENTER);
+            fillChildren = this.children.filter(ch => ch.isArranger && ch.hsizeTarget[0] == SizeTargetType.FILL);
 
-                for (let child of alignedChildren) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
-                    child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
+            // Split up x-axis among aligned children
+            for (let child of alignedChildren) {
+                // Re-calculated after each allocation
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
 
-                    switch (child.halign) {
-                        case HAlign.LEFT:
-                            child.arrangePosition(this, [origins[0], -1]);
-                            origins[0] += child.viewWidth;
-                            break;
-                        case HAlign.RIGHT:
-                            child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
-                            origins[2] -= child.viewWidth;
-                            break;
-                    }
+                // If the child is an Arranger, gather and allocate its width specification
+                if (child.isArranger) {
+                    child.viewWidth = child.requestWidth(remainingSpace[0]);
+                    child.viewHeight = child.requestHeight(remainingSpace[1]);
                 }
 
-                // Now arrange center or fill children
-                if (fillChildren.length > 0) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    // Evenly divide remaining width
-                    let splitWidth = Math.floor(totalSpace[0] / fillChildren.length);
-                    let remainder = totalSpace[0] - splitWidth * fillChildren.length;
-
-                    for (let child of fillChildren) {
-                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
-                        let trueWidth = splitWidth;
-                        if (remainder > 0) {
-                            trueWidth = splitWidth + 1;
-                            remainder -= 0;
-                        }
-
-                        child.viewWidth = trueWidth;
-                        child.arrangePosition(this, [origins[0], -1]);
-                        origins[0] += trueWidth;
-                    }
-                } else if (centeredChildren.length > 0) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    let widthSum = 0;
-                    for (let child of centeredChildren) {
-                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
-                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
-                        widthSum += child.viewWidth;
-                    }
-                    let space = totalSpace[0] - widthSum;
-                    origins[0] += Math.floor(space / 2);
-                    for (let child of centeredChildren) {
+                switch (child.halign) {
+                    case HAlign.LEFT:
                         child.arrangePosition(this, [origins[0], -1]);
                         origins[0] += child.viewWidth;
-                    }
+                        break;
+                    case HAlign.RIGHT:
+                        child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
+                        origins[2] -= child.viewWidth;
+                        break;
                 }
+            }
 
-                // Vertical alignment of children in a ContentDirection.HORIZONTAL parent is isolated
-                for (let child of this.children) {
-                    switch (child.valign) {
-                        case VAlign.CENTER:
-                            let sp = Math.max(this.viewHeight - this.margin[1] - this.margin[3] - child.viewHeight, 0);
-                            child.arrangePosition(this, [-1, origins[1] + Math.floor(sp / 2)]);
-                            break;
-                        case VAlign.TOP:
-                        case VAlign.FILL:
-                        case VAlign.STRETCH:
-                            child.arrangePosition(this, [-1, origins[1]]);
-                            break;
-                        case VAlign.BOTTOM:
-                            child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
-                            break;
-                            break;
+            // Now arrange center or fill children (all FILL children are Arrangers)
+            if (fillChildren.length > 0) {
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                // Evenly divide remaining width
+                let splitWidth = Math.floor(remainingSpace[0] / fillChildren.length);
+                let remainder = remainingSpace[0] - splitWidth * fillChildren.length;
+
+                for (let child of fillChildren) {
+                    child.viewHeight = child.requestHeight(remainingSpace[1]);
+
+                    let trueWidth = splitWidth;
+                    if (remainder > 0) {
+                        trueWidth = splitWidth + 1;
+                        remainder -= 0;
                     }
+
+                    child.viewWidth = trueWidth;
+                    child.arrangePosition(this, [origins[0], -1]);
+                    origins[0] += trueWidth;
                 }
-                break;
-            case ContentDirection.VERTICAL:
-                fillChildren = this.children.filter(child => child.valign == VAlign.FILL);
-                centeredChildren = this.children.filter(child => child.valign == VAlign.CENTER);
-                alignedChildren = this.children.filter(
-                    child => child.valign != VAlign.CENTER && child.valign != VAlign.FILL
-                );
-
-                for (let child of alignedChildren) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
-                    child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
-
-                    switch (child.valign) {
-                        case VAlign.TOP:
-                            child.arrangePosition(this, [-1, origins[1]]);
-                            origins[1] += child.viewHeight;
-                            break;
-                        case VAlign.BOTTOM:
-                            child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
-                            origins[3] -= child.viewHeight;
-                            break;
+            } else if (centeredChildren.length > 0) {
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                let widthSum = 0;
+                for (let child of centeredChildren) {
+                    if (child.isArranger) {
+                        child.viewWidth = child.requestWidth(remainingSpace[0]);
+                        child.viewHeight = child.requestHeight(remainingSpace[1]);
                     }
+                    widthSum += child.viewWidth;
                 }
+                let space = remainingSpace[0] - widthSum;
+                origins[0] += Math.floor(space / 2);
+                for (let child of centeredChildren) {
+                    child.arrangePosition(this, [origins[0], -1]);
+                    origins[0] += child.viewWidth;
+                }
+            }
 
-                // Now arrange center or fill children
-                if (fillChildren.length > 0) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    // Evenly divide remaining width
-                    let splitHeight = Math.floor(totalSpace[1] / fillChildren.length);
-
-                    for (let child of fillChildren) {
-                        child.viewHeight = splitHeight;
-                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
+            // Vertical alignment of children in a ContentDirection.HORIZONTAL parent is isolated
+            for (let child of this.children) {
+                switch (child.valign) {
+                    case VAlign.CENTER:
+                        let sp = Math.max(this.viewHeight - this.margin[1] - this.margin[3] - child.viewHeight, 0);
+                        child.arrangePosition(this, [-1, origins[1] + Math.floor(sp / 2)]);
+                        break;
+                    case VAlign.TOP:
                         child.arrangePosition(this, [-1, origins[1]]);
-                        origins[1] += splitHeight;
-                    }
-                } else if (centeredChildren.length > 0) {
-                    let totalSpace = [origins[2] - origins[0], origins[3] - origins[1]];
-                    let heightSum = 0;
-                    for (let child of centeredChildren) {
-                        child.viewWidth = child.requestWidth(totalSpace[0], this.viewWidth);
-                        child.viewHeight = child.requestHeight(totalSpace[1], this.viewHeight);
-                        heightSum += child.viewHeight;
-                    }
-                    let space = totalSpace[1] - heightSum;
-                    origins[1] += Math.floor(space / 2);
-                    for (let child of centeredChildren) {
+                        break;
+                    case VAlign.BOTTOM:
+                        child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
+                        break;
+                    // Null valign means SizeTargetType == FILL
+                    case null:
+                        child.arrangePosition(this, [-1, origins[1]]);
+                        break;
+                }
+            }
+        } else if (this.contentDirection == ContentDirection.VERTICAL) {
+            // Manage children in order: ALIGN -> CENTER -> FILL
+            alignedChildren = this.children.filter(
+                ch => ch.valign == VAlign.CENTER || ch.valign == VAlign.TOP || ch.valign == VAlign.BOTTOM
+            );
+            centeredChildren = this.children.filter(child => child.valign == VAlign.CENTER);
+            fillChildren = this.children.filter(ch => ch.isArranger && ch.vsizeTarget[0] == SizeTargetType.FILL);
+
+            // Split up y-axis among aligned children
+            for (let child of alignedChildren) {
+                // Re-calculated after each allocation
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+
+                // If the child is an Arranger, gather and allocate its width specification
+                if (child.isArranger) {
+                    child.viewWidth = child.requestWidth(remainingSpace[0]);
+                    child.viewHeight = child.requestHeight(remainingSpace[1]);
+                }
+
+                switch (child.valign) {
+                    case VAlign.TOP:
                         child.arrangePosition(this, [-1, origins[1]]);
                         origins[1] += child.viewHeight;
-                    }
+                        break;
+                    case VAlign.BOTTOM:
+                        child.arrangePosition(this, [-1, origins[3] - child.viewHeight]);
+                        origins[3] -= child.viewHeight;
+                        break;
                 }
+            }
 
-                // Horizontal alignment of children in a ContentDirection.VERTICAL parent is isolated
-                for (let child of this.children) {
-                    switch (child.halign) {
-                        case HAlign.CENTER:
-                            let space = Math.max(this.viewWidth - this.margin[0] - this.margin[2] - child.viewWidth, 0);
-                            child.arrangePosition(this, [origins[0] + Math.floor(space / 2), -1]);
-                            break;
-                        case HAlign.LEFT:
-                        case HAlign.FILL:
-                        case HAlign.STRETCH:
-                            child.arrangePosition(this, [origins[0], -1]);
-                            break;
-                        case HAlign.RIGHT:
-                            child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
-                            break;
-                    }
+            // Now arrange center or fill children (all FILL children are Arrangers)
+            if (fillChildren.length > 0) {
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                // Evenly divide remaining height
+                let splitHeight = Math.floor(remainingSpace[1] / fillChildren.length);
+
+                for (let child of fillChildren) {
+                    child.viewHeight = splitHeight;
+                    child.viewWidth = child.requestWidth(remainingSpace[0]);
+                    child.arrangePosition(this, [-1, origins[1]]);
+                    origins[1] += splitHeight;
                 }
-                break;
+            } else if (centeredChildren.length > 0) {
+                let remainingSpace = [origins[2] - origins[0], origins[3] - origins[1]];
+                let heightSum = 0;
+                for (let child of centeredChildren) {
+                    if (child.isArranger) {
+                        child.viewWidth = child.requestWidth(remainingSpace[0]);
+                        child.viewHeight = child.requestHeight(remainingSpace[1]);
+                    }
+                    heightSum += child.viewHeight;
+                }
+                let space = remainingSpace[1] - heightSum;
+                origins[1] += Math.floor(space / 2);
+                for (let child of centeredChildren) {
+                    child.arrangePosition(this, [-1, origins[1]]);
+                    origins[1] += child.viewHeight;
+                }
+            }
+
+            // Horizontal alignment of children in a ContentDirection.VERTICAL parent is isolated
+            for (let child of this.children) {
+                switch (child.halign) {
+                    case HAlign.CENTER:
+                        let space = Math.max(this.viewWidth - this.margin[0] - this.margin[2] - child.viewWidth, 0);
+                        child.arrangePosition(this, [origins[0] + Math.floor(space / 2), -1]);
+                        break;
+                    case HAlign.LEFT:
+                        child.arrangePosition(this, [origins[0], -1]);
+                        break;
+                    case HAlign.RIGHT:
+                        child.arrangePosition(this, [origins[2] - child.viewWidth, -1]);
+                        break;
+                    // Null valign means SizeTargetType == FILL
+                    case null:
+                        child.arrangePosition(this, [origins[0], -1]);
+                        break;
+                }
+            }
         }
 
         this.requiresRender = false;
@@ -328,6 +377,68 @@ export class Section extends DynamicControl {
         this.scheduleRender();
     }
 
+    _calculateMinimumWidth(available) {
+        // If we have ContentDirection.VERTICAL, just get largest child width
+        if (this.contentDirection == ContentDirection.VERTICAL) {
+            let largestWidth = 0;
+            for (let child of this.children) {
+                let cWidth = child.isArranger ? child.requestWidth(available) : child.viewWidth;
+                if (cWidth > largestWidth) largestWidth = cWidth;
+            }
+            return largestWidth + this.margin[0] + this.margin[2];
+        } // Otherwise we have to get the combination of child widths
+        else if (this.contentDirection == ContentDirection.HORIZONTAL) {
+            let widthSum = 0;
+            for (let child of this.children)
+                widthSum += child.isArranger ? child.requestWidth(available) : child.viewWidth;
+            return widthSum + this.margin[0] + this.margin[2];
+        }
+    }
+
+    _calculateMinimumHeight(available) {
+        // If we have ContentDirection.HORIZONTAL, just get largest child height
+        if (this.contentDirection == ContentDirection.HORIZONTAL) {
+            let largestHeight = 0;
+            for (let child of this.children) {
+                let cHeight = child.isArranger ? child.requestHeight(available) : child.viewHeight;
+                if (cHeight > largestHeight) largestHeight = cHeight;
+            }
+            return largestHeight + this.margin[1] + this.margin[3];
+        } // Otherwise we have to get the combination of child heights
+        else if (this.contentDirection == ContentDirection.VERTICAL) {
+            let heightSum = 0;
+            for (let child of this.children)
+                heightSum += child.isArranger ? child.requestHeight(available) : child.viewHeight;
+            return heightSum + this.margin[1] + this.margin[3];
+        }
+    }
+
+    requestWidth(availableWidth) {
+        switch (this.hsizeTarget[0]) {
+            case SizeTargetType.MIN:
+                return this._calculateMinimumWidth(availableWidth);
+            case SizeTargetType.FILL:
+                return availableWidth;
+            case SizeTargetType.PERCENT:
+                return Math.floor(availableWidth * this.hsizeTarget[1]);
+            case SizeTargetType.FIXED:
+                return this.hsizeTarget[1] + this.margin[0] + this.margin[2];
+        }
+    }
+
+    requestHeight(availableHeight) {
+        switch (this.vsizeTarget[0]) {
+            case SizeTargetType.MIN:
+                return this._calculateMinimumHeight(availableHeight);
+            case SizeTargetType.FILL:
+                return availableHeight;
+            case SizeTargetType.PERCENT:
+                return Math.floor(availableHeight * this.vsizeTarget[1]);
+            case SizeTargetType.FIXED:
+                return this.vsizeTarget[1] + this.margin[1] + this.margin[3];
+        }
+    }
+
     //#region Method overrides
     arrangePosition(arranger, newPosition) {
         if (utils.comparePoints(newPosition, this._arrangedPosition)) return;
@@ -340,53 +451,6 @@ export class Section extends DynamicControl {
             ]);
 
         this.scheduleRender();
-    }
-
-    // Only Sections should have [h|v]fillTarget == MIN_SIZE, meaning minimum size based on child elements
-    requestWidth(availableWidth, parentWidth) {
-        if (this.halign == HAlign.FILL) return availableWidth;
-        else if (this.halign == HAlign.STRETCH) return parentWidth;
-        else if (this.hfillTarget == MIN_SIZE) {
-            // If we have ContentDirection.VERTICAL, just get largest child width
-            if (this.contentDirection == ContentDirection.VERTICAL) {
-                let largestWidth = 0;
-                for (let child of this.children) {
-                    let cWidth = child.requestWidth(availableWidth, this.viewWidth);
-                    if (cWidth > largestWidth) largestWidth = cWidth;
-                }
-                return largestWidth + this.margin[0] + this.margin[2];
-            } // Otherwise we have to get the combination of child widths
-            else if (this.contentDirection == ContentDirection.HORIZONTAL) {
-                let widthSum = 0;
-                for (let child of this.children) widthSum += child.requestWidth(availableWidth, this.viewWidth);
-                return widthSum + this.margin[0] + this.margin[2];
-            }
-        } else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
-        else if (this.contentDirection == ContentDirection.FREE) return this.viewWidth;
-        else return this.viewWidth;
-    }
-
-    requestHeight(availableHeight, parentHeight) {
-        if (this.valign == VAlign.FILL) return availableHeight;
-        else if (this.valign == VAlign.STRETCH) return parentHeight;
-        else if (this.vfillTarget == -1) {
-            // If we have ContentDirection.HORIZONTAL, just get largest child height
-            if (this.contentDirection == ContentDirection.HORIZONTAL) {
-                let largestHeight = 0;
-                for (let child of this.children) {
-                    let cHeight = child.requestHeight(availableHeight, this.viewHeight);
-                    if (cHeight > largestHeight) largestHeight = cHeight;
-                }
-                return largestHeight + this.margin[1] + this.margin[3];
-            } // Otherwise we have to get the combination of child heights
-            else if (this.contentDirection == ContentDirection.VERTICAL) {
-                let heightSum = 0;
-                for (let child of this.children) heightSum += child.requestHeight(availableHeight, this.viewHeight);
-                return heightSum + this.margin[1] + this.margin[3];
-            }
-        } else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
-        else if (this.contentDirection == ContentDirection.FREE) return this.viewHeight;
-        else return this.viewHeight;
     }
     //#endregion
 
@@ -459,6 +523,36 @@ export class Section extends DynamicControl {
 
         this._contentDirection = dir;
     }
+
+    get hsizeTarget() {
+        return this._hsizeTarget;
+    }
+    set hsizeTarget(newTarget) {
+        if (!SizeTargetType.hasOwnProperty(newTarget[0]))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "SizeTargetType"]);
+        else if (newTarget[0] == SizeTargetType.FIXED && !Number.isInteger(newTarget[1]))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "FIXED -> INT"]);
+        else if (newTarget[0] == SizeTargetType.PERCENT && (newTarget[1] <= 0 || newTarget[1] >= 1.0))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "PERCENT -> 0 - 1.0"]);
+
+        this._hsizeTarget = newTarget;
+        this.notifyPropertyChange("hsizeTarget");
+    }
+
+    get vsizeTarget() {
+        return this._vsizeTarget;
+    }
+    set vsizeTarget(newTarget) {
+        if (!SizeTargetType.hasOwnProperty(newTarget[0]))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "SizeTargetType"]);
+        else if (newTarget[0] == SizeTargetType.FIXED && !Number.isInteger(newTarget[1]))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "FIXED -> INT"]);
+        else if (newTarget[0] == SizeTargetType.PERCENT && (newTarget[1] <= 0 || newTarget[1] >= 1.0))
+            datalitError("propertySet", ["Section.sizeTarget", String(newTarget), "PERCENT -> 0 - 1.0"]);
+
+        this._vsizeTarget = newTarget;
+        this.notifyPropertyChange("vsizeTarget");
+    }
     //#endregion
 
     update(elapsed) {
@@ -473,6 +567,7 @@ export class Section extends DynamicControl {
     }
 
     draw(context = App.Context, offset = [0, 0]) {
+        // console.log(`drawing section ${this.debugName}`);
         if (this.background) this.background.draw(context, offset);
 
         for (let child of this.orderedChildren) {

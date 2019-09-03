@@ -36,7 +36,11 @@ export class Page extends Section {
 
     //region Method Overrides
     render() {
-        this.size = [App.Canvas.width, App.Canvas.height];
+        this.size = [
+            App.Canvas.width - this.margin[0] - this.margin[2],
+            App.Canvas.height - this.margin[1] - this.margin[3]
+        ];
+        this.arrangePosition(this, [this.margin[0], this.margin[1]]);
         super.render();
     }
 

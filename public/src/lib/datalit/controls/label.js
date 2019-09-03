@@ -18,10 +18,6 @@ export class Label extends Control {
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
 
-        if (this.halign == HAlign.FILL || this.valign == VAlign.FILL) {
-            throw new Error("Text-based elements cannot have a FILL align");
-        }
-
         // Apply base theme before customized properties
         this.applyTheme("Label");
 
@@ -39,13 +35,6 @@ export class Label extends Control {
     }
 
     //#region Override Method
-    get size() {
-        return super.size;
-    }
-    set size(newSize) {
-        // throw new Error("Can't set the size of a label! It is generated from fontSize, text, and margins");
-        return;
-    }
     //#endregion
 
     //#region Unique Properties
@@ -102,7 +91,7 @@ export class Label extends Control {
             this._arrangedPosition[0] + this.margin[0] + offset[0],
             this._arrangedPosition[1] + this.fontSize + this.margin[1] + offset[1]
         ];
-        // console.log(`draw text ${this.text} at ${truePosition} (${context})`);
+        // console.log(`draw text ${this.text} at ${truePosition}`);
         context.fillText(this.text, ...truePosition);
     }
 }

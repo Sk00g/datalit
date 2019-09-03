@@ -1,6 +1,6 @@
 import { App } from "../app";
 import { datalitError } from "../errors.js";
-import { ContentDirection, HAlign, VAlign } from "../enums.js";
+import { ContentDirection, HAlign, VAlign, SizeTargetType } from "../enums.js";
 import { Section } from "./section";
 import { Events } from "../events/events";
 import { Button } from "./button";
@@ -84,8 +84,9 @@ export class ScrollSection extends Section {
         if (this.contentDirection == ContentDirection.FREE) return;
 
         let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
-        // Cannot have both Align.CENTER and Align.FILL in the same parent
-        let fills = this.children.filter(ch => ch[alignProp] === HAlign.FILL);
+        let sizeTargetProp = this.contentDirection == ContentDirection.HORIZONTAL ? "hsizeTarget" : "vsizeTarget";
+        // Cannot have both Align.CENTER and SizeTargetType.FILL in the same axis
+        let fills = this.children.filter(ch => ch.isArranger && ch[sizeTargetProp][0] == SizeTargetType.FILL);
         let centers = this.children.filter(ch => ch[alignProp] === HAlign.CENTER);
         if (fills.length > 0 && centers.length > 0)
             datalitError("invalidAlignment", [this.debugName, "Cannot have CENTER + FILL in same axis"]);

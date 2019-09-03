@@ -9,10 +9,9 @@ class DatalitApp {
         this.Context = this.Canvas.getContext("2d");
         this.GlobalState = {
             DefaultBackground: Color.WHITE,
-            DefaultMargin: [0, 0, 0, 0],
             DefaultFontSize: 12,
             RedrawRequired: true,
-            ClearRegions: [],
+            DirtySections: [],
             Clipboard: ""
         };
 
@@ -37,6 +36,7 @@ class DatalitApp {
     }
 
     resizeCanvas() {
+        console.log("resizing canvas");
         this.Canvas.width = window.innerWidth;
         this.Canvas.height = window.innerHeight;
     }
@@ -47,10 +47,23 @@ class DatalitApp {
 
         this.pageManager.update(elapsed);
 
+        // Redraw everything if requested
         if (this.GlobalState.RedrawRequired) {
+            console.log("redrawing full screen");
             this.GlobalState.RedrawRequired = false;
+            this.GlobalState.DirtySections = [];
             this.Context.clearRect(0, 0, this.Canvas.width, this.Canvas.height);
             this.pageManager.draw();
+        }
+
+        // Redraw only dirty sections (this doesn't yet work with ScrollSections)
+        if (this.GlobalState.DirtySections.length > 0) {
+            console.log("redrawing dirty sections: " + this.GlobalState.DirtySections.length);
+            for (let i = 0; i < this.GlobalState.DirtySections.length; i++) {
+                this.Context.clearRect(...this.GlobalState.DirtySections[i].viewingRect);
+                this.GlobalState.DirtySections[i].draw(App.Context);
+            }
+            this.GlobalState.DirtySections = [];
         }
 
         window.requestAnimationFrame(ct => this.run(ct));

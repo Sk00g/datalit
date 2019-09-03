@@ -1,0 +1,23 @@
+---------------
+DEFINITIVE LIST OF CONTROLS
+---------------
+
+Primitive (subclass Control):
+- Circle
+- DynamicControl
+- Icon
+- Label
+- Rect
+
+* Important to note that all Primitive controls have a FIXED width, and must be resized manually by parent Sections
+
+Complex (subclass Section):
+- Button
+- IconButton
+- LabelButton
+- ListSection
+- Page
+- ScrollSection
+- SectionHost
+- TextEdit
+- TextInput

@@ -1,9 +1,9 @@
 import { App } from "../app.js";
-import { ControlState, HAlign, VAlign } from "../enums.js";
+import { Assets } from "../assetManager.js";
+import { ControlState, HAlign, VAlign, SizeTargetType } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import utils from "../utils.js";
-import { Assets } from "../assetManager.js";
 
 export class Control {
     constructor() {
@@ -23,11 +23,9 @@ export class Control {
         this._visible = true;
         this._arrangedPosition = [0, 0];
         this._size = [0, 0];
-        this._margin = App.GlobalState.DefaultMargin;
+        this._margin = [0, 0, 0, 0];
         this._halign = HAlign.LEFT;
         this._valign = VAlign.TOP;
-        this._hfillTarget = null;
-        this._vfillTarget = null;
         this._focused = false;
         this._isFocusable = false;
         this._localPosition = [0, 0];
@@ -41,8 +39,6 @@ export class Control {
         this.registerProperty("margin", true, true, true, utils.compareSides);
         this.registerProperty("halign", true);
         this.registerProperty("valign", true);
-        this.registerProperty("hfillTarget", true);
-        this.registerProperty("vfillTarget", true);
         this.registerProperty("focused", false, true, true);
         this.registerProperty("localPosition", true, true, false, utils.comparePoints);
         this.registerProperty("zValue");
@@ -72,7 +68,8 @@ export class Control {
                         this.addStyle(styleKey, propertyDefinitions);
                     }
                 }
-                if (this[key]) this[key] = value;
+
+                this[key] = value;
             }
         }
     }
@@ -134,17 +131,21 @@ export class Control {
             });
             // console.log(`Property ${name} changed from ${metadata.previousValue} to ${this[name]}`);
             metadata.previousValue = this[name];
-            // Request rerender based on metadata, re-render ancestor page
+            // Request rerender based on metadata, re-render ancestor until FIXED, FILL, OR PERCENT
             if (metadata.rerender && this.__parent) {
-                parent = this.__parent;
-                while (!parent.isPage) {
-                    if (!parent.__parent) break;
+                var parent = this.isArranger ? this : this.__parent;
+                while (parent.hsizeTarget[0] == SizeTargetType.MIN || parent.vsizeTarget[0] == SizeTargetType.MIN)
                     parent = parent.__parent;
-                }
+
                 parent.scheduleRender();
+
+                // Redraw parent rendered section, which encapsulates redrawing all children as well
+                App.GlobalState.DirtySections.push(parent);
             }
             // Request redraw as required
-            if (metadata.redraw) App.GlobalState.RedrawRequired = true;
+            else if (metadata.redraw) {
+                App.GlobalState.DirtySections.push(this.__parent ? this.__parent : this);
+            }
         }
     }
 
@@ -178,28 +179,6 @@ export class Control {
     isPointWithin(point) {
         const hr = this.hitRect;
         return hr[0] < point[0] && point[0] < hr[0] + hr[2] && hr[1] < point[1] && point[1] < hr[1] + hr[3];
-    }
-
-    requestWidth(availableWidth, parentWidth) {
-        // Align == full takes up all available width
-        if (this.halign == HAlign.FILL) return availableWidth;
-        // Align == STRETCH takes up the full height AFTER its parent has been allocated
-        else if (this.halign == HAlign.STRETCH) return parentWidth;
-        // If hfill target != null, then it wants to take up a % of available space
-        else if (this.hfillTarget != null) return Math.floor(availableWidth * this.hfillTarget);
-        // If neither above conditions are true, our requested width is our explicit width
-        else return this.viewWidth;
-    }
-
-    requestHeight(availableHeight, parentHeight) {
-        // Align == FILL takes up all available height
-        if (this.valign == VAlign.FILL) return availableHeight;
-        // Align == STRETCH takes up the full height AFTER its parent has been allocated
-        else if (this.valign == VAlign.STRETCH) return parentHeight;
-        // If hfill target kk!= null, then it wants to take up a % of available space
-        else if (this.vfillTarget != null) return Math.floor(availableHeight * this.vfillTarget);
-        // If non of the above conditions are true, our requested height is our explicit height
-        else return this.viewHeight;
     }
 
     disable() {
@@ -337,39 +316,11 @@ export class Control {
         ];
     }
 
-    get hfillTarget() {
-        return this._hfillTarget;
-    }
-    set hfillTarget(newTarget) {
-        if (newTarget < 0 || newTarget > 1.0) {
-            if (!this.isArranger) datalitError("propertySet", ["Control.hfillTarget", String(newTarget), "0 -> 1.0"]);
-            else if (this.isArranger && newTarget != -1)
-                datalitError("propertySet", ["Section.hfillTarget", String(newTarget), "-1 or 0 -> 1.0"]);
-        }
-
-        this._hfillTarget = newTarget;
-        this.notifyPropertyChange("hfillTarget");
-    }
-
-    get vfillTarget() {
-        return this._vfillTarget;
-    }
-    set vfillTarget(newTarget) {
-        if (newTarget < 0 || newTarget > 1.0) {
-            if (!this.isArranger) datalitError("propertySet", ["Control.vfillTarget", String(newTarget), "0 -> 1.0"]);
-            else if (this.isArranger && newTarget != -1)
-                datalitError("propertySet", ["Section.vfillTarget", String(newTarget), "-1 or 0 -> 1.0"]);
-        }
-
-        this._vfillTarget = newTarget;
-        this.notifyPropertyChange("vfillTarget");
-    }
-
     get halign() {
         return this._halign;
     }
     set halign(newAlign) {
-        if (!HAlign.hasOwnProperty(newAlign))
+        if (!HAlign.hasOwnProperty(newAlign) && newAlign != null)
             datalitError("propertySet", ["Control.halign", String(newAlign), "HAlign"]);
 
         this._halign = newAlign;
@@ -380,7 +331,7 @@ export class Control {
         return this._valign;
     }
     set valign(newAlign) {
-        if (!VAlign.hasOwnProperty(newAlign))
+        if (!VAlign.hasOwnProperty(newAlign) && newAlign != null)
             datalitError("propertySet", ["Control.valign", String(newAlign), "VAlign"]);
 
         this._valign = newAlign;
