@@ -472,12 +472,12 @@ export class Section extends DynamicControl {
         }
     }
 
-    draw(context = App.Context) {
-        if (this.background) this.background.draw(context);
+    draw(context = App.Context, offset = [0, 0]) {
+        if (this.background) this.background.draw(context, offset);
 
         for (let child of this.orderedChildren) {
             if (child.visible) {
-                child.draw(context);
+                child.draw(context, offset);
             }
         }
     }

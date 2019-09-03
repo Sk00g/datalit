@@ -12,8 +12,7 @@
     },
     "controlProperties": {
         "Icon": {
-            "margin": 4,
-            "imageSize": [32, 32]
+            "margin": 4
         },
         "Label": {
             "margin": 12,

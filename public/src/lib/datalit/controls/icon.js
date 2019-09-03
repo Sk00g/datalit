@@ -30,7 +30,7 @@ export class Icon extends Control {
         return this._sourceRect;
     }
     set sourceRect(rect) {
-        if (typeof rect != "object" || rect.length != 4)
+        if (rect && (typeof rect != "object" || rect.length != 4))
             datalitError("propertySet", ["Icon.sourceRect", String(rect), "LIST of 4 int"]);
 
         this._sourceRect = rect;
@@ -51,9 +51,12 @@ export class Icon extends Control {
     }
     //#endregion
 
-    draw(context = App.Context) {
+    draw(context = App.Context, offset = [0, 0]) {
         if (this._image) {
-            let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
+            let truePosition = [
+                this._arrangedPosition[0] + this.margin[0] + offset[0],
+                this._arrangedPosition[1] + this.margin[1] + offset[1]
+            ];
 
             if (this.sourceRect) {
                 context.drawImage(this._image, ...this.sourceRect, ...truePosition, ...this.size);

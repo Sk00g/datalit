@@ -14,6 +14,7 @@ class EventManager {
         window.addEventListener("resize", ev => this.handleEvent(window, "resize", null));
 
         this.setupMouseEvents();
+        this.setupScrollEvents();
 
         this.keyboardModifiers = { alt: false, shift: false, ctrl: false };
         this.setupKeyboardEvents();
@@ -96,6 +97,14 @@ class EventManager {
         this._setupMouseEvent("dblclick");
         this._setupMouseEvent("mouseover");
         this._setupMouseEvent("mouseout");
+    }
+    setupScrollEvents() {
+        this.canvas.addEventListener("wheel", ev => {
+            ev.preventDefault();
+
+            let direction = ev.ctrlKey ? "horizontal" : "vertical";
+            this.controlLayer.rerouteWheelEvent([ev.clientX, ev.clientY], direction, ev.deltaY);
+        });
     }
 
     getSourceType(source) {

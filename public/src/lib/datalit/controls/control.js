@@ -439,5 +439,5 @@ export class Control {
     //#endregion
 
     update(elapsed) {}
-    draw(context) {}
+    draw(context, offset) {}
 }

@@ -38,6 +38,26 @@ export class ControlEventLayer {
             });
     }
 
+    rerouteWheelEvent(position, direction, distance) {
+        if (this.manager.activePage == null) return;
+
+        let targetControls = [];
+        for (let section of this.manager.activePage.children) {
+            if (section.isPointWithin(position)) {
+                targetControls.push(section);
+                targetControls = targetControls.concat(this._gatherHitChildren(section, position));
+            }
+        }
+
+        for (let ctrl of targetControls) {
+            this.manager.handleEvent(ctrl, "wheel", {
+                position: position,
+                direction: direction,
+                distance: distance
+            });
+        }
+    }
+
     rerouteMouseEvent(position, type, button, modifiers) {
         if (this.manager.activePage == null) return;
 

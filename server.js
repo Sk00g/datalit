@@ -18,31 +18,31 @@ app.get("/", (req, res) => res.redirect("index.html"));
 var server = app.listen(port, () => console.log(`Kempertime app listening on port ${port}!`));
 
 /* Setup websocket server for data connection using above HTTP server */
-socketServer = new WebSocketServer({ httpServer: server });
-connections = [];
+// socketServer = new WebSocketServer({ httpServer: server });
+// connections = [];
 
-socketServer.on("request", function(request) {
-    var conn = request.accept(null, request.origin);
-    connections.push(conn);
-    console.log("ACCEPT: " + conn.remoteAddress);
+// socketServer.on("request", function(request) {
+//     var conn = request.accept(null, request.origin);
+//     connections.push(conn);
+//     console.log("ACCEPT: " + conn.remoteAddress);
 
-    conn.on("message", function(message) {
-        parseClientMessage(conn, message.utf8Data.split("\t"));
-    });
+//     conn.on("message", function(message) {
+//         parseClientMessage(conn, message.utf8Data.split("\t"));
+//     });
 
-    conn.on("close", function(conn) {
-        console.log(`CLOSED: ${conn.remoteAddress}`);
-        connections.splice(connections.indexOf(conn), 1);
-    });
-});
+//     conn.on("close", function(conn) {
+//         console.log(`CLOSED: ${conn.remoteAddress}`);
+//         connections.splice(connections.indexOf(conn), 1);
+//     });
+// });
 
 /* Connect to local mongo db instance */
-var mongo = null;
-mongodb.MongoClient.connect(mongoString, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-    if (err) console.log("ERROR connecting to DB: " + err);
-    console.log("SUCCESS connecting to local db instance: " + mongoString);
-    mongo = client.db("kempertime");
-});
+// var mongo = null;
+// mongodb.MongoClient.connect(mongoString, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+//     if (err) console.log("ERROR connecting to DB: " + err);
+//     console.log("SUCCESS connecting to local db instance: " + mongoString);
+//     mongo = client.db("kempertime");
+// });
 
 /* Client Messages Format -- Split by \t, JSON with any whitespace is accepted
     GET     DESIGNATOR  [opt: QUERY DATA] 

@@ -100,12 +100,12 @@ export class Circle extends Control {
     }
     //#endregion
 
-    draw(context = App.Context) {
+    draw(context = App.Context, offset = [0, 0]) {
         context.beginPath();
         context.fillStyle = utils.hexColor(this.fillColor);
         let center = [
-            this._arrangedPosition[0] + this.radius + this.margin[0],
-            this._arrangedPosition[1] + this.radius + this.margin[1]
+            this._arrangedPosition[0] + offset[0] + this.radius + this.margin[0],
+            this._arrangedPosition[1] + offset[1] + this.radius + this.margin[1]
         ];
         context.arc(...center, this.radius, 0, Math.PI * 2);
         context.fill();

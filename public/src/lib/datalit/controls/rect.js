@@ -68,9 +68,12 @@ export class Rect extends Control {
     }
     //#endregion
 
-    draw(context = App.Context) {
+    draw(context = App.Context, offset = [0, 0]) {
         context.fillStyle = utils.hexColor(this.fillColor);
-        let truePosition = [this._arrangedPosition[0] + this.margin[0], this._arrangedPosition[1] + this.margin[1]];
+        let truePosition = [
+            this._arrangedPosition[0] + this.margin[0] + offset[0],
+            this._arrangedPosition[1] + this.margin[1] + offset[1]
+        ];
         // console.log(`drawing rect at ${truePosition} (${this.size})`);
         context.fillRect(...truePosition, ...this.size);
 

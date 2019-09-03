@@ -1,1 +1,1 @@
-export default {"char": "char", "infinitiLogo": "infinitiLogo", "loginTeal": "loginTeal", "searchPurple": "searchPurple"}
+export default {"add": "add", "categories": "categories", "char": "char", "delete": "delete", "down-filled": "down-filled", "edit": "edit", "expense": "expense", "income": "income", "infinitiLogo": "infinitiLogo", "left-box": "left-box", "loginTeal": "loginTeal", "report": "report", "right-box": "right-box", "search": "search", "searchPurple": "searchPurple", "up-filled": "up-filled"}

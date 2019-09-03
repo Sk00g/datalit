@@ -2,17 +2,19 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/08/26 15:19
+LAST UPDATE:		2019/09/01 19:48
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				
+STAGE:				Write
 
 IMMEDIATE:
+- Scrollable Section
     
 ----------
 TASK LIST
 ----------
 
+- Drop-Down List 
 
 ----------
 COMPLETED

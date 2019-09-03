@@ -96,6 +96,8 @@ export function comparePoints(pointA, pointB) {
 
 // Used for any object that is a list of 4 integers
 export function compareSides(sidesA, sidesB) {
+    if (!sidesA || !sidesB) return sidesA == sidesB;
+
     return sidesA[0] == sidesB[0] && sidesA[1] == sidesB[1] && sidesA[2] == sidesB[2] && sidesA[3] == sidesB[3];
 }
 

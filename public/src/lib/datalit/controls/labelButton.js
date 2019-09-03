@@ -133,12 +133,12 @@ export class LabelButton extends DynamicControl {
     }
     //#endregion
 
-    draw(context = App.Context) {
+    draw(context = App.Context, offset = [0, 0]) {
         context.fillStyle = utils.hexColor(this.fontColor);
         context.font = this.fontSize + "pt " + this.fontType;
         let truePosition = [
-            this._arrangedPosition[0] + this.margin[0],
-            this._arrangedPosition[1] + this.fontSize + this.margin[1]
+            this._arrangedPosition[0] + this.margin[0] + offset[0],
+            this._arrangedPosition[1] + this.fontSize + this.margin[1] + offset[1]
         ];
 
         context.fillText(this.text, ...truePosition);

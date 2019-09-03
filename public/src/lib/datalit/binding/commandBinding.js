@@ -4,6 +4,6 @@ export class CommandBinding {
         this.path = hostPath;
         this.property = property;
 
-        console.log(`created binding with name ${name} and path ${JSON.stringify(hostPath)}.${property}`);
+        // console.log(`created binding with name ${name} and path ${JSON.stringify(hostPath)}.${property}`);
     }
 }
