@@ -1,1 +1,1 @@
-export default {"accountLine": "accountLine", "historySection": "historySection", "homeSection": "homeSection", "navbar": "navbar", "shiftLine": "shiftLine", "statusBar": "statusBar"}
+export default {"budgetAnalyzer\\navbar": "budgetAnalyzer\\navbar", "kempertime\\accountLine": "kempertime\\accountLine", "kempertime\\historySection": "kempertime\\historySection", "kempertime\\homeSection": "kempertime\\homeSection", "kempertime\\navbar": "kempertime\\navbar", "kempertime\\shiftLine": "kempertime\\shiftLine", "kempertime\\statusBar": "kempertime\\statusBar"}

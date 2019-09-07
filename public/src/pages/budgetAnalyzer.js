@@ -1,13 +1,15 @@
 import { App } from "../lib/datalit/app.js";
 import { Button } from "../lib/datalit/controls/button.js";
+import { BindingContext } from "../lib/datalit/binding/bindingContext.js";
 import { Page } from "../lib/datalit/controls/page";
 import { Section } from "../lib/datalit/controls/section";
-import { ContentDirection, HAlign, VAlign, MIN_SIZE, SizeTargetType } from "../lib/datalit/enums";
+import { ContentDirection, ControlState, HAlign, VAlign, MIN_SIZE, SizeTargetType } from "../lib/datalit/enums";
 import { Label } from "../lib/datalit/controls/label";
 import { ScrollSection } from "../lib/datalit/controls/scrollSection";
 import { Events } from "../lib/datalit/events/events.js";
 import { IconButton } from "../lib/datalit/controls/iconButton.js";
 import utils from "../lib/datalit/utils.js";
+import factory from "../lib/datalit/factory.js";
 
 export class BudgetAnalyzerPage extends Page {
     constructor() {
@@ -17,73 +19,33 @@ export class BudgetAnalyzerPage extends Page {
         this.backgroundColor = "999d99";
         this.contentDirection = ContentDirection.VERTICAL;
 
-        this.navbar = new Section({
-            contentDirection: ContentDirection.HORIZONTAL,
-            valign: VAlign.TOP,
-            vsizeTarget: [SizeTargetType.MIN, null],
-            backgroundColor: "bbbfbb",
-            debugName: "navbar"
+        let bindingContext = new BindingContext(this, {
+            navigateCommand: btn => this.handleNavigateButton(btn)
         });
-        this.navbar.addChild(new IconButton({ imagePath: "categories", debugName: "reportButton" }));
-        this.navbar.addChild(new IconButton({ imagePath: "expense", debugName: "reportButton" }));
-        this.navbar.addChild(new IconButton({ imagePath: "income", debugName: "reportButton" }));
-        this.navbar.addChild(new IconButton({ imagePath: "report", debugName: "reportButton" }));
 
-        this.navbar.addChild(
-            new Label({
-                text: "Budget Analyzer",
-                fontSize: 18,
-                margin: [0, 0, 360, 0],
-                fontColor: "33333f",
-                halign: HAlign.CENTER,
-                valign: VAlign.CENTER
-            })
-        );
+        this.navbar = factory.generateMarkupObjects("budgetAnalyzer\\navbar", bindingContext);
 
         this.addSection(this.navbar);
 
-        // let today = new Date();
-        // this.topSection.addChild(
-        //     new Label({
-        //         text: `${today.getHours()}:${today.getMinutes()} Monday ${utils.monthNumberToName(
-        //             today.getMonth()
-        //         )} ${today.getDate()}, ${today.getFullYear()}`,
-        //         fontType: "Lato",
-        //         fontSize: 12,
-        //         fontColor: "33333f",
-        //         halign: HAlign.RIGHT,
-        //         valign: VAlign.CENTER,
-        //         margin: 8
-        //     })
-        // );
+        this.updateTime();
+        setInterval(() => this.updateTime(), 5000);
+
+        // this.scrollSection = new ScrollSection({
+        //     margin: 10,
+        //     backgroundColor: "444464"
+        // });
+
+        // this.addSection(this.scrollSection);
 
         // let labelProps = {
         //     text: "Hello Scott",
-        //     fontType: "Lato",
+        //     fontColor: "ddddfd",
         //     halign: HAlign.CENTER,
         //     valign: VAlign.TOP,
         //     fontSize: 20,
         //     margin: 20
         // };
-        // this.scrollSection = new ScrollSection({
-        //     contentDirection: ContentDirection.VERTICAL,
-        //     halign: HAlign.FILL,
-        //     valign: VAlign.FILL,
-        //     margin: 10,
-        //     backgroundColor: "444464"
-        // });
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(new Label(labelProps));
+        // for (let i = 0; i < 20; i++) this.scrollSection.addChild(new Label(labelProps));
         // this.scrollSection.addChild(
         //     new Button({
         //         text: "CLICK ME",
@@ -93,7 +55,24 @@ export class BudgetAnalyzerPage extends Page {
         //     })
         // );
 
+        // Apply bindings
+        bindingContext.initializeBindings();
+
         Events.register(App.Canvas, "keydown", (ev, data) => this.handleKeypress(data));
+    }
+
+    updateTime() {
+        let today = new Date();
+        this.navbar.todayLabel.text = `${today.getHours()}:${today
+            .getMinutes()
+            .toString()
+            .padStart(2, "0")} Monday ${utils.monthNumberToName(
+            today.getMonth()
+        )} ${today.getDate()}, ${today.getFullYear()}`;
+    }
+
+    handleNavigateButton(btn) {
+        console.log("navigation: " + btn.debugName);
     }
 
     handleKeypress(data) {

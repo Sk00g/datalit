@@ -82,7 +82,7 @@ export class Label extends Control {
         this.calculateSize();
         this.notifyPropertyChange("fontType");
     }
-    //#endregion
+    //#endregionfg
 
     draw(context = App.Context, offset = [0, 0]) {
         context.fillStyle = utils.hexColor(this.fontColor);

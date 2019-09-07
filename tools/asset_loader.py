@@ -45,6 +45,8 @@ with open(CONFIG_FILE, 'w+') as config_file:
         for root, dirs, files in os.walk(os.getcwd()):
             if root.split(FILE_SEPARATOR)[-1] == IMAGE_DIR:
                 for img_file in files:
+                    print(os.path.join(root, img_file))
+                    
                     config_data['imagePaths'].append(img_file)
                     config_data['imageCount'] += 1
 
@@ -83,16 +85,17 @@ with open(CONFIG_FILE, 'w+') as config_file:
     with open(MARKUP_MAP_FILE, 'w+') as map_file:
         map_data = {}
 
-        for root, dirs, files in os.walk(os.getcwd()):
-            if root.split(FILE_SEPARATOR)[-1] == MARKUP_DIR:
-                for data_file in files:
-                    print(os.path.join(root, data_file))
-                    
-                    config_data['markupPaths'].append(data_file)
-                    config_data['markupCount'] += 1
+        markup_root = os.path.join(os.getcwd(), MARKUP_DIR)
+        for root, dirs, files in os.walk(markup_root):
+            for data_file in files:
+                file_id = os.path.join(root, data_file)[len(markup_root) + 1:]
+                print(file_id)
+                
+                config_data['markupPaths'].append(file_id)
+                config_data['markupCount'] += 1
 
-                    map_key = data_file.split('.')[0]
-                    map_data[map_key] = map_key
+                map_key = file_id.split('.')[0]
+                map_data[map_key] = map_key
 
         map_file.write('export default ')
         map_file.write(json.dumps(map_data))

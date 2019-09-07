@@ -13,6 +13,7 @@ export class IconButton extends Section {
 
         // Unique Properties
         this._action = null;
+        this._iconOffset = [0, 0];
         this.registerProperty("action", false, false, true);
         this.registerProperty("iconMargin", true, true, false, utils.compareSides);
         this.registerProperty("imagePath", false, true, true);

@@ -48,7 +48,8 @@
                     "backgroundColor": "ffffff22"
                 },
                 "DEPRESSED": {
-                    "backgroundColor": "00000011"
+                    "backgroundColor": "00000011",
+                    "iconMargin": [21, 21, 20, 20]
                 }
             }
         },

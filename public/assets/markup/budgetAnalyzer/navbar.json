@@ -1,0 +1,52 @@
+{
+    "type": "Section",
+    "id": "navbar",
+    "properties": {
+        "contentDirection": "HORIZONTAL",
+        "valign": "TOP",
+        "vsizeTarget": ["MIN", null],
+        "backgroundColor": "bbbfbb"
+    },
+    "children": [
+        {
+            "type": "IconButton",
+            "id": "categoriesButton",
+            "properties": { "imagePath": "categories", "action": "$c=navigateCommand" }
+        },
+        {
+            "type": "IconButton",
+            "id": "expenseButton",
+            "properties": { "imagePath": "expense", "action": "$c=navigateCommand" }
+        },
+        {
+            "type": "IconButton",
+            "id": "incomeButton",
+            "properties": { "imagePath": "income", "action": "$c=navigateCommand" }
+        },
+        {
+            "type": "IconButton",
+            "id": "reportButton",
+            "properties": { "imagePath": "report", "action": "$c=navigateCommand" }
+        },
+        {
+            "type": "Label",
+            "properties": {
+                "text": "Budget Analyzer",
+                "fontSize": 18,
+                "margin": [0, 0, 200, 0],
+                "fontColor": "33333f",
+                "halign": "CENTER",
+                "valign": "CENTER"
+            }
+        },
+        {
+            "type": "Label",
+            "id": "todayLabel",
+            "properties": {
+                "fontColor": "33333f",
+                "halign": "RIGHT",
+                "valign": "CENTER"
+            }
+        }
+    ]
+}

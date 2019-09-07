@@ -22,7 +22,6 @@ export class BindingContext {
             console.log(
                 `successful match for ${nameMatch} of path ${bind.path}.${bind.property} to definition ${this._commands[nameMatch]}`
             );
-            console.log(`this._host: ${this._host.debugName}`);
             let targetControl = utils.getDescendentProperty(this._host, bind.path);
             targetControl[bind.property] = this._commands[nameMatch];
         }

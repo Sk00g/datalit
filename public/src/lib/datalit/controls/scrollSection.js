@@ -1,28 +1,37 @@
 import { App } from "../app";
 import { datalitError } from "../errors.js";
-import { ContentDirection, HAlign, VAlign, SizeTargetType } from "../enums.js";
+import { ContentDirection, HAlign, VAlign, SizeTargetType, ControlState } from "../enums.js";
 import { Section } from "./section";
 import { Events } from "../events/events";
-import { Button } from "./button";
+import { IconButton } from "./iconButton";
 
 const WHEEL_FACTOR = 5;
-const BAR_SIZE = 22;
+const BUTTON_CLICK_DISTANCE = 10;
+const BAR_SIZE = 18;
+const BUTTON_HEIGHT = 22;
 
 export class ScrollSection extends Section {
     constructor(initialProperties = {}, withholdEvents = false) {
         super();
 
+        // --- DEBUG ---
+        initialProperties.contentDirection = ContentDirection.HORIZONTAL;
+        // -------------
+
         // Keep our own Canvas element to draw onto the main canvas
         this._selfCanvas = document.createElement("canvas");
         this._selfContext = this._selfCanvas.getContext("2d");
 
-        // Create our scroll bars, not as children because we don't want them affected by the full offsets, just partial
-        this.verticalScrollbar = new Section({
+        // Create content section to hold the actual scrollable content
+        this._contentSection = new Section({
             contentDirection: ContentDirection.VERTICAL,
-            backgroundColor: "bbbbbb",
-            size: [BAR_SIZE, 0]
+            backgroundColor: initialProperties.backgroundColor
         });
-        this.verticalScrollbar.topButton = new Button({});
+        super.addChild(this._contentSection);
+
+        // Create our scroll bars, not as children because we don't want them affected by the full offsets, just partial
+        this.verticalScrollbar = this.buildVerticalScrollbar();
+        super.addChild(this.verticalScrollbar);
 
         // Unique Properties
         this._horizontalScrollable = true;
@@ -45,6 +54,57 @@ export class ScrollSection extends Section {
 
         // Listen for scroll events and update accordingly
         Events.register(this, "wheel", (ev, data) => this.handleScroll(ev, data));
+
+        // Listen for updates to _contentSection's size, so we can match our internal Canvas' size
+        Events.register(this._contentSection, "propertyChanged", (ev, data) => {
+            if (data.property === "size") {
+                console.log(`matching canvas to new size ${data.newValue}`);
+                this._selfCanvas.width = data.newValue[0];
+                this._selfCanvas.height = data.newValue[1];
+            }
+        });
+    }
+
+    buildVerticalScrollbar() {
+        let scrollbar = new Section({
+            contentDirection: ContentDirection.VERTICAL,
+            halign: HAlign.RIGHT,
+            hsizeTarget: [SizeTargetType.FIXED, BAR_SIZE],
+            vsizeTarget: [SizeTargetType.FILL, null],
+            backgroundColor: "bbbbbb"
+        });
+        let upButton = new IconButton({
+            imagePath: "up-filled",
+            iconMargin: [3, 2, 3, 2],
+            valign: VAlign.TOP,
+            vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
+            halign: null,
+            hsizeTarget: [SizeTargetType.FILL, null]
+            // action: btn =>
+            //     (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0))
+        });
+        upButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
+        upButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
+        scrollbar.addChild(upButton);
+
+        let downButton = new IconButton({
+            imagePath: "down-filled",
+            iconMargin: [3, 2, 3, 2],
+            valign: VAlign.BOTTOM,
+            vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
+            halign: null,
+            hsizeTarget: [SizeTargetType.FILL, null]
+            // action: btn =>
+            //     (this.verticalScrollLocation = Math.min(
+            //         this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
+            //         this.getVirtualHeight() - this.size[1]
+            //     ))
+        });
+        downButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
+        downButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
+        scrollbar.addChild(downButton);
+
+        return scrollbar;
     }
 
     handleScroll(ev, data) {
@@ -64,57 +124,84 @@ export class ScrollSection extends Section {
 
     getVirtualHeight() {
         if (this.contentDirection == ContentDirection.VERTICAL) {
-            return Math.max(this.size[1], this.children.reduce((val, item) => val + item.viewHeight, 0));
+            return Math.max(
+                this._contentSection.size[1],
+                this._contentSection.children.reduce((val, item) => val + item.viewHeight, 0)
+            );
         } else if (this.contentDirection == ContentDirection.HORIZONTAL) {
-            return this.size[1];
+            return this._contentSection.size[1];
         }
     }
 
     getVirtualWidth() {
         if (this.contentDirection == ContentDirection.HORIZONTAL) {
-            return Math.max(this.size[0], this.children.reduce((val, item) => val + item.viewWidth, 0));
+            return Math.max(
+                this._contentSection.size[0],
+                this._contentSection.children.reduce((val, item) => val + item.viewWidth, 0)
+            );
         } else if (this.contentDirection == ContentDirection.VERTICAL) {
-            return this.size[0];
+            return this._contentSection.size[0];
         }
     }
 
     //#region Method overrides
-    prerenderCheck() {
-        // ContentDirection.FREE is always viable, just might not make sense
-        if (this.contentDirection == ContentDirection.FREE) return;
+    addChild(newChild) {
+        let content = this._contentSection;
 
-        let alignProp = this.contentDirection == ContentDirection.HORIZONTAL ? "halign" : "valign";
-        let sizeTargetProp = this.contentDirection == ContentDirection.HORIZONTAL ? "hsizeTarget" : "vsizeTarget";
-        // Cannot have both Align.CENTER and SizeTargetType.FILL in the same axis
-        let fills = this.children.filter(ch => ch.isArranger && ch[sizeTargetProp][0] == SizeTargetType.FILL);
-        let centers = this.children.filter(ch => ch[alignProp] === HAlign.CENTER);
-        if (fills.length > 0 && centers.length > 0)
-            datalitError("invalidAlignment", [this.debugName, "Cannot have CENTER + FILL in same axis"]);
+        content.children.push(newChild);
+        content.orderedChildren.push(newChild);
+
+        // Use this with care
+        newChild.__parent = this;
+
+        // Alert subscribers to change in children
+        this.dispatchEvent("childrenChanged", { action: "add", child: newChild });
+
+        this.scheduleRender();
     }
+    removeChild(child) {
+        let content = this._contentSection;
+
+        if (content.children.indexOf(child) == -1) return;
+
+        content.children.splice(content.children.indexOf(child), 1);
+        content.orderedChildren.splice(content.orderedChildren.indexOf(child), 1);
+
+        // Use this with care
+        child.__parent = null;
+
+        // Alert subscribers to change in children
+        this.dispatchEvent("childrenChanged", { action: "remove", child: child });
+
+        this.scheduleRender();
+    }
+
     draw(context = App.Context, offset = [0, 0]) {
+        // Same as super.draw()
+        if (this.background) this.background.draw(context, offset);
+
+        // Draw scroll bar sections normally
+        if (this.verticalScrollbar && this.verticalScrollbar.visible) this.verticalScrollbar.draw(context, offset);
+        if (this.horizontalScrollbar && this.horizontalScrollbar.visible)
+            this.horizontalScrollbar.draw(context, offset);
+
         let positionOffset = [
             -this._arrangedPosition[0] - this.margin[0] - offset[0],
             -this._arrangedPosition[1] - this.margin[1] - offset[1]
         ];
-        if (this.background) this.background.draw(this._selfContext, positionOffset);
 
-        for (let child of this.orderedChildren) {
-            if (child.visible) {
-                child.draw(this._selfContext, [
-                    positionOffset[0] - this.horizontalScrollLocation,
-                    positionOffset[1] - this.verticalScrollLocation
-                ]);
-            }
-        }
+        // Draw contentSection to separated canvas, providing the scrollLocation offsets
+        this._contentSection.draw(this._selfContext, [
+            positionOffset[0] - this.horizontalScrollLocation,
+            positionOffset[1] - this.verticalScrollLocation
+        ]);
 
         // After all children are drawn to this canvas, draw our canvas onto parent canvas
-        context.drawImage(
-            this._selfCanvas,
-            this.margin[0] + this._arrangedPosition[0] + offset[0],
-            this.margin[1] + this._arrangedPosition[1] + offset[1]
-        );
+        let scrollX = this.margin[0] + this._arrangedPosition[0] + offset[0];
+        let scrollY = this.margin[1] + this._arrangedPosition[1] + offset[1];
+        context.drawImage(this._selfCanvas, scrollX, scrollY);
         console.log(
-            `draw self canvas at ${this._arrangedPosition} with size (${this._selfCanvas.width}, ${this._selfCanvas.height})`
+            `draw self canvas at (${scrollX}, ${scrollY}) with size (${this._selfCanvas.width}, ${this._selfCanvas.height})`
         );
     }
 
@@ -126,16 +213,16 @@ export class ScrollSection extends Section {
         super.size = newSize;
         if (this.background) this.background.size = newSize;
 
-        // We must match the internal canvas to the arranged size given by parent
-        this._selfCanvas.width = newSize[0];
-        this._selfCanvas.height = newSize[1];
-
-        // Scroll bars must match their length
-        this.horizontalScrollbar.width = newSize[0];
-        this.verticalScrollbar.height = newSize[1];
-
         // This render can now determine the size and alignment of nested sections and elements
         this.scheduleRender();
+    }
+
+    get backgroundColor() {
+        return super.backgroundColor;
+    }
+    set backgroundColor(newColor) {
+        super.backgroundColor = newColor;
+        this._contentSection.backgroundColor = newColor;
     }
     //#endregion
 
@@ -146,11 +233,11 @@ export class ScrollSection extends Section {
     set horizontalScrollLocation(newLocation) {
         if (!Number.isInteger(newLocation))
             datalitError("propertySet", ["ScrollSection.horizontalScrollLocation", String(newLocation), "INT"]);
-        if (newLocation > this.getVirtualWidth() - this.size[0] || newLocation < 0)
+        if (newLocation > this.getVirtualWidth() - this._contentSection.size[0] || newLocation < 0)
             datalitError("propertySet", [
                 "ScrollSection.horizontalScrollLocation",
                 String(newLocation),
-                `< ${this.getVirtualWidth() - this.size[0]} && > 0`
+                `< ${this.getVirtualWidth() - this._contentSection.size[0]} && > 0`
             ]);
 
         this._horizontalScrollLocation = newLocation;
@@ -162,11 +249,11 @@ export class ScrollSection extends Section {
     set verticalScrollLocation(newLocation) {
         if (!Number.isInteger(newLocation))
             datalitError("propertySet", ["ScrollSection.verticalScrollLocation", String(newLocation), "INT"]);
-        if (newLocation > this.getVirtualHeight() - this.size[1] || newLocation < 0)
+        if (newLocation > this.getVirtualHeight() - this._contentSection.size[1] || newLocation < 0)
             datalitError("propertySet", [
                 "ScrollSection.verticalScrollLocation",
                 String(newLocation),
-                `< ${this.getVirtualHeight() - this.size[1]} && > 0`
+                `< ${this.getVirtualHeight() - this._contentSection.size[1]} && > 0`
             ]);
 
         this._verticalScrollLocation = newLocation;

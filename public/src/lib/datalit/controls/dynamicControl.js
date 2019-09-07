@@ -30,8 +30,11 @@ export class DynamicControl extends Control {
     }
 
     addStyle(triggerState, propertyDefinitions) {
-        if (this.__styles.findIndex(sty => sty.triggerState == triggerState) != -1)
-            throw new Error(`Style for state ${triggerState} already exists`);
+        let existingIndex = this.__styles.findIndex(sty => sty.triggerState == triggerState);
+        if (existingIndex != -1) {
+            // throw new Error(`Style for state ${triggerState} already exists`);
+            this.__styles.splice(existingIndex, 1);
+        }
 
         // For each property not given in this style, set it to the default style
         for (const [name, metadata] of Object.entries(this.propertyMetadata)) {
