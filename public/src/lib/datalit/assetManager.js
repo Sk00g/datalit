@@ -136,7 +136,7 @@ class AssetManager {
 
     getMarkup(name) {
         if (!(name in this._markups)) {
-            throw new Error(`Theme ${name} not found in directory ${this._markupDir}`);
+            throw new Error(`Markup file ${name} not found in directory ${this._markupDir}`);
         }
 
         return this._markups[name];

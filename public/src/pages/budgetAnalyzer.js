@@ -23,7 +23,7 @@ export class BudgetAnalyzerPage extends Page {
             navigateCommand: btn => this.handleNavigateButton(btn)
         });
 
-        this.navbar = factory.generateMarkupObjects("budgetAnalyzer\\navbar", bindingContext);
+        this.navbar = factory.generateMarkupObjects("budgetAnalyzer/navbar", bindingContext);
 
         this.addSection(this.navbar);
 
@@ -31,8 +31,8 @@ export class BudgetAnalyzerPage extends Page {
         setInterval(() => this.updateTime(), 5000);
 
         // this.scrollSection = new ScrollSection({
-        //     margin: 10,
-        //     backgroundColor: "444464"
+        // margin: 10,
+        // backgroundColor: "444464"
         // });
 
         // this.addSection(this.scrollSection);

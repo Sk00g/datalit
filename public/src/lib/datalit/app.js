@@ -66,7 +66,7 @@ class DatalitApp {
             this.GlobalState.DirtySections = [];
         }
 
-        window.requestAnimationFrame(ct => this.run(ct));
+        window.requestAnimationFrame(this.run);
     }
 }
 
