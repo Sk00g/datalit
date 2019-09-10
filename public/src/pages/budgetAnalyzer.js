@@ -23,12 +23,14 @@ export class BudgetAnalyzerPage extends Page {
             navigateCommand: btn => this.handleNavigateButton(btn)
         });
 
-        this.navbar = factory.generateMarkupObjects("budgetAnalyzer/navbar", bindingContext);
+        this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
+        this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
 
         this.addSection(this.navbar);
+        this.addSection(this.enterExpenseSection);
 
         this.updateTime();
-        setInterval(() => this.updateTime(), 5000);
+        setInterval(() => this.updateTime(), 1000);
 
         // this.scrollSection = new ScrollSection({
         // margin: 10,

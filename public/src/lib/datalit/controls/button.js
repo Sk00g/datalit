@@ -13,6 +13,8 @@ export class Button extends Section {
                 contentDirection: ContentDirection.HORIZONTAL,
                 borderColor: Color.BLACK,
                 borderThickness: 1,
+                valign: VAlign.TOP,
+                halign: HAlign.LEFT,
                 hsizeTarget: [SizeTargetType.FIXED, 100],
                 vsizeTarget: [SizeTargetType.FIXED, 30]
             },
@@ -22,9 +24,6 @@ export class Button extends Section {
         // Must be built before registering properties, as they directly access this object
         this.label = new Label({
             text: initialProperties.text ? initialProperties.text : "",
-            fontSize: App.GlobalState.DefaultFontSize,
-            fontColor: Color.BLACK,
-            fontType: "sans-serif",
             margin: 0,
             halign: HAlign.CENTER,
             valign: VAlign.CENTER
@@ -44,9 +43,6 @@ export class Button extends Section {
         this.applyTheme("Button");
 
         this.updateProperties(initialProperties);
-
-        // Set the initial or default properties as the ControlState.READY style
-        this.generateDefaultStyle();
 
         // Release propertyChanged events
         this._withholdingEvents = withholdingEvents;

@@ -5,7 +5,7 @@
         "contentDirection": "HORIZONTAL",
         "valign": "TOP",
         "vsizeTarget": ["MIN", null],
-        "backgroundColor": "bbbfbb"
+        "backgroundColor": "$t=greenBusiness.colors.light"
     },
     "children": [
         {
@@ -33,19 +33,19 @@
             "properties": {
                 "text": "Budget Analyzer",
                 "fontSize": 18,
-                "margin": [0, 0, 200, 0],
-                "fontColor": "33333f",
+                "margin": [0, 0, 170, 0],
                 "halign": "CENTER",
-                "valign": "CENTER"
+                "valign": "CENTER",
+                "fontColor": "2e2e2e"
             }
         },
         {
             "type": "Label",
             "id": "todayLabel",
             "properties": {
-                "fontColor": "33333f",
                 "halign": "RIGHT",
-                "valign": "CENTER"
+                "valign": "CENTER",
+                "fontColor": "$t=greenBusiness.colors.dark"
             }
         }
     ]

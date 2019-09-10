@@ -76,7 +76,7 @@ export function newColor(r, g, b, a = 1.0) {
 
 export function hexColor(hexString) {
     if (hexString.length != 2 && hexString.length != 6 && hexString.length != 8)
-        throw new Error("Invalid color hex string");
+        throw new Error("Invalid color hex string: " + hexString);
 
     if (hexString.length == 2) {
         hexString += hexString + hexString;

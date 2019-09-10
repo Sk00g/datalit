@@ -3,6 +3,8 @@ import { Color } from "./enums.js";
 import { Events } from "./events/events.js";
 import { PageManager } from "./pageManager.js";
 
+var INSTANCE = null;
+
 class DatalitApp {
     constructor() {
         this.Canvas = document.getElementById("canvas");
@@ -29,6 +31,25 @@ class DatalitApp {
 
         // Create the base manager classes
         this.pageManager = new PageManager();
+
+        // Save to static Singleton variable
+        INSTANCE = this;
+    }
+
+    addDrawTarget(dirtySection) {
+        // Don't add duplicates
+        if (this.GlobalState.DirtySections.indexOf(dirtySection) != -1) return;
+
+        // Don't add children of existing draw targets
+        let parent = dirtySection.__parent || null;
+        while (parent) {
+            if (this.GlobalState.DirtySections.indexOf(parent) != -1) return;
+            else parent = parent.__parent;
+        }
+
+        name = dirtySection.debugName || dirtySection.constructor.name;
+        // console.log("adding draw target " + name);
+        this.GlobalState.DirtySections.push(dirtySection);
     }
 
     addPage(newPage, options = {}) {
@@ -42,31 +63,32 @@ class DatalitApp {
     }
 
     run(currentTime) {
-        let elapsed = currentTime - this.lastTick;
-        this.lastTick = currentTime;
+        let elapsed = currentTime - INSTANCE.lastTick;
+        INSTANCE.lastTick = currentTime;
 
-        this.pageManager.update(elapsed);
+        INSTANCE.pageManager.update(elapsed);
 
         // Redraw everything if requested
-        if (this.GlobalState.RedrawRequired) {
+        if (INSTANCE.GlobalState.RedrawRequired) {
             console.log("redrawing full screen");
-            this.GlobalState.RedrawRequired = false;
-            this.GlobalState.DirtySections = [];
-            this.Context.clearRect(0, 0, this.Canvas.width, this.Canvas.height);
-            this.pageManager.draw();
+            console.log(INSTANCE.GlobalState.DirtySections.length);
+            INSTANCE.GlobalState.RedrawRequired = false;
+            INSTANCE.GlobalState.DirtySections = [];
+            INSTANCE.Context.clearRect(0, 0, INSTANCE.Canvas.width, INSTANCE.Canvas.height);
+            INSTANCE.pageManager.draw();
         }
 
-        // Redraw only dirty sections (this doesn't yet work with ScrollSections)
-        if (this.GlobalState.DirtySections.length > 0) {
-            console.log("redrawing dirty sections: " + this.GlobalState.DirtySections.length);
-            for (let i = 0; i < this.GlobalState.DirtySections.length; i++) {
-                this.Context.clearRect(...this.GlobalState.DirtySections[i].viewingRect);
-                this.GlobalState.DirtySections[i].draw(App.Context);
+        // Redraw only dirty sections (INSTANCE doesn't yet work with ScrollSections)
+        if (INSTANCE.GlobalState.DirtySections.length > 0) {
+            console.log("redrawing dirty sections: " + INSTANCE.GlobalState.DirtySections.length);
+            for (let i = 0; i < INSTANCE.GlobalState.DirtySections.length; i++) {
+                INSTANCE.Context.clearRect(...INSTANCE.GlobalState.DirtySections[i].viewingRect);
+                INSTANCE.GlobalState.DirtySections[i].draw(App.Context);
             }
-            this.GlobalState.DirtySections = [];
+            INSTANCE.GlobalState.DirtySections = [];
         }
 
-        window.requestAnimationFrame(this.run);
+        window.requestAnimationFrame(INSTANCE.run);
     }
 }
 

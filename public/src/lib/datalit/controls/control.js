@@ -5,6 +5,8 @@ import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
+var GUID = 0;
+
 export class Control {
     constructor() {
         // Convenience member for internal rerender / redraw logic
@@ -12,6 +14,9 @@ export class Control {
 
         // As the name suggests, main use is for identifying controls during debugging
         this._debugName = null;
+
+        // Used for event dictionary quick hash-lookups
+        this.__GUID = GUID++;
 
         // This field should only ever be called in a constructor.
         // If == 'true', propertyChange events will be ignored
@@ -34,7 +39,7 @@ export class Control {
         // Members used for property event functions
         this.propertyMetadata = {};
         this.registerProperty("state", false, false, true);
-        this.registerProperty("visible", true);
+        this.registerProperty("visible", false, true);
         this.registerProperty("size", true, true, true, utils.comparePoints);
         this.registerProperty("margin", true, true, true, utils.compareSides);
         this.registerProperty("halign", true);
@@ -140,11 +145,16 @@ export class Control {
                 parent.scheduleRender();
 
                 // Redraw parent rendered section, which encapsulates redrawing all children as well
-                App.GlobalState.DirtySections.push(parent);
+                App.addDrawTarget(parent);
             }
             // Request redraw as required
             else if (metadata.redraw) {
-                App.GlobalState.DirtySections.push(this.__parent ? this.__parent : this);
+                if (!this.isArranger && !this.__parent) App.addDrawTarget(this);
+                else {
+                    var parent = this.isArranger ? this : this.__parent;
+                    parent = parent.__parent || parent;
+                    App.addDrawTarget(parent);
+                }
             }
         }
     }
@@ -282,10 +292,10 @@ export class Control {
 
     get viewingRect() {
         return [
-            this._arrangedPosition[0],
-            this._arrangedPosition[1],
-            this._size[0] + this.margin[0] + this.margin[2],
-            this._size[1] + this.margin[1] + this.margin[3]
+            this._arrangedPosition[0] + this.margin[0],
+            this._arrangedPosition[1] + this.margin[1],
+            this._size[0],
+            this._size[1]
         ];
     }
     get viewWidth() {

@@ -19,7 +19,7 @@ class EventManager {
         this.keyboardModifiers = { alt: false, shift: false, ctrl: false };
         this.setupKeyboardEvents();
 
-        this.registrations = [];
+        this._registrations = {};
     }
 
     updateActivePage(page) {
@@ -36,9 +36,10 @@ class EventManager {
         }
     }
 
-    unregister(UID) {
-        let match = this.registrations.find(reg => reg.UID == UID);
-        if (match) this.registrations.splice(this.registrations.indexOf(match), 1);
+    unregister(targetSource, eventType, cbUID) {
+        let key = `${targetSource.__GUID}.${eventType}`;
+        let match = this._registrations[key].find(reg => reg.UID == cbUID);
+        if (match) this._registrations[key].splice(this._registrations[key].indexOf(match), 1);
     }
 
     register(targetSource, eventType, callback, options = { oneOff: false, priority: 0, UID: UID_COUNT++ }) {
@@ -48,7 +49,11 @@ class EventManager {
 
         // console.log(`register for event ${eventType} from ${this.getSourceType(targetSource)} (UID: ${options.UID})`);
 
-        this.registrations.push(new EventListener(targetSource, eventType, callback, options));
+        // Create the unique combination of control + eventType if not present
+        let key = `${targetSource.__GUID}.${eventType}`;
+        if (!this._registrations[key]) this._registrations[key] = [];
+
+        this._registrations[key].push(new EventListener(targetSource, eventType, callback, options));
         return options.UID;
     }
 
@@ -118,15 +123,22 @@ class EventManager {
         }
     }
 
+    /*
+    WARNING - THIS IS EXTREMELY HIGH TRAFFIC CODE!
+    */
     handleEvent(source, type, data) {
-        // if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
-        //     console.log(`Handling event ${type} from ${source.debugName}`);
-        // else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
+        if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
+            console.log(`Handling event ${type} from ${source.debugName}`);
+        else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
 
-        let activeListeners = this.registrations.filter(reg => reg.targetSource == source && reg.eventType == type);
+        // First check if array exists for key
+        if (!this._registrations[`${source.__GUID}.${type}`]) return;
+
+        let key = `${source.__GUID}.${type}`;
+        let activeListeners = this._registrations[key];
         if (activeListeners.length < 1) return;
 
-        // console.log(`Active listeners: ${activeListeners.length}`);
+        console.log(`Active listeners: ${activeListeners.length}`);
 
         activeListeners.sort((a, b) => {
             if (a.priority < b.priority) return 1;
@@ -143,10 +155,9 @@ class EventManager {
         };
 
         // console.log(`Event data: ${event.sourceType} | ${event.eventType} | ${event.triggerTime}`);
-
-        for (let listener of activeListeners) {
-            listener.callback(event, data);
-            if (listener.oneOff) this.unregister(listener.UID);
+        for (let i = 0; i < activeListeners.length; i++) {
+            activeListeners[i].callback(event, data);
+            if (activeListeners[i].oneOff) this.unregister(source, type, activeListeners[i].UID);
             if (event.killChain) break;
         }
     }

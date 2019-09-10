@@ -24,9 +24,6 @@ export class IconButton extends Section {
 
         this.updateProperties(initialProperties);
 
-        // Set the initial or default properties as the ControlState.READY style
-        this.generateDefaultStyle();
-
         // Release propertyChanged events
         this._withholdingEvents = withholdingEvents;
 

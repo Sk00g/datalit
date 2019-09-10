@@ -2,16 +2,15 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/09/02 20:10
+LAST UPDATE:		2019/09/09 22:41
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Write
+STAGE:				????
 
 IMMEDIATE:
-* Ran into arrangement problems, so reworking the system now on a new branch
-    # Rework seems to be going well, also added some optimization which seems great
-    # Needs a lot further testing
-    # Also realized that a reasonably 'normal' app will also need popup logic
+* Did another side-adventure to optimize a lot of the code and try to debug the stupid memory leak issue
+    # Haven't solved the problem, but did optimize a bunch of code, specifically events severly needed a rework...
+    # Gone through almost 100% of the code that I could possible imagine is causing the leak. Haven't found it but definitely have things running smoother
 - Scrollable Section
     
 ----------
@@ -23,6 +22,8 @@ TASK LIST
 ----------
 COMPLETED
 ----------
+
+* Ran into arrangement problems, so reworking the system now on a new branch
 
 --------------------
 DIVERTED OR DROPPED

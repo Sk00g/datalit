@@ -1,5 +1,14 @@
 import { App } from "../app.js";
-import { Color, ContentDirection, Cursor, TEXT_KEYSTROKES, MOTION_KEYSTROKES, SizeTargetType } from "../enums.js";
+import {
+    Color,
+    ContentDirection,
+    Cursor,
+    TEXT_KEYSTROKES,
+    MOTION_KEYSTROKES,
+    SizeTargetType,
+    HAlign,
+    VAlign
+} from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import { Label } from "./label.js";
@@ -13,6 +22,8 @@ export class TextInput extends Section {
             {
                 isFocusable: true,
                 contentDirection: ContentDirection.FREE,
+                halign: HAlign.LEFT,
+                valign: VAlign.TOP,
                 hsizeTarget: [SizeTargetType.FIXED, 200],
                 vsizeTarget: [SizeTargetType.FIXED, 30]
             },
@@ -77,9 +88,6 @@ export class TextInput extends Section {
         this.applyTheme("TextInput");
 
         this.updateProperties(initialProperties);
-
-        // Set the initial or default properties as the ControlState.READY style
-        this.generateDefaultStyle();
 
         // Release propertyChanged events
         this._withholdingEvents = withholdingEvents;

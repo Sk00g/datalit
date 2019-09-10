@@ -46,6 +46,8 @@ export class Section extends DynamicControl {
             fillColor: this.backgroundColor,
             size: this.size
         });
+        // For redraw purposes
+        this.background.__parent = this;
         if (this.borderColor) this.background.borderColor = this.borderColor;
         if (this.borderThickness) this.background.borderThickness = this.borderThickness;
 
@@ -125,7 +127,7 @@ export class Section extends DynamicControl {
     }
 
     render() {
-        console.log(`rendering section '${this.debugName}' (${this.children.length})`);
+        // console.log(`rendering section '${this.debugName}' (${this.children.length})`);
         if (this.children.length < 1) {
             this.prerenderCheck(null);
             this.requiresRender = false;
@@ -364,9 +366,9 @@ export class Section extends DynamicControl {
     removeChild(child) {
         if (this.children.indexOf(child) == -1) return;
 
-        this.children.splice(this.children.indexOf(child), 1);
+        let orphan = this.children.splice(this.children.indexOf(child), 1);
         this.orderedChildren.splice(this.orderedChildren.indexOf(child), 1);
-        Events.unregister(this.childEventRegisters[child]);
+        Events.unregister(orphan, "propertyChanged", this.childEventRegisters[child]);
 
         // Use this with care
         child.__parent = null;

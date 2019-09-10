@@ -1,0 +1,57 @@
+{
+    "type": "Section",
+    "id": "enterExpenseSection",
+    "properties": {
+        "contentDirection": "HORIZONTAL"
+    },
+    "children": [
+        {
+            "type": "Section",
+            "id": "mainSection",
+            "properties": {
+                "halign": "CENTER",
+                "valign": "CENTER",
+                "hsizeTarget": ["FIXED", 300],
+                "vsizeTarget": ["MIN", null]
+            },
+            "children": [
+                {
+                    "type": "Label",
+                    "properties": {
+                        "text": "Name:",
+                        "fontSize": 14
+                    }
+                },
+                {
+                    "type": "TextInput",
+                    "id": "nameInput",
+                    "properties": {}
+                },
+                {
+                    "type": "Label",
+                    "properties": {
+                        "text": "Amount:",
+                        "fontSize": 14
+                    }
+                },
+                {
+                    "type": "TextInput",
+                    "id": "amountInput",
+                    "properties": {}
+                },
+                {
+                    "type": "Label",
+                    "properties": {
+                        "text": "Category:",
+                        "fontSize": 14
+                    }
+                },
+                {
+                    "type": "TextInput",
+                    "id": "categoryInput",
+                    "properties": {}
+                }
+            ]
+        }
+    ]
+}

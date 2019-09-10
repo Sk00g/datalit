@@ -1,0 +1,78 @@
+{
+    "name": "Green Business",
+    "version": "v1.01.190909",
+    "description": "Business-serious but still lightweight green theme. No bold strokes",
+    "isBase": true,
+    "colors": {
+        "light": "E8E9E5",
+        "dark": "5E5E5E",
+        "darker": "2E2E2E",
+        "softHighlight": "A7C8E4",
+        "colorHighlight": "2ABA9C"
+    },
+    "controlProperties": {
+        "Section": {
+            "backgroundColor": "$colors.dark"
+        },
+        "Label": {
+            "margin": 12,
+            "fontColor": "$colors.light",
+            "fontSize": 12,
+            "fontType": "Lato"
+        },
+        "IconButton": {
+            "halign": "LEFT",
+            "valign": "TOP",
+            "hsizeTarget": ["FIXED", 64],
+            "vsizeTarget": ["FIXED", 64],
+            "iconMargin": 18,
+            "backgroundColor": "00000000",
+            "styles": {
+                "HOVERED": {
+                    "backgroundColor": "00000022"
+                },
+                "DEPRESSED": {
+                    "backgroundColor": "00000044",
+                    "iconMargin": [19, 19, 18, 18]
+                }
+            }
+        },
+        "Button": {
+            "halign": "LEFT",
+            "valign": "TOP",
+            "hsizeTarget": ["FIXED", 180],
+            "vsizeTarget": ["FIXED", 34],
+            "margin": 12,
+            "backgroundColor": "$colors.light",
+            "fontColor": "111111",
+            "fontType": "Lato",
+            "styles": {
+                "HOVERED": {
+                    "backgroundColor": "$colors.softHighlight"
+                },
+                "DEPRESSED": {
+                    "backgroundColor": "$colors.colorHighlight"
+                }
+            }
+        },
+        "TextInput": {
+            "margin": 8,
+            "borderColor": "000000",
+            "borderThickness": 1,
+            "backgroundColor": "DDDDDD",
+            "fontColor": "222222",
+            "fontType": "Lato",
+            "focusColor": "4477EE88",
+            "styles": {
+                "HOVERED": {
+                    "fontColor": "000000",
+                    "borderColor": "222222"
+                },
+                "DEPRESSED": {
+                    "fontColor": "000000",
+                    "borderColor": "224488"
+                }
+            }
+        }
+    }
+}

@@ -50,7 +50,25 @@ function _generateControl(source) {
     Object.keys(source.properties)
         .filter(val => source.properties[val] == null)
         .map(key => delete source.properties[key]);
+
+    // Extract style list if present
+    let styles = null;
+    if (source.properties.styles) {
+        styles = source.properties.styles;
+        delete source.properties.styles;
+    }
+
+    // Generate new object using generic Control object constructor
     var newControl = new CONTROL_CLASSES[source.type]({ debugName: source.id, ...source.properties });
+
+    // Add styles if present
+    if (styles) {
+        for (const [key, value] of Object.entries(styles)) {
+            let propertyDefinitions = [];
+            for (const [propKey, propValue] of Object.entries(value)) propertyDefinitions.push([propKey, propValue]);
+            newControl.addStyle(key, propertyDefinitions);
+        }
+    }
 
     if (source.children && source.children.length > 0) {
         for (let childSource of source.children) {

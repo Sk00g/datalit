@@ -100,8 +100,9 @@ export class Page extends Section {
         let matchIndex = this._focusStack.findIndex(c => c == ctrl);
         if (matchIndex != -1) {
             let match = this._focusStack[matchIndex];
-            Events.unregister(this._focusMousedownRegisters[match]);
-            if (match.isArranger) Events.unregister(this._focusChildrenChangedRegisters[match]);
+            Events.unregister(match, "mousedown", this._focusMousedownRegisters[match]);
+            if (match.isArranger)
+                Events.unregister(match, "childrenChanged", this._focusChildrenChangedRegisters[match]);
             this._focusStack.splice(matchIndex, 1);
         }
     }

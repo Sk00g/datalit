@@ -18,14 +18,22 @@ class AssetManager {
 
         for (let file of configData.imagePaths) {
             let key = file;
-            if (file.search(".") != -1) key = file.split(".")[0];
+            if (file.search(".") != -1)
+                key = file
+                    .split(".")[0]
+                    .replace("\\", ".")
+                    .replace("/", ".");
             this._images[key] = new Image();
             this._images[key].src = "../" + configData.baseDir + "/" + configData.imageDir + "/" + file;
         }
 
         for (let file of configData.themePaths) {
             let key = file;
-            if (file.search(".") != -1) key = file.split(".")[0];
+            if (file.search(".") != -1)
+                key = file
+                    .split(".")[0]
+                    .replace("\\", ".")
+                    .replace("/", ".");
             fetch(`http://localhost:9080/${configData.baseDir}/${configData.themeDir}/${file}`)
                 .then(rsp => rsp.json())
                 .then(rsp => {
@@ -37,7 +45,11 @@ class AssetManager {
 
         for (let file of configData.markupPaths) {
             let key = file;
-            if (file.search(".") != -1) key = file.split(".")[0];
+            if (file.search(".") != -1)
+                key = file
+                    .split(".")[0]
+                    .replace("\\", ".")
+                    .replace("/", ".");
             fetch(`http://localhost:9080/${configData.baseDir}/${configData.markupDir}/${file}`)
                 .then(rsp => rsp.json())
                 .then(rsp => {

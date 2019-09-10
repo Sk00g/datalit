@@ -29,9 +29,6 @@ export class LabelButton extends DynamicControl {
 
         this.calculateSize();
 
-        // Set the initial or default properties as the ControlState.READY style
-        this.generateDefaultStyle();
-
         this._withholdingEvents = withholdingEvents;
 
         Events.attachSource(this, ["click"]);
