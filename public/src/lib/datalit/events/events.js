@@ -127,9 +127,9 @@ class EventManager {
     WARNING - THIS IS EXTREMELY HIGH TRAFFIC CODE!
     */
     handleEvent(source, type, data) {
-        if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
-            console.log(`Handling event ${type} from ${source.debugName}`);
-        else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
+        // if (this.getSourceType(source) == enums.EventSourceType.CONTROL)
+        //     console.log(`Handling event ${type} from ${source.debugName}`);
+        // else console.log(`Handling event ${type} from ${this.getSourceType(source)}`);
 
         // First check if array exists for key
         if (!this._registrations[`${source.__GUID}.${type}`]) return;
@@ -138,7 +138,7 @@ class EventManager {
         let activeListeners = this._registrations[key];
         if (activeListeners.length < 1) return;
 
-        console.log(`Active listeners: ${activeListeners.length}`);
+        // console.log(`Active listeners: ${activeListeners.length}`);
 
         activeListeners.sort((a, b) => {
             if (a.priority < b.priority) return 1;

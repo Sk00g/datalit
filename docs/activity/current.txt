@@ -8,9 +8,6 @@ SYSTEM:
 STAGE:				????
 
 IMMEDIATE:
-* Did another side-adventure to optimize a lot of the code and try to debug the stupid memory leak issue
-    # Haven't solved the problem, but did optimize a bunch of code, specifically events severly needed a rework...
-    # Gone through almost 100% of the code that I could possible imagine is causing the leak. Haven't found it but definitely have things running smoother
 - Scrollable Section
     
 ----------
@@ -24,6 +21,9 @@ COMPLETED
 ----------
 
 * Ran into arrangement problems, so reworking the system now on a new branch
+* Did another side-adventure to optimize a lot of the code and try to debug the stupid memory leak issue
+    # Haven't solved the problem, but did optimize a bunch of code, specifically events severly needed a rework...
+    # Gone through almost 100% of the code that I could possible imagine is causing the leak. Haven't found it but definitely have things running smoother
 
 --------------------
 DIVERTED OR DROPPED

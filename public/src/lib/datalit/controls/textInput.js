@@ -102,6 +102,8 @@ export class TextInput extends Section {
                     this.selectPos = this.cursorPos;
                     this.renderSelection();
                 }
+            } else if (data.property == "size") {
+                this.renderCursor();
             }
         });
 

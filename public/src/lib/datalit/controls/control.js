@@ -70,7 +70,7 @@ export class Control {
                         let propertyDefinitions = [];
                         for (const [propKey, propValue] of Object.entries(styleValue))
                             propertyDefinitions.push([propKey, propValue]);
-                        this.addStyle(styleKey, propertyDefinitions);
+                        this.addStyle(styleKey, propertyDefinitions, true);
                     }
                 }
 

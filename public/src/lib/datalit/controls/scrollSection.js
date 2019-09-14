@@ -1,6 +1,6 @@
 import { App } from "../app";
 import { datalitError } from "../errors.js";
-import { ContentDirection, HAlign, VAlign, SizeTargetType, ControlState } from "../enums.js";
+import { ContentDirection, HAlign, VAlign, SizeTargetType, ControlState, Color } from "../enums.js";
 import { Section } from "./section";
 import { Events } from "../events/events";
 import { IconButton } from "./iconButton";
@@ -25,7 +25,7 @@ export class ScrollSection extends Section {
         // Create content section to hold the actual scrollable content
         this._contentSection = new Section({
             contentDirection: ContentDirection.VERTICAL,
-            backgroundColor: initialProperties.backgroundColor
+            backgroundColor: initialProperties.backgroundColor || Color.TRANSPARENT
         });
         super.addChild(this._contentSection);
 
@@ -71,7 +71,8 @@ export class ScrollSection extends Section {
             halign: HAlign.RIGHT,
             hsizeTarget: [SizeTargetType.FIXED, BAR_SIZE],
             vsizeTarget: [SizeTargetType.FILL, null],
-            backgroundColor: "bbbbbb"
+            backgroundColor: "bbbbbb",
+            debugName: "verticalScrollbar"
         });
         let upButton = new IconButton({
             imagePath: "up-filled",
@@ -79,7 +80,8 @@ export class ScrollSection extends Section {
             valign: VAlign.TOP,
             vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
             halign: null,
-            hsizeTarget: [SizeTargetType.FILL, null]
+            hsizeTarget: [SizeTargetType.FILL, null],
+            debugName: "upButton"
             // action: btn =>
             //     (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0))
         });
@@ -93,7 +95,8 @@ export class ScrollSection extends Section {
             valign: VAlign.BOTTOM,
             vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
             halign: null,
-            hsizeTarget: [SizeTargetType.FILL, null]
+            hsizeTarget: [SizeTargetType.FILL, null],
+            debugName: "downButton"
             // action: btn =>
             //     (this.verticalScrollLocation = Math.min(
             //         this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
@@ -222,7 +225,7 @@ export class ScrollSection extends Section {
     }
     set backgroundColor(newColor) {
         super.backgroundColor = newColor;
-        this._contentSection.backgroundColor = newColor;
+        if (this._contentSection) this._contentSection.backgroundColor = newColor;
     }
     //#endregion
 

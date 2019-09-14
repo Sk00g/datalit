@@ -41,8 +41,8 @@ export class DynamicControl extends Control {
         // console.log("generated default style: " + JSON.stringify(this.__styles[0].propertyDefinitions));
     }
 
-    addStyle(triggerState, propertyDefinitions) {
-        if (!this.__initialized) this.initialize();
+    addStyle(triggerState, propertyDefinitions, themeAllocated = false) {
+        if (!this.__initialized && !themeAllocated) this.initialize();
 
         let existingIndex = this.__styles.findIndex(sty => sty.triggerState == triggerState);
         if (existingIndex != -1) {

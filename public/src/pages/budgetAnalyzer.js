@@ -24,20 +24,20 @@ export class BudgetAnalyzerPage extends Page {
         });
 
         this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
-        this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
+        // this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
 
         this.addSection(this.navbar);
-        this.addSection(this.enterExpenseSection);
+        // this.addSection(this.enterExpenseSection);
 
         this.updateTime();
-        setInterval(() => this.updateTime(), 1000);
+        setInterval(() => this.updateTime(), 5000);
 
-        // this.scrollSection = new ScrollSection({
-        // margin: 10,
-        // backgroundColor: "444464"
-        // });
+        this.scrollSection = new ScrollSection({
+            margin: 10,
+            backgroundColor: "444464"
+        });
 
-        // this.addSection(this.scrollSection);
+        this.addSection(this.scrollSection);
 
         // let labelProps = {
         //     text: "Hello Scott",
