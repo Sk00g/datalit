@@ -10,6 +10,7 @@ import { Events } from "../lib/datalit/events/events.js";
 import { IconButton } from "../lib/datalit/controls/iconButton.js";
 import utils from "../lib/datalit/utils.js";
 import factory from "../lib/datalit/factory.js";
+import { TextInput } from "../lib/datalit/controls/textInput.js";
 
 export class BudgetAnalyzerPage extends Page {
     constructor() {
@@ -34,7 +35,8 @@ export class BudgetAnalyzerPage extends Page {
 
         this.scrollSection = new ScrollSection({
             margin: 10,
-            backgroundColor: "444464"
+            backgroundColor: "444464",
+            debugName: "mainScrollSection"
         });
 
         this.addSection(this.scrollSection);
@@ -53,9 +55,12 @@ export class BudgetAnalyzerPage extends Page {
                 text: "CLICK ME",
                 halign: HAlign.CENTER,
                 valign: VAlign.TOP,
-                margin: 20
+                margin: 20,
+                action: btn => console.log("clicked me")
             })
         );
+        this.scrollSection.addChild(new TextInput());
+        this.labelProps = labelProps;
 
         // Apply bindings
         bindingContext.initializeBindings();
@@ -80,8 +85,11 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
+                this.scrollSection.addChild(new Label(this.labelProps));
                 break;
             case "b":
+                console.log("removing?");
+                this.scrollSection.removeChild(this.scrollSection._contentSection.children[0]);
                 break;
         }
     }

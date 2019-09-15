@@ -15,7 +15,7 @@ export class DynamicControl extends Control {
     }
 
     initialize() {
-        console.log(`initializing dynamic interaction for ${this.debugName}`);
+        // console.log(`initializing dynamic interaction for ${this.debugName}`);
 
         this.__initialized = true;
 

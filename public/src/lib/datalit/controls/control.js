@@ -35,6 +35,7 @@ export class Control {
         this._isFocusable = false;
         this._localPosition = [0, 0];
         this._zValue = 0;
+        this._scrollOffset = [0, 0];
 
         // Members used for property event functions
         this.propertyMetadata = {};
@@ -47,6 +48,7 @@ export class Control {
         this.registerProperty("focused", false, true, true);
         this.registerProperty("localPosition", true, true, false, utils.comparePoints);
         this.registerProperty("zValue");
+        this.registerProperty("scrollOffset", false, false, true, utils.comparePoints);
 
         // All controls must register with the event system for 'propertyChanged' events
         this.eventListeners = { propertyChanged: [] };
@@ -138,10 +140,11 @@ export class Control {
             metadata.previousValue = this[name];
             // Request rerender based on metadata, re-render ancestor until FIXED, FILL, OR PERCENT
             if (metadata.rerender && this.__parent) {
-                var parent = this.isArranger ? this : this.__parent;
+                var parent = this.__parent;
                 while (parent.hsizeTarget[0] == SizeTargetType.MIN || parent.vsizeTarget[0] == SizeTargetType.MIN)
                     parent = parent.__parent;
 
+                // console.log(`add render target - ${parent.debugName}`);
                 parent.scheduleRender();
 
                 // Redraw parent rendered section, which encapsulates redrawing all children as well
@@ -153,6 +156,7 @@ export class Control {
                 else {
                     var parent = this.isArranger ? this : this.__parent;
                     parent = parent.__parent || parent;
+                    // console.log(`addDrawTarget - ${parent.debugName}`);
                     App.addDrawTarget(parent);
                 }
             }
@@ -165,6 +169,9 @@ export class Control {
                 datalitError("propertyNotFound", ["Control", key]);
             this[key] = value;
         }
+
+        // Initialize default style if relevant (DynamicControl children will have the __styles object)
+        if (this.__styles) this.initialize();
     }
 
     arrangePosition(arranger, newPosition) {
@@ -187,7 +194,9 @@ export class Control {
     }
 
     isPointWithin(point) {
-        const hr = this.hitRect;
+        let hr = this.hitRect;
+        hr[0] -= this.scrollOffset[0];
+        hr[1] -= this.scrollOffset[1];
         return hr[0] < point[0] && point[0] < hr[0] + hr[2] && hr[1] < point[1] && point[1] < hr[1] + hr[3];
     }
 
@@ -396,6 +405,22 @@ export class Control {
 
         this._localPosition = newPosition;
         this.notifyPropertyChange("localPosition");
+    }
+
+    get scrollOffset() {
+        return this._scrollOffset;
+    }
+    set scrollOffset(newValue) {
+        if (
+            typeof newValue != "object" ||
+            newValue.length != 2 ||
+            !Number.isInteger(newValue[0]) ||
+            !Number.isInteger(newValue[1])
+        )
+            datalitError("propertySet", ["Control.scrollOffset", String(newValue), "LIST of 2 int"]);
+
+        this._scrollOffset = newValue;
+        this.notifyPropertyChange("scrollOffset");
     }
     //#endregion
 

@@ -127,7 +127,7 @@ export class Section extends DynamicControl {
     }
 
     render() {
-        // console.log(`rendering section '${this.debugName}' (${this.children.length})`);
+        console.log(`rendering section '${this.debugName}' (${this.children.length})`);
         if (this.children.length < 1) {
             this.prerenderCheck(null);
             this.requiresRender = false;
@@ -136,6 +136,7 @@ export class Section extends DynamicControl {
 
         // If page is being rendered, redraw everything
         if (this.isPage) App.GlobalState.RedrawRequired = true;
+        else App.addDrawTarget(this);
 
         // Designate the space available for child Controls
         let origins = [
@@ -366,9 +367,9 @@ export class Section extends DynamicControl {
     removeChild(child) {
         if (this.children.indexOf(child) == -1) return;
 
-        let orphan = this.children.splice(this.children.indexOf(child), 1);
+        this.children.splice(this.children.indexOf(child), 1);
         this.orderedChildren.splice(this.orderedChildren.indexOf(child), 1);
-        Events.unregister(orphan, "propertyChanged", this.childEventRegisters[child]);
+        Events.unregister(child, "propertyChanged", this.childEventRegisters[child]);
 
         // Use this with care
         child.__parent = null;

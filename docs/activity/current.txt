@@ -2,13 +2,16 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/09/09 22:41
+LAST UPDATE:		2019/09/14 22:28
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				????
+STAGE:				Write
 
 IMMEDIATE:
 - Scrollable Section
+
+* Scroll section is essentially working for vertical scroll only. I'm sure further testing could be done, but core functionality is there and working and appears to be reasonably efficient. Have only been working with a very simple contentSection though, so will start working with a more complicated view within the scroll section, like a account card or profile editor, etc. 
+
     
 ----------
 TASK LIST
