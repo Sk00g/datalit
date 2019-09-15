@@ -39,23 +39,23 @@ export class BudgetAnalyzerPage extends Page {
 
         this.addSection(this.scrollSection);
 
-        // let labelProps = {
-        //     text: "Hello Scott",
-        //     fontColor: "ddddfd",
-        //     halign: HAlign.CENTER,
-        //     valign: VAlign.TOP,
-        //     fontSize: 20,
-        //     margin: 20
-        // };
-        // for (let i = 0; i < 20; i++) this.scrollSection.addChild(new Label(labelProps));
-        // this.scrollSection.addChild(
-        //     new Button({
-        //         text: "CLICK ME",
-        //         halign: HAlign.CENTER,
-        //         valign: VAlign.TOP,
-        //         margin: 20
-        //     })
-        // );
+        let labelProps = {
+            text: "Hello Scott",
+            fontColor: "ddddfd",
+            halign: HAlign.CENTER,
+            valign: VAlign.TOP,
+            fontSize: 20,
+            margin: 20
+        };
+        for (let i = 0; i < 10; i++) this.scrollSection.addChild(new Label(labelProps));
+        this.scrollSection.addChild(
+            new Button({
+                text: "CLICK ME",
+                halign: HAlign.CENTER,
+                valign: VAlign.TOP,
+                margin: 20
+            })
+        );
 
         // Apply bindings
         bindingContext.initializeBindings();

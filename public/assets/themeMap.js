@@ -1,1 +1,1 @@
-export default {"default": "default", "greenBusiness": "greenBusiness", "theme1": "theme1"}
+export default {"default": "default", "theme1": "theme1", "greenBusiness": "greenBusiness"}

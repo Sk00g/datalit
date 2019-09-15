@@ -4,11 +4,13 @@ import { ContentDirection, HAlign, VAlign, SizeTargetType, ControlState, Color }
 import { Section } from "./section";
 import { Events } from "../events/events";
 import { IconButton } from "./iconButton";
+import { Rect } from "./rect";
 
 const WHEEL_FACTOR = 5;
 const BUTTON_CLICK_DISTANCE = 10;
 const BAR_SIZE = 18;
 const BUTTON_HEIGHT = 22;
+const INDICATOR_BAR_SIZE = 84;
 
 export class ScrollSection extends Section {
     constructor(initialProperties = {}, withholdEvents = false) {
@@ -58,11 +60,30 @@ export class ScrollSection extends Section {
         // Listen for updates to _contentSection's size, so we can match our internal Canvas' size
         Events.register(this._contentSection, "propertyChanged", (ev, data) => {
             if (data.property === "size") {
-                console.log(`matching canvas to new size ${data.newValue}`);
+                // console.log(`matching canvas to new size ${data.newValue}`);
                 this._selfCanvas.width = data.newValue[0];
                 this._selfCanvas.height = data.newValue[1];
             }
+            // Update indicatorRect as necessary
+            if (
+                data.property === "size" ||
+                data.property === "horizontalScrollLocation" ||
+                data.property === "verticalScrollLocation"
+            ) {
+                this._arrangeIndicator();
+            }
         });
+    }
+
+    _arrangeIndicator() {
+        let scrollPct = Math.round((this.verticalScrollLocation / this.getVirtualHeight()) * 100);
+        let totalRange = this.verticalScrollbar.height - this.verticalScrollbar.indicatorRect.height;
+        let targetMargin = Math.floor((scrollPct / 100) * totalRange);
+
+        this.verticalScrollbar.indicatorRect.margin = [0, targetMargin, 0, 0];
+
+        console.log(`scrollPct: ${scrollPct}`);
+        console.log(`targetMargin: ${targetMargin}`);
     }
 
     buildVerticalScrollbar() {
@@ -81,9 +102,9 @@ export class ScrollSection extends Section {
             vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
             halign: null,
             hsizeTarget: [SizeTargetType.FILL, null],
+            action: btn =>
+                (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0)),
             debugName: "upButton"
-            // action: btn =>
-            //     (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0))
         });
         upButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
         upButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
@@ -96,16 +117,26 @@ export class ScrollSection extends Section {
             vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
             halign: null,
             hsizeTarget: [SizeTargetType.FILL, null],
+            action: btn => {
+                console.log("down button");
+                this.verticalScrollLocation = Math.min(
+                    this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
+                    this.getVirtualHeight() - this.size[1]
+                );
+            },
             debugName: "downButton"
-            // action: btn =>
-            //     (this.verticalScrollLocation = Math.min(
-            //         this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
-            //         this.getVirtualHeight() - this.size[1]
-            //     ))
         });
         downButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
         downButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
         scrollbar.addChild(downButton);
+
+        scrollbar.indicatorRect = new Section({
+            margin: 0,
+            valign: VAlign.TOP,
+            vsizeTarget: [SizeTargetType.FIXED, INDICATOR_BAR_SIZE],
+            backgroundColor: "dddddd"
+        });
+        scrollbar.addChild(scrollbar.indicatorRect);
 
         return scrollbar;
     }
