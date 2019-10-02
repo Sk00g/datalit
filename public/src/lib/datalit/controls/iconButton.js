@@ -20,7 +20,8 @@ export class IconButton extends Section {
         this.registerProperty("sourceRect", false, true, false, utils.compareSides);
 
         // Apply base theme before customized properties
-        this.applyTheme("IconButton");
+        if (!initialProperties.ignoreTheme) this.applyTheme("IconButton");
+        delete initialProperties.ignoreTheme;
 
         this.updateProperties(initialProperties);
 

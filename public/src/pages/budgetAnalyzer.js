@@ -3,7 +3,7 @@ import { Button } from "../lib/datalit/controls/button.js";
 import { BindingContext } from "../lib/datalit/binding/bindingContext.js";
 import { Page } from "../lib/datalit/controls/page";
 import { Section } from "../lib/datalit/controls/section";
-import { ContentDirection, ControlState, HAlign, VAlign, MIN_SIZE, SizeTargetType } from "../lib/datalit/enums";
+import { ContentDirection, ControlState, HAlign, VAlign, MIN_SIZE, SizeTargetType, Color } from "../lib/datalit/enums";
 import { Label } from "../lib/datalit/controls/label";
 import { ScrollSection } from "../lib/datalit/controls/scrollSection";
 import { Events } from "../lib/datalit/events/events.js";
@@ -11,6 +11,7 @@ import { IconButton } from "../lib/datalit/controls/iconButton.js";
 import utils from "../lib/datalit/utils.js";
 import factory from "../lib/datalit/factory.js";
 import { TextInput } from "../lib/datalit/controls/textInput.js";
+import { ComboBox } from "../lib/datalit/controls/comboBox.js";
 
 export class BudgetAnalyzerPage extends Page {
     constructor() {
@@ -30,37 +31,18 @@ export class BudgetAnalyzerPage extends Page {
         this.addSection(this.navbar);
         // this.addSection(this.enterExpenseSection);
 
-        this.updateTime();
-        setInterval(() => this.updateTime(), 5000);
-
-        this.scrollSection = new ScrollSection({
-            margin: 10,
-            backgroundColor: "444464",
-            debugName: "mainScrollSection"
-        });
-
-        this.addSection(this.scrollSection);
-
-        let labelProps = {
-            text: "Hello Scott",
-            fontColor: "ddddfd",
+        let main = new Section({ backgroundColor: "999d99" });
+        let combo = new ComboBox({
+            margin: 20,
             halign: HAlign.CENTER,
-            valign: VAlign.TOP,
-            fontSize: 20,
-            margin: 20
-        };
-        for (let i = 0; i < 10; i++) this.scrollSection.addChild(new Label(labelProps));
-        this.scrollSection.addChild(
-            new Button({
-                text: "CLICK ME",
-                halign: HAlign.CENTER,
-                valign: VAlign.TOP,
-                margin: 20,
-                action: btn => console.log("clicked me")
-            })
-        );
-        this.scrollSection.addChild(new TextInput());
-        this.labelProps = labelProps;
+            valign: VAlign.CENTER,
+            backgroundColor: "dddddd"
+        });
+        main.addChild(combo);
+        this.addSection(main);
+
+        this.updateTime();
+        // setInterval(() => this.updateTime(), 5000);
 
         // Apply bindings
         bindingContext.initializeBindings();

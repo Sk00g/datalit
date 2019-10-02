@@ -34,14 +34,6 @@ function loadClasses() {
     };
 }
 
-export function generateControlFromControl(source) {
-    if (!CONTROL_CLASSES) loadClasses();
-
-    var clone = CONTROL_CLASSES[`${source.constructor.name}`]();
-    // ????? is this even possible?
-    return null;
-}
-
 function _generateControl(source) {
     // Assign a generic name if no id is present
     if (!source.id) source.id = `${OID_COUNTER++}_${source.type}`;
@@ -95,7 +87,30 @@ export function generateMarkupObjects(name, bindingContext = null) {
     return _generateControl(object);
 }
 
+export function generateControl(controlClass, initialProperties, styles, theme = Assets.BaseTheme) {
+    // Generate new object using generic Control object constructor
+    var newControl = new CONTROL_CLASSES[controlClass]();
+
+    // Apply base theme before customized properties
+    newControl.applyTheme(controlClass, theme);
+
+    // Apply custom (non-theme, non-style) initial properties
+    newControl.updateProperties(initialProperties);
+
+    // Add custom (non-theme) styles if present
+    if (styles) {
+        for (const [key, value] of Object.entries(styles)) {
+            let propertyDefinitions = [];
+            for (const [propKey, propValue] of Object.entries(value)) propertyDefinitions.push([propKey, propValue]);
+            newControl.addStyle(key, propertyDefinitions);
+        }
+    }
+
+    // If we have at least one style, generate our default style
+    if (newControl.__styles && newControl.__styles.length > 0) newControl.initializeDynamicStyles();
+}
+
 export default {
-    generateControlFromControl,
-    generateMarkupObjects
+    generateMarkupObjects,
+    generateControl
 };

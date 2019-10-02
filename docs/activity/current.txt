@@ -2,22 +2,21 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/09/14 22:28
+LAST UPDATE:		2019/10/01 21:11
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
-STAGE:				Write
+STAGE:				Prototype
 
 IMMEDIATE:
-- Scrollable Section
+- Drop-Down List (ComboBox)
 
-* Scroll section is essentially working for vertical scroll only. I'm sure further testing could be done, but core functionality is there and working and appears to be reasonably efficient. Have only been working with a very simple contentSection though, so will start working with a more complicated view within the scroll section, like a account card or profile editor, etc. 
+* Ran into that stupid bug again where the default style messes with the valign properties set as initialProperties and theme...
+    # Due to this, will be attempting a rework of the class generation into a factory / strategy pattern
 
-    
 ----------
 TASK LIST
 ----------
 
-- Drop-Down List 
 
 ----------
 COMPLETED
@@ -27,6 +26,7 @@ COMPLETED
 * Did another side-adventure to optimize a lot of the code and try to debug the stupid memory leak issue
     # Haven't solved the problem, but did optimize a bunch of code, specifically events severly needed a rework...
     # Gone through almost 100% of the code that I could possible imagine is causing the leak. Haven't found it but definitely have things running smoother
+* Scroll section is essentially working for vertical scroll only. I'm sure further testing could be done, but core functionality is there and working and appears to be reasonably efficient. Have only been working with a very simple contentSection though, so will start working with a more complicated view within the scroll section, like a account card or profile editor, etc. 
 
 --------------------
 DIVERTED OR DROPPED

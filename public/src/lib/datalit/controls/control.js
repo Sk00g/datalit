@@ -18,11 +18,8 @@ export class Control {
         // Used for event dictionary quick hash-lookups
         this.__GUID = GUID++;
 
-        // This field should only ever be called in a constructor.
-        // If == 'true', propertyChange events will be ignored
-        // Always withold events until next child constructor,
-        // since new Control() is never called directly (abstract class)
-        this._withholdingEvents = true;
+        // Used by factory to withhold property change events and their side effects until init is complete
+        this.__active = false;
 
         this._state = ControlState.READY;
         this._visible = true;
