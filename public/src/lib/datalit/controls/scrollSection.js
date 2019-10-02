@@ -5,6 +5,7 @@ import { Section } from "./section";
 import { Events } from "../events/events";
 import { IconButton } from "./iconButton";
 import { Rect } from "./rect";
+import factory from "../controlFactory";
 
 const WHEEL_FACTOR = 6;
 const BUTTON_CLICK_DISTANCE = 20;
@@ -13,28 +14,12 @@ const BUTTON_HEIGHT = 22;
 const INDICATOR_BAR_SIZE = 84;
 
 export class ScrollSection extends Section {
-    constructor(initialProperties = {}, withholdEvents = false) {
+    constructor() {
         super();
 
         // --- DEBUG ---
-        initialProperties.contentDirection = ContentDirection.HORIZONTAL;
+        this.contentDirection = ContentDirection.HORIZONTAL;
         // -------------
-
-        // Keep our own Canvas element to draw onto the main canvas
-        this._selfCanvas = document.createElement("canvas");
-        this._selfContext = this._selfCanvas.getContext("2d");
-
-        // Create content section to hold the actual scrollable content
-        this._contentSection = new Section({
-            contentDirection: ContentDirection.VERTICAL,
-            backgroundColor: initialProperties.backgroundColor || Color.TRANSPARENT,
-            debugName: "contentSection"
-        });
-        super.addChild(this._contentSection);
-
-        // Create our scroll bars, not as children because we don't want them affected by the full offsets, just partial
-        this.verticalScrollbar = this.buildVerticalScrollbar();
-        super.addChild(this.verticalScrollbar);
 
         // Unique Properties
         this._horizontalScrollable = true;
@@ -46,14 +31,20 @@ export class ScrollSection extends Section {
         this.registerProperty("verticalScrollLocation", false, true, true);
         this.registerProperty("horizontalScrollLocation", false, true, true);
 
-        // Apply base theme before customized properties
-        this.applyTheme("ScrollSection");
+        // Keep our own Canvas element to draw onto the main canvas
+        this._selfCanvas = document.createElement("canvas");
+        this._selfContext = this._selfCanvas.getContext("2d");
 
-        this.updateProperties(initialProperties);
+        // Create content section to hold the actual scrollable content
+        this._contentSection = factory.generateControl("Section", {
+            contentDirection: ContentDirection.VERTICAL,
+            debugName: "contentSection"
+        });
+        super.addChild(this._contentSection);
 
-        // Will typically continue to withold events until child constructor sets = false
-        // However, new Section() will sometimes be called directly
-        this._withholdingEvents = withholdEvents;
+        // Create our scroll bar(s)
+        this.verticalScrollbar = this.buildVerticalScrollbar();
+        super.addChild(this.verticalScrollbar);
 
         // Listen for scroll events and update accordingly
         Events.register(this, "wheel", (ev, data) => this.handleScroll(ev, data));
@@ -104,7 +95,7 @@ export class ScrollSection extends Section {
     }
 
     buildVerticalScrollbar() {
-        let scrollbar = new Section({
+        let scrollbar = factory.generateControl("Section", {
             contentDirection: ContentDirection.VERTICAL,
             halign: HAlign.RIGHT,
             hsizeTarget: [SizeTargetType.FIXED, BAR_SIZE],
@@ -112,42 +103,51 @@ export class ScrollSection extends Section {
             backgroundColor: "bbbbbb",
             debugName: "verticalScrollbar"
         });
-        let upButton = new IconButton({
-            imagePath: "up-filled",
-            iconMargin: [3, 2, 3, 2],
-            valign: VAlign.TOP,
-            vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
-            halign: null,
-            hsizeTarget: [SizeTargetType.FILL, null],
-            action: btn =>
-                (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0)),
-            debugName: "upButton"
-        });
-        upButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
-        upButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
+
+        let buttonStyles = { HOVERED: [["backgroundColor", "999999"]], DEPRESSED: [["backgroundColor", "777777"]] };
+
+        let upButton = factory.generateControl(
+            "IconButton",
+            {
+                imagePath: "up-filled",
+                iconMargin: [3, 2, 3, 2],
+                valign: VAlign.TOP,
+                vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
+                halign: null,
+                hsizeTarget: [SizeTargetType.FILL, null],
+                action: btn =>
+                    (this.verticalScrollLocation = Math.max(this.verticalScrollLocation - BUTTON_CLICK_DISTANCE, 0)),
+                debugName: "upButton"
+            },
+            buttonStyles,
+            null
+        );
         scrollbar.addChild(upButton);
 
-        let downButton = new IconButton({
-            imagePath: "down-filled",
-            iconMargin: [3, 2, 3, 2],
-            valign: VAlign.BOTTOM,
-            vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
-            halign: null,
-            hsizeTarget: [SizeTargetType.FILL, null],
-            action: btn => {
-                let newLocation = Math.min(
-                    this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
-                    this.getVirtualHeight() - this.size[1]
-                );
-                this.verticalScrollLocation = newLocation;
+        let downButton = factory.generateControl(
+            "IconButton",
+            {
+                imagePath: "down-filled",
+                iconMargin: [3, 2, 3, 2],
+                valign: VAlign.BOTTOM,
+                vsizeTarget: [SizeTargetType.FIXED, BUTTON_HEIGHT],
+                halign: null,
+                hsizeTarget: [SizeTargetType.FILL, null],
+                action: btn => {
+                    let newLocation = Math.min(
+                        this.verticalScrollLocation + BUTTON_CLICK_DISTANCE,
+                        this.getVirtualHeight() - this.size[1]
+                    );
+                    this.verticalScrollLocation = newLocation;
+                },
+                debugName: "downButton"
             },
-            debugName: "downButton"
-        });
-        downButton.addStyle(ControlState.HOVERED, [["backgroundColor", "999999"]]);
-        downButton.addStyle(ControlState.DEPRESSED, [["backgroundColor", "777777"]]);
+            buttonStyles,
+            null
+        );
         scrollbar.addChild(downButton);
 
-        scrollbar.indicatorRect = new Section({
+        scrollbar.indicatorRect = factory.generateControl("Section", {
             margin: 0,
             valign: VAlign.TOP,
             vsizeTarget: [SizeTargetType.FIXED, INDICATOR_BAR_SIZE],

@@ -1,17 +1,10 @@
 import { App } from "../lib/datalit/app.js";
-import { Button } from "../lib/datalit/controls/button.js";
 import { BindingContext } from "../lib/datalit/binding/bindingContext.js";
-import { Page } from "../lib/datalit/controls/page";
-import { Section } from "../lib/datalit/controls/section";
 import { ContentDirection, ControlState, HAlign, VAlign, MIN_SIZE, SizeTargetType, Color } from "../lib/datalit/enums";
-import { Label } from "../lib/datalit/controls/label";
-import { ScrollSection } from "../lib/datalit/controls/scrollSection";
 import { Events } from "../lib/datalit/events/events.js";
-import { IconButton } from "../lib/datalit/controls/iconButton.js";
+import { Page } from "../lib/datalit/controls/page";
 import utils from "../lib/datalit/utils.js";
-import factory from "../lib/datalit/factory.js";
-import { TextInput } from "../lib/datalit/controls/textInput.js";
-import { ComboBox } from "../lib/datalit/controls/comboBox.js";
+import factory from "../lib/datalit/controlFactory.js";
 
 export class BudgetAnalyzerPage extends Page {
     constructor() {
@@ -25,23 +18,32 @@ export class BudgetAnalyzerPage extends Page {
             navigateCommand: btn => this.handleNavigateButton(btn)
         });
 
-        this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
+        // this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
         // this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
 
-        this.addSection(this.navbar);
+        // this.addSection(this.navbar);
         // this.addSection(this.enterExpenseSection);
 
-        let main = new Section({ backgroundColor: "999d99" });
-        let combo = new ComboBox({
-            margin: 20,
-            halign: HAlign.CENTER,
-            valign: VAlign.CENTER,
-            backgroundColor: "dddddd"
-        });
-        main.addChild(combo);
-        this.addSection(main);
+        let main = factory.generateControl("Section", { backgroundColor: "FF0000", debugName: "main" });
+        let second = factory.generateControl("Section", { backgroundColor: "00FF00", debugName: "second" });
+        let title = factory.generateControl("Label", { text: "Hello Scott" });
 
-        this.updateTime();
+        main.addChild(title);
+
+        this.addSection(main);
+        this.addSection(second);
+
+        // let main = new Section({ backgroundColor: "999d99" });
+        // let combo = new ComboBox({
+        //     margin: 20,
+        //     halign: HAlign.CENTER,
+        //     valign: VAlign.CENTER,
+        //     backgroundColor: "dddddd"
+        // });
+        // main.addChild(combo);
+        // this.addSection(main);
+
+        // this.updateTime();
         // setInterval(() => this.updateTime(), 5000);
 
         // Apply bindings
@@ -67,11 +69,11 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
-                this.scrollSection.addChild(new Label(this.labelProps));
+                // this.scrollSection.addChild(new Label(this.labelProps));
                 break;
             case "b":
                 console.log("removing?");
-                this.scrollSection.removeChild(this.scrollSection._contentSection.children[0]);
+                // this.scrollSection.removeChild(this.scrollSection._contentSection.children[0]);
                 break;
         }
     }

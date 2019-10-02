@@ -5,11 +5,11 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Label extends Control {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
         // Unique properties
-        this._text = initialProperties.text ? initialProperties.text : "";
+        this._text = "";
         this._fontSize = App.GlobalState.DefaultFontSize;
         this._fontColor = Color.BLACK;
         this._fontType = "sans-serif";
@@ -17,24 +17,18 @@ export class Label extends Control {
         this.registerProperty("fontSize", true);
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
-
-        // Apply base theme before customized properties
-        this.applyTheme("Label");
-
-        // Override theme with explicit properties
-        this.updateProperties(initialProperties);
-
-        this._withholdingEvents = withholdingEvents;
-
-        this.calculateSize();
     }
 
-    calculateSize() {
+    _calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
         super.size = [Math.floor(App.Context.measureText(this._text).width), this._fontSize];
     }
 
     //#region Override Method
+    activate() {
+        super.activate();
+        this._calculateSize();
+    }
     //#endregion
 
     //#region Unique Properties
@@ -45,7 +39,7 @@ export class Label extends Control {
         if (typeof newText != "string") datalitError("propertySet", ["Label.text", String(newText), "string"]);
 
         this._text = newText;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("text");
     }
 
@@ -57,7 +51,7 @@ export class Label extends Control {
             datalitError("propertySet", ["Label.fontSize", String(size), "int >= 2"]);
 
         this._fontSize = size;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("fontSize");
     }
 
@@ -79,7 +73,7 @@ export class Label extends Control {
         if (typeof font != "string") datalitError("propertySet", ["Label.fontType", String(font), "string"]);
 
         this._fontType = font;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("fontType");
     }
     //#endregionfg

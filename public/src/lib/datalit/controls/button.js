@@ -5,25 +5,25 @@ import { Events } from "../events/events.js";
 import { Label } from "./label.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
+import factory from "../controlFactory";
 
 export class Button extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
-        super(
-            {
-                contentDirection: ContentDirection.HORIZONTAL,
-                borderColor: Color.BLACK,
-                borderThickness: 1,
-                valign: VAlign.TOP,
-                halign: HAlign.LEFT,
-                hsizeTarget: [SizeTargetType.FIXED, 100],
-                vsizeTarget: [SizeTargetType.FIXED, 30]
-            },
-            true
-        );
+    constructor() {
+        super();
+
+        super.updateProperties({
+            contentDirection: ContentDirection.HORIZONTAL,
+            borderColor: Color.BLACK,
+            borderThickness: 1,
+            valign: VAlign.TOP,
+            halign: HAlign.LEFT,
+            hsizeTarget: [SizeTargetType.FIXED, 100],
+            vsizeTarget: [SizeTargetType.FIXED, 30]
+        });
 
         // Must be built before registering properties, as they directly access this object
-        this.label = new Label({
-            text: initialProperties.text ? initialProperties.text : "",
+        this.label = factory.generateControl("Label", {
+            text: "",
             margin: 0,
             halign: HAlign.CENTER,
             valign: VAlign.CENTER
@@ -38,14 +38,6 @@ export class Button extends Section {
         this.registerProperty("fontType", true);
         this.registerProperty("textOffset", true);
         this.registerProperty("action", false, false, true);
-
-        // Apply base theme before customized properties
-        this.applyTheme("Button");
-
-        this.updateProperties(initialProperties);
-
-        // Release propertyChanged events
-        this._withholdingEvents = withholdingEvents;
 
         Events.attachSource(this, ["click"]);
     }

@@ -6,19 +6,11 @@ import { Section } from "../controls/section.js";
  */
 
 export class SectionHost extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false, initialSectionList = []) {
+    constructor() {
         super();
 
         // Track all sections to be hosted
-        this._sectionStack = initialSectionList;
-        if (this._sectionStack) super.addChild(this.getActiveSection());
-
-        // Apply base theme before customized properties
-        this.applyTheme("SectionHost");
-
-        this.updateProperties(initialProperties);
-
-        this._withholdingEvents = withholdingEvents;
+        this._sectionStack = [];
     }
 
     //region Method Overrides

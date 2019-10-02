@@ -6,28 +6,30 @@ import { Label } from "./label.js";
 import { Rect } from "./rect.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
+import factory from "../controlFactory.js";
 
 export class TextEdit extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
-        super(
-            {
-                isFocusable: true,
-                contentDirection: ContentDirection.FREE,
-                size: [300, 80]
-            },
-            true
-        );
+    constructor() {
+        super();
+
+        super.isFocusable = true;
+        super.contentDirection = ContentDirection.FREE;
+        super.size = [300, 80];
 
         // Holds each line of text in this array
-        this.lines = [];
+        this._lines = [];
 
         // Rectangle showing the selected text
-        this.selectionRect = new Rect({ fillColor: "99BBEE99", zValue: 1, visible: false });
+        this.selectionRect = factory.generateControl("Rect", {
+            fillColor: "99BBEE99",
+            zValue: 1,
+            visible: false
+        });
         this._selectionFill = "99BBEE99";
         this.addChild(this.selectionRect);
 
         // Rectangle showing focus
-        this.focusRect = new Rect({
+        this.focusRect = factory.generateControl("Rect", {
             fillColor: Color.TRANSPARENT,
             borderColor: "1133CC88",
             borderThickness: 1,
@@ -40,7 +42,7 @@ export class TextEdit extends Section {
         this.addChild(this.focusRect);
 
         // Blinking cursor to show current typing location
-        this.cursor = new Rect({ size: [1, 18], fillColor: "22", zValue: 3, visible: false });
+        this.cursor = factory.generateControl("Rect", { size: [1, 18], fillColor: "22", zValue: 3, visible: false });
         this.cursorTimeSinceChange = 0;
         this.cursorDragStart = 0;
         this.cursorDragging = false;
@@ -65,14 +67,6 @@ export class TextEdit extends Section {
         this.registerProperty("selectionFill");
         this.registerProperty("focusColor", false, true, true);
         this.registerProperty("lineSpace", true, true, true);
-
-        // Apply base theme before customized properties
-        this.applyTheme("TextEdit");
-
-        this.updateProperties(initialProperties);
-
-        // Release propertyChanged events
-        this._withholdingEvents = withholdingEvents;
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
@@ -184,7 +178,7 @@ export class TextEdit extends Section {
                 }
                 break;
             case "ArrowDown":
-                if (this.cursorPos[1] < this.lines.length - 1) {
+                if (this.cursorPos[1] < this._lines.length - 1) {
                     this.cursorPos[1]++;
                 }
                 break;

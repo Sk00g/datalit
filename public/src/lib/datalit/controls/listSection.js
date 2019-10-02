@@ -3,10 +3,10 @@ import { datalitError } from "../errors";
 import { Control } from "./control";
 import { Events } from "../events/events";
 import { Section } from "../controls/section.js";
-import factory from "../factory.js";
+import factory from "../controlFactory.js";
 
 export class ListSection extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
         // Store template as a property, and track the amount created
@@ -15,19 +15,8 @@ export class ListSection extends Section {
         this.registerProperty("templatePath", true, true, true);
         this.registerProperty("instanceCount", true, true, true);
 
-        // Apply base theme before customized properties
-        this.applyTheme("SectionHost");
-
-        this.updateProperties(initialProperties);
-
-        // Begin reporting property change events
-        this._withholdingEvents = withholdingEvents;
-
         // Inform listeners when instance list is refreshed (re-generated)
         Events.attachSource(this, ["instancesUpdated"]);
-
-        // Now that initial properties are set, generate the first round of template instances
-        this.refreshInstances();
 
         Events.register(this, "propertyChanged", (event, data) => {
             if (data.property == "templatePath" || data.property == "instanceCount") this.refreshInstances();
@@ -35,6 +24,10 @@ export class ListSection extends Section {
     }
 
     //region Method Overrides
+    activate() {
+        super.activate();
+        this.refreshInstances();
+    }
     addChild(child) {
         throw new Error("Cannot add children to ListSection object");
     }

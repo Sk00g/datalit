@@ -12,6 +12,7 @@ IMMEDIATE:
 
 * Ran into that stupid bug again where the default style messes with the valign properties set as initialProperties and theme...
     # Due to this, will be attempting a rework of the class generation into a factory / strategy pattern
+    # Need some sort of solution for applying themes across parent classes. Because currently the theme is only applied to the youngest child, is this what we want?
 
 ----------
 TASK LIST

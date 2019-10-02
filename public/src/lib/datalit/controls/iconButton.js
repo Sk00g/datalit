@@ -2,13 +2,14 @@ import { Section } from "./section";
 import { Events } from "../events/events.js";
 import { Icon } from "./icon";
 import { HAlign, VAlign, ControlState } from "../enums";
+import factory from "../controlFactory.js";
 import utils from "../utils";
 
 export class IconButton extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
-        this.icon = new Icon();
+        this.icon = factory.generateControl("Icon");
         this.addChild(this.icon);
 
         // Unique Properties
@@ -18,15 +19,6 @@ export class IconButton extends Section {
         this.registerProperty("iconMargin", true, true, false, utils.compareSides);
         this.registerProperty("imagePath", false, true, true);
         this.registerProperty("sourceRect", false, true, false, utils.compareSides);
-
-        // Apply base theme before customized properties
-        if (!initialProperties.ignoreTheme) this.applyTheme("IconButton");
-        delete initialProperties.ignoreTheme;
-
-        this.updateProperties(initialProperties);
-
-        // Release propertyChanged events
-        this._withholdingEvents = withholdingEvents;
 
         Events.attachSource(this, ["click"]);
     }

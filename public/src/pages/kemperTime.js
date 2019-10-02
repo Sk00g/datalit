@@ -13,7 +13,7 @@ import { Rect } from "../lib/datalit/controls/rect.js";
 import { Section } from "../lib/datalit/controls/section.js";
 import { TextInput } from "../lib/datalit/controls/textInput.js";
 import { SectionHost } from "../lib/datalit/controls/sectionHost.js";
-import factory from "../lib/datalit/factory.js";
+import factory from "../lib/datalit/controlFactory.js";
 import utils from "../lib/datalit/utils.js";
 
 var shared = require("../../../tools/sharedFunc.js");

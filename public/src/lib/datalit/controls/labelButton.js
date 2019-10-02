@@ -7,7 +7,7 @@ import { Events } from "../events/events.js";
 import utils from "../utils.js";
 
 export class LabelButton extends DynamicControl {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
         // Unique properties
@@ -22,15 +22,6 @@ export class LabelButton extends DynamicControl {
         this.registerProperty("fontColor");
         this.registerProperty("fontType", true);
 
-        // Apply base theme before customized properties
-        this.applyTheme("LabelButton");
-
-        this.updateProperties(initialProperties);
-
-        this.calculateSize();
-
-        this._withholdingEvents = withholdingEvents;
-
         Events.attachSource(this, ["click"]);
     }
 
@@ -40,12 +31,16 @@ export class LabelButton extends DynamicControl {
         super.handleMouseUp();
     }
 
-    calculateSize() {
+    _calculateSize() {
         App.Context.font = this._fontSize + "pt " + this._fontType;
         super.size = [Math.floor(App.Context.measureText(this._text).width), this._fontSize];
     }
 
     //#region Override Method
+    activate() {
+        super.activate();
+        this._calculateSize();
+    }
     //#endregion
 
     //#region Override Properties
@@ -81,7 +76,7 @@ export class LabelButton extends DynamicControl {
         if (typeof newText != "string") datalitError("propertySet", ["LabelButton.text", String(newText), "string"]);
 
         this._text = newText;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("text");
     }
 
@@ -93,7 +88,7 @@ export class LabelButton extends DynamicControl {
             datalitError("propertySet", ["LabelButton.fontSize", String(size), "int > 2"]);
 
         this._fontSize = size;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("fontSize");
     }
 
@@ -115,7 +110,7 @@ export class LabelButton extends DynamicControl {
         if (typeof font != "string") datalitError("propertySet", ["LabelButton.fontType", String(font), "string"]);
 
         this._fontType = font;
-        this.calculateSize();
+        this._calculateSize();
         this.notifyPropertyChange("fontType");
     }
     //#endregion

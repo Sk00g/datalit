@@ -7,7 +7,7 @@ import { Rect } from "./rect.js";
 import utils from "../utils.js";
 
 export class Section extends DynamicControl {
-    constructor(initialProperties = {}, withholdEvents = false) {
+    constructor() {
         super();
 
         this.childEventRegisters = {}; // Keep track of child event registrations
@@ -33,23 +33,15 @@ export class Section extends DynamicControl {
         this.registerProperty("hsizeTarget", true, true, false, utils.compareSides);
         this.registerProperty("vsizeTarget", true, true, false, utils.compareSides);
 
-        // Apply base theme before customized properties
-        this.applyTheme("Section");
-
-        this.updateProperties(initialProperties);
-
-        // Will typically continue to withold events until child constructor sets = false
-        // However, new Section() will sometimes be called directly
-        this._withholdingEvents = withholdEvents;
-
         this.background = new Rect({
-            fillColor: this.backgroundColor,
-            size: this.size
+            borderThickness: this.borderThickness,
+            borderColor: this.borderColor,
+            backgroundColor: this.backgroundColor
         });
+        this.background.activate();
+
         // For redraw purposes
         this.background.__parent = this;
-        if (this.borderColor) this.background.borderColor = this.borderColor;
-        if (this.borderThickness) this.background.borderThickness = this.borderThickness;
 
         // Attach to Event system as a source for 'childrenChanged' events
         this.eventListeners.childrenChanged = [];

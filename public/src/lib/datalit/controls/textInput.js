@@ -15,23 +15,23 @@ import { Label } from "./label.js";
 import { Rect } from "./rect.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
+import factory from "../controlFactory";
 
 export class TextInput extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
-        super(
-            {
-                isFocusable: true,
-                contentDirection: ContentDirection.FREE,
-                halign: HAlign.LEFT,
-                valign: VAlign.TOP,
-                hsizeTarget: [SizeTargetType.FIXED, 200],
-                vsizeTarget: [SizeTargetType.FIXED, 30]
-            },
-            true
-        );
+    constructor() {
+        super();
+
+        super.updateProperties({
+            isFocusable: true,
+            contentDirection: ContentDirection.FREE,
+            halign: HAlign.LEFT,
+            valign: VAlign.TOP,
+            hsizeTarget: [SizeTargetType.FIXED, 200],
+            vsizeTarget: [SizeTargetType.FIXED, 30]
+        });
 
         // Holds the text the user inputs
-        this.label = new Label({
+        this.label = factory.generateControl("Label", {
             text: "",
             fontSize: App.GlobalState.DefaultFontSize - 2,
             fontColor: Color.BLACK,
@@ -42,12 +42,12 @@ export class TextInput extends Section {
         this.addChild(this.label);
 
         // Rectangle showing the selected text
-        this.selectionRect = new Rect({ fillColor: "99BBEE99", zValue: 1, visible: false });
+        this.selectionRect = factory.generateControl("Rect", { fillColor: "99BBEE99", zValue: 1, visible: false });
         this._selectionFill = "99BBEE99";
         this.addChild(this.selectionRect);
 
         // Rectangle showing focus
-        this.focusRect = new Rect({
+        this.focusRect = factory.generateControl("Rect", {
             fillColor: Color.TRANSPARENT,
             borderColor: "1133CC88",
             borderThickness: 1,
@@ -60,7 +60,7 @@ export class TextInput extends Section {
         this.addChild(this.focusRect);
 
         // Blinking cursor to show current typing location
-        this.cursor = new Rect({ size: [1, 18], fillColor: "22", zValue: 3, visible: false });
+        this.cursor = factory.generateControl("Rect", { size: [1, 18], fillColor: "22", zValue: 3, visible: false });
         this.cursorTimeSinceChange = 0;
         this.cursorDragStart = 0;
         this.cursorDragging = false;
@@ -83,14 +83,6 @@ export class TextInput extends Section {
         this.registerProperty("selectPos", false, true, true);
         this.registerProperty("selectionFill");
         this.registerProperty("focusColor", false, true, true);
-
-        // Apply base theme before customized properties
-        this.applyTheme("TextInput");
-
-        this.updateProperties(initialProperties);
-
-        // Release propertyChanged events
-        this._withholdingEvents = withholdingEvents;
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {

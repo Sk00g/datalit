@@ -7,7 +7,7 @@ import { PageState } from "../enums.js";
 
 // Keep in mind a Page defaults to ContentDirection.VERTICAL, but this can be changed manually
 export class Page extends Section {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
         // console.log("Page Constructor - 2");
         this.isPage = true;
@@ -17,18 +17,11 @@ export class Page extends Section {
         this._focusMousedownRegisters = {};
         this._focusChildrenChangedRegisters = {};
 
-        // Unique property fields
+        // Unique properties
         this._pageState = PageState.READY;
         this._focusedControl = null;
         this.registerProperty("pageState", false, false, true);
         this.registerProperty("focusedControl", false, false, true);
-
-        // Apply base theme before customized properties
-        this.applyTheme("Page");
-
-        this.updateProperties(initialProperties);
-
-        this._withholdingEvents = withholdingEvents;
 
         // Listening for Tab / click input
         Events.register(App.Canvas, "keydown", (event, data) => this.handleTab(event, data));
@@ -144,6 +137,7 @@ export class Page extends Section {
 
     // Extending classes should implement the following methods
     activate() {
+        super.activate();
         this.pageState = PageState.ACTIVE;
 
         this.scheduleRender();

@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Rect extends Control {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
         // Unique properties
@@ -15,13 +15,6 @@ export class Rect extends Control {
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness", false, true, false, utils.compareSides);
-
-        // Apply base theme before customized properties
-        this.applyTheme("Rect");
-
-        this.updateProperties(initialProperties);
-
-        this._withholdingEvents = withholdingEvents;
     }
 
     //#region Unique Properties

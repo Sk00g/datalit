@@ -1,5 +1,6 @@
 import { Button } from "./controls/button";
 import { Circle } from "./controls/circle";
+import { ComboBox } from "./controls/comboBox";
 import { Icon } from "./controls/icon";
 import { IconButton } from "./controls/iconButton";
 import { Label } from "./controls/label";
@@ -8,6 +9,7 @@ import { ListSection } from "./controls/listSection";
 import { Rect } from "./controls/rect";
 import { ScrollSection } from "./controls/scrollSection";
 import { Section } from "./controls/section";
+import { SectionHost } from "./controls/sectionHost";
 import { TextEdit } from "./controls/textEdit";
 import { TextInput } from "./controls/textInput";
 import { Assets } from "./assetManager.js";
@@ -15,12 +17,10 @@ import { Assets } from "./assetManager.js";
 var OID_COUNTER = 0;
 var CONTROL_CLASSES = null;
 function loadClasses() {
-    // import("./controls/button").then(({ Button }) => {
-    //     CONTROL_CLASSES = { Button };
-    // });
     CONTROL_CLASSES = {
         Button,
         Circle,
+        ComboBox,
         Icon,
         IconButton,
         Label,
@@ -29,6 +29,7 @@ function loadClasses() {
         Rect,
         ScrollSection,
         Section,
+        SectionHost,
         TextEdit,
         TextInput
     };
@@ -50,17 +51,8 @@ function _generateControl(source) {
         delete source.properties.styles;
     }
 
-    // Generate new object using generic Control object constructor
-    var newControl = new CONTROL_CLASSES[source.type]({ debugName: source.id, ...source.properties });
-
-    // Add styles if present
-    if (styles) {
-        for (const [key, value] of Object.entries(styles)) {
-            let propertyDefinitions = [];
-            for (const [propKey, propValue] of Object.entries(value)) propertyDefinitions.push([propKey, propValue]);
-            newControl.addStyle(key, propertyDefinitions);
-        }
-    }
+    // Generate the control using this factory's pattern
+    var newControl = generateControl(source.type, { debugName: source.id, ...source.properties }, styles);
 
     if (source.children && source.children.length > 0) {
         for (let childSource of source.children) {
@@ -87,18 +79,38 @@ export function generateMarkupObjects(name, bindingContext = null) {
     return _generateControl(object);
 }
 
-export function generateControl(controlClass, initialProperties, styles, theme = Assets.BaseTheme) {
+/* THE ALL POWERFUL CONTROL GENERATOR METHOD
+    This should be the ONLY way that controls are generated in datalit by the user
+    Generating from markup also relies on this function
+    Complex controls generating children however, cannot use this method for circular referencing reasons. Therefore, complex controls are responsible for:
+        * instantiating their composite classes using the constructor    
+        * applying any themes they want / need
+        * applying any initial properties after creation
+        * applying any styles after initial property application
+        * executing the 'activate' function once the above steps are complete
+
+    prop: controlClass ->       String value of the control class to be created
+    prop: initialProperties ->  Specific properties that override theme
+    prop: styles ->             For DynamicControl derivatives, provide different ControlState styles as dict object. 
+                                If this is not empty, a ControlState.DEFAULT style will be generated
+    prop: theme ->              Theme to apply, defaults to the BaseTheme
+                                If explicitly set to 'null', then no theme will be applied
+*/
+export function generateControl(controlClass, initialProperties = {}, styles = {}, theme = Assets.BaseTheme) {
+    // Load in dynamic class object list if first call
+    if (!CONTROL_CLASSES) loadClasses();
+
     // Generate new object using generic Control object constructor
     var newControl = new CONTROL_CLASSES[controlClass]();
 
-    // Apply base theme before customized properties
-    newControl.applyTheme(controlClass, theme);
+    // Apply theme before customized properties
+    if (theme) newControl.applyTheme(controlClass, theme);
 
     // Apply custom (non-theme, non-style) initial properties
     newControl.updateProperties(initialProperties);
 
     // Add custom (non-theme) styles if present
-    if (styles) {
+    if (styles && styles.length > 0) {
         for (const [key, value] of Object.entries(styles)) {
             let propertyDefinitions = [];
             for (const [propKey, propValue] of Object.entries(value)) propertyDefinitions.push([propKey, propValue]);
@@ -106,8 +118,10 @@ export function generateControl(controlClass, initialProperties, styles, theme =
         }
     }
 
-    // If we have at least one style, generate our default style
-    if (newControl.__styles && newControl.__styles.length > 0) newControl.initializeDynamicStyles();
+    // Run class-specific activation logic. Goes in direction child -> ancestor
+    newControl.activate();
+
+    return newControl;
 }
 
 export default {

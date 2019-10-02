@@ -5,7 +5,7 @@ import { datalitError } from "../errors.js";
 import utils from "../utils.js";
 
 export class Circle extends Control {
-    constructor(initialProperties = {}, withholdingEvents = false) {
+    constructor() {
         super();
 
         // Unique properties
@@ -17,13 +17,6 @@ export class Circle extends Control {
         this.registerProperty("fillColor");
         this.registerProperty("borderColor");
         this.registerProperty("borderThickness", false, true, false, utils.compareSides);
-
-        // Apply base theme before customized properties
-        this.applyTheme("Circle");
-
-        this.updateProperties(initialProperties);
-
-        this._withholdingEvents = withholdingEvents;
     }
 
     // Method overrides

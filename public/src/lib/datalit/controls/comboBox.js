@@ -5,12 +5,15 @@ import { Section } from "./section";
 import { Events } from "../events/events";
 import { Label } from "./label";
 import { IconButton } from "./iconButton";
+import factory from "../controlFactory";
 
 const BUTTON_SIZE = 28;
 
 export class ComboBox extends Section {
-    constructor(initialProperties = {}, withholdEvents = false) {
-        super({
+    constructor() {
+        super();
+
+        super.updateProperties({
             contentDirection: ContentDirection.HORIZONTAL,
             borderThickness: [1, 1, 0, 1],
             borderColor: Color.BLACK,
@@ -18,25 +21,26 @@ export class ComboBox extends Section {
             vsizeTarget: [SizeTargetType.FIXED, 30]
         });
 
-        // Always horizontal because to place button beside label section
-        initialProperties.contentDirection = ContentDirection.HORIZONTAL;
-
         // Create building block controls
-        this._toggleButton = new IconButton({
-            imagePath: "down-filled",
-            action: btn => this._handleTogglePress(),
-            halign: HAlign.RIGHT,
-            valign: null,
-            margin: 0,
-            hsizeTarget: [SizeTargetType.FIXED, BUTTON_SIZE],
-            vsizeTarget: [SizeTargetType.FILL, null],
-            iconMargin: 10,
-            borderThickness: [0, 1, 1, 1],
-            borderColor: initialProperties.borderColor || Color.BLACK,
-            backgroundColor: initialProperties.backgroundColor || "DDDDDD",
-            ignoreTheme: true,
-            debugName: "toggleButton"
-        });
+        this._toggleButton = factory.generateControl(
+            "IconButton",
+            {
+                imagePath: "down-filled",
+                action: btn => this._handleTogglePress(),
+                halign: HAlign.RIGHT,
+                valign: null,
+                margin: 0,
+                hsizeTarget: [SizeTargetType.FIXED, BUTTON_SIZE],
+                vsizeTarget: [SizeTargetType.FILL, null],
+                iconMargin: 10,
+                borderThickness: [0, 1, 1, 1],
+                borderColor: initialProperties.borderColor || Color.BLACK,
+                backgroundColor: initialProperties.backgroundColor || "DDDDDD",
+                debugName: "toggleButton"
+            },
+            null,
+            null
+        );
         super.addChild(this._toggleButton);
 
         this._selectionLabel = new Label({
@@ -45,17 +49,6 @@ export class ComboBox extends Section {
             debugName: "selectionLabel"
         });
         super.addChild(this._selectionLabel);
-
-        // Unique Properties
-
-        // Apply base theme before customized properties
-        this.applyTheme("ComboBox");
-
-        this.updateProperties(initialProperties);
-
-        // Will typically continue to withold events until child constructor sets = false
-        // However, new Section() will sometimes be called directly
-        this._withholdingEvents = withholdEvents;
     }
 
     // Method Overrides

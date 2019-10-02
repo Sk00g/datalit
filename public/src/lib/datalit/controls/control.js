@@ -120,7 +120,7 @@ export class Control {
 
     notifyPropertyChange(name) {
         // Check for withholding
-        if (this._withholdingEvents) return;
+        if (!this.__active) return;
 
         const metadata = this.propertyMetadata[name];
 
@@ -166,9 +166,6 @@ export class Control {
                 datalitError("propertyNotFound", ["Control", key]);
             this[key] = value;
         }
-
-        // Initialize default style if relevant (DynamicControl children will have the __styles object)
-        if (this.__styles) this.initialize();
     }
 
     arrangePosition(arranger, newPosition) {
@@ -421,6 +418,10 @@ export class Control {
     }
     //#endregion
 
+    // Overrideable methods
+    activate() {
+        this.__active = true;
+    }
     update(elapsed) {}
     draw(context, offset) {}
 }

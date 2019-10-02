@@ -9,7 +9,7 @@ import { ScrollSection } from "../lib/datalit/controls/scrollSection";
 import { Events } from "../lib/datalit/events/events.js";
 import { IconButton } from "../lib/datalit/controls/iconButton.js";
 import utils from "../lib/datalit/utils.js";
-import factory from "../lib/datalit/factory.js";
+import factory from "../lib/datalit/controlFactory.js";
 import { TextInput } from "../lib/datalit/controls/textInput.js";
 
 export class TestPage extends Page {
