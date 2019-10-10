@@ -103,6 +103,9 @@ export function generateControl(controlClass, initialProperties = {}, styles = {
     // Generate new object using generic Control object constructor
     var newControl = new CONTROL_CLASSES[controlClass]();
 
+    // Run class-specific initialization logic. Typically used for composite object creation
+    newControl.initialize(generateControl);
+
     // Apply theme before customized properties
     if (theme) newControl.applyTheme(controlClass, theme);
 
@@ -118,7 +121,7 @@ export function generateControl(controlClass, initialProperties = {}, styles = {
         }
     }
 
-    // Run class-specific activation logic. Goes in direction child -> ancestor
+    // Run class-specific activation logic. Goes in direction ancestor -> child
     newControl.activate();
 
     return newControl;

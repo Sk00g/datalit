@@ -27,6 +27,7 @@ export class Label extends Control {
     //#region Override Method
     activate() {
         super.activate();
+
         this._calculateSize();
     }
     //#endregion

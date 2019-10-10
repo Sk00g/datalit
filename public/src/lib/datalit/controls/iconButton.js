@@ -2,25 +2,32 @@ import { Section } from "./section";
 import { Events } from "../events/events.js";
 import { Icon } from "./icon";
 import { HAlign, VAlign, ControlState } from "../enums";
-import factory from "../controlFactory.js";
 import utils from "../utils";
 
 export class IconButton extends Section {
     constructor() {
         super();
 
-        this.icon = factory.generateControl("Icon");
-        this.addChild(this.icon);
+        // Composite control declarations
+        this.icon = null;
 
         // Unique Properties
         this._action = null;
         this._iconOffset = [0, 0];
         this.registerProperty("action", false, false, true);
-        this.registerProperty("iconMargin", true, true, false, utils.compareSides);
-        this.registerProperty("imagePath", false, true, true);
-        this.registerProperty("sourceRect", false, true, false, utils.compareSides);
 
         Events.attachSource(this, ["click"]);
+    }
+
+    initialize(generateControl) {
+        super.initialize(generateControl);
+
+        this.icon = generateControl("Icon");
+        this.addChild(this.icon);
+
+        this.registerAliasProperty("iconMargin", "icon", "margin");
+        this.registerAliasProperty("imagePath", "icon");
+        this.registerAliasProperty("sourceRect", "icon");
     }
 
     handleMouseUp() {
@@ -54,29 +61,5 @@ export class IconButton extends Section {
 
         this._action = newAction;
         this.notifyPropertyChange("action");
-    }
-
-    get iconMargin() {
-        return this.icon.margin;
-    }
-    set iconMargin(newMargin) {
-        this.icon.margin = newMargin;
-        this.notifyPropertyChange("iconMargin");
-    }
-
-    get imagePath() {
-        return this.icon.imagePath;
-    }
-    set imagePath(newPath) {
-        this.icon.imagePath = newPath;
-        this.notifyPropertyChange("imagePath");
-    }
-
-    get sourceRect() {
-        return this.icon.sourceRect;
-    }
-    set sourceRect(newRect) {
-        this.icon.sourceRect = newRect;
-        this.notifyPropertyChange("sourceRect");
     }
 }

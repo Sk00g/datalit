@@ -15,7 +15,6 @@ import { Label } from "./label.js";
 import { Rect } from "./rect.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
-import factory from "../controlFactory";
 
 export class TextInput extends Section {
     constructor() {
@@ -30,42 +29,11 @@ export class TextInput extends Section {
             vsizeTarget: [SizeTargetType.FIXED, 30]
         });
 
-        // Holds the text the user inputs
-        this.label = factory.generateControl("Label", {
-            text: "",
-            fontSize: App.GlobalState.DefaultFontSize - 2,
-            fontColor: Color.BLACK,
-            fontType: "sans-serif",
-            margin: [8, 0, 8, 0],
-            zValue: 2
-        });
-        this.addChild(this.label);
-
-        // Rectangle showing the selected text
-        this.selectionRect = factory.generateControl("Rect", { fillColor: "99BBEE99", zValue: 1, visible: false });
-        this._selectionFill = "99BBEE99";
-        this.addChild(this.selectionRect);
-
-        // Rectangle showing focus
-        this.focusRect = factory.generateControl("Rect", {
-            fillColor: Color.TRANSPARENT,
-            borderColor: "1133CC88",
-            borderThickness: 1,
-            localPosition: [-1, -1],
-            zValue: 4,
-            visible: false,
-            size: [this.size[0] + 2, this.size[1] + 2]
-        });
-        this._focusColor = "1133CC88";
-        this.addChild(this.focusRect);
-
-        // Blinking cursor to show current typing location
-        this.cursor = factory.generateControl("Rect", { size: [1, 18], fillColor: "22", zValue: 3, visible: false });
-        this.cursorTimeSinceChange = 0;
-        this.cursorDragStart = 0;
-        this.cursorDragging = false;
-        this.renderCursor();
-        this.addChild(this.cursor);
+        // Composite control declarations
+        this.label = null;
+        this.selectionRect = null;
+        this.focusRect = null;
+        this.cursor = null;
 
         // Private fields behind properties
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
@@ -73,10 +41,6 @@ export class TextInput extends Section {
         this._selectPos = 0;
 
         this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
-        this.registerProperty("fontSize", true);
-        this.registerProperty("fontColor");
-        this.registerProperty("fontType", true);
-        this.registerProperty("fontMargin", true);
         this.registerProperty("cursorColor");
         this.registerProperty("cursorSize");
         this.registerProperty("cursorPos", false, true, true);
@@ -104,6 +68,53 @@ export class TextInput extends Section {
 
         // Listen for double-click selection
         Events.register(this, "dblclick", (event, data) => this.handleDoubleClick(event, data));
+    }
+
+    initialize(generateControl) {
+        super.initialize(generateControl);
+
+        // Holds the text the user inputs
+        this.label = generateControl("Label", {
+            text: "",
+            fontSize: App.GlobalState.DefaultFontSize - 2,
+            fontColor: Color.BLACK,
+            fontType: "sans-serif",
+            margin: [8, 0, 8, 0],
+            zValue: 2
+        });
+        this.addChild(this.label);
+
+        // Rectangle showing the selected text
+        this.selectionRect = generateControl("Rect", { fillColor: "99BBEE99", zValue: 1, visible: false });
+        this._selectionFill = "99BBEE99";
+        this.addChild(this.selectionRect);
+
+        // Rectangle showing focus
+        this.focusRect = generateControl("Rect", {
+            fillColor: Color.TRANSPARENT,
+            borderColor: "1133CC88",
+            borderThickness: 1,
+            localPosition: [-1, -1],
+            zValue: 4,
+            visible: false,
+            size: [this.size[0] + 2, this.size[1] + 2]
+        });
+        this._focusColor = "1133CC88";
+        this.addChild(this.focusRect);
+
+        // Blinking cursor to show current typing location
+        this.cursor = generateControl("Rect", { size: [1, 18], fillColor: "22", zValue: 3, visible: false });
+        this.cursorTimeSinceChange = 0;
+        this.cursorDragStart = 0;
+        this.cursorDragging = false;
+        this.renderCursor();
+        this.addChild(this.cursor);
+
+        // Alias properties
+        this.registerAliasProperty("fontSize", "label");
+        this.registerAliasProperty("fontColor", "label");
+        this.registerAliasProperty("fontType", "label");
+        this.registerAliasProperty("fontMargin", "label", "margin");
     }
 
     renderCursor() {
@@ -434,46 +445,6 @@ export class TextInput extends Section {
 
         this.label.text = newText;
         this.notifyPropertyChange("text");
-    }
-
-    get fontSize() {
-        return this.label.fontSize;
-    }
-    set fontSize(size) {
-        if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["TextInput.fontSize", String(size), "int > 2"]);
-
-        this.label.fontSize = size;
-        this.notifyPropertyChange("fontSize");
-    }
-
-    get fontColor() {
-        return this.label.fontColor;
-    }
-    set fontColor(color) {
-        if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["TextInput.fontColor", String(color), "string"]);
-
-        this.label.fontColor = color;
-        this.notifyPropertyChange("fontColor");
-    }
-
-    get fontType() {
-        return this.label.fontType;
-    }
-    set fontType(font) {
-        if (typeof font != "string") datalitError("propertySet", ["TextInput.fontType", String(font), "string"]);
-
-        this.label.fontType = font;
-        this.notifyPropertyChange("fontType");
-    }
-
-    get fontMargin() {
-        return this.label.margin;
-    }
-    set fontMargin(newMargin) {
-        this.label.margin = newMargin;
-        this.notifyPropertyChange("fontMargin");
     }
     //#endregion
 

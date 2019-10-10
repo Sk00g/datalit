@@ -2,7 +2,7 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/10/01 21:11
+LAST UPDATE:		2019/10/09 11:24
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
@@ -13,6 +13,12 @@ IMMEDIATE:
 * Ran into that stupid bug again where the default style messes with the valign properties set as initialProperties and theme...
     # Due to this, will be attempting a rework of the class generation into a factory / strategy pattern
     # Need some sort of solution for applying themes across parent classes. Because currently the theme is only applied to the youngest child, is this what we want?
+    # Basics are working, but major design consideration remains on how to do composite control composition for complex controls like button / combobox / etc. Can't use factory
+        because that creates circular references. Obvious but possibly crappy solution is for complex objects to handle their own internal object initialization, but I would rather
+        not. Another thought would be to have the actual control instantiation somewhere other than the factory, to avoid the circular referencing, but all creation logic still
+        goes through the factory instead of the constructor...
+
+* Updated the initialization of composite-style controls to use an overloaded 'initialize' function, where all control creation goes. Also added registerAliasProperty, which is essentially a direct link to a child control's property, to avoid writing pointless boilerplate to access a complex control's building block control properties. The basics work but still relatively untested. Still need to update a few remaining complex controls to match this pattern, and make sure there's no hang-around code that breaks things in the new paradigm. This should happen BEFORE moving on to building combo box
 
 ----------
 TASK LIST

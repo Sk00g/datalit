@@ -82,7 +82,7 @@ class DatalitApp {
         if (INSTANCE.GlobalState.DirtySections.length > 0) {
             // console.log("redrawing dirty sections: " + INSTANCE.GlobalState.DirtySections.length);
             for (let i = 0; i < INSTANCE.GlobalState.DirtySections.length; i++) {
-                console.log(`redrawing ${INSTANCE.GlobalState.DirtySections[i].debugName}`);
+                // console.log(`redrawing ${INSTANCE.GlobalState.DirtySections[i].debugName}`);
                 INSTANCE.Context.clearRect(...INSTANCE.GlobalState.DirtySections[i].viewingRect);
                 INSTANCE.GlobalState.DirtySections[i].draw(App.Context);
             }

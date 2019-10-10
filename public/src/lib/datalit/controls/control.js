@@ -1,6 +1,6 @@
 import { App } from "../app.js";
 import { Assets } from "../assetManager.js";
-import { ControlState, HAlign, VAlign, SizeTargetType } from "../enums.js";
+import { ControlState, HAlign, VAlign, SizeTargetType, Color } from "../enums.js";
 import { datalitError } from "../errors.js";
 import { Events } from "../events/events.js";
 import utils from "../utils.js";
@@ -102,6 +102,35 @@ export class Control {
         this.eventListeners[eventName].push(callback);
     }
 
+    /* ALIAS Properties are properties that expose an internal control (controlAlias) in a complex (composite)
+        Control. They directly pass through the property's functionality to the child, so validation
+        logic is optional, not required. Additional logic is also optional. 
+    */
+    registerAliasProperty(propertyName, controlAlias, propertyAlias = null, styleProtected = false) {
+        // If no propertyAlias is provided, use propertyName and assume they share the property name
+        propertyAlias = propertyAlias || propertyName;
+
+        this.propertyMetadata[propertyName] = {
+            previousValue: this[controlAlias][propertyAlias],
+            redraw: this[controlAlias].propertyMetadata[propertyAlias].redraw,
+            rerender: this[controlAlias].propertyMetadata[propertyAlias].rerender,
+            compare: this[controlAlias].propertyMetadata[propertyAlias].compare,
+            styleProtected: styleProtected,
+            alias: true
+        };
+
+        // Create getters and setters automatically
+        Object.defineProperty(this, propertyName, {
+            get: function() {
+                return this[controlAlias][propertyAlias];
+            },
+            set: function(newValue) {
+                this[controlAlias][propertyAlias] = newValue;
+                this.notifyPropertyChange(propertyName);
+            }
+        });
+    }
+
     registerProperty(
         propertyName,
         rerenderOnChange = false,
@@ -138,8 +167,15 @@ export class Control {
             // Request rerender based on metadata, re-render ancestor until FIXED, FILL, OR PERCENT
             if (metadata.rerender && this.__parent) {
                 var parent = this.__parent;
-                while (parent.hsizeTarget[0] == SizeTargetType.MIN || parent.vsizeTarget[0] == SizeTargetType.MIN)
+                // Keep climbing genetic tree until we hit a parent that does not have Target -> Min or Color.Transparent background
+                while (
+                    parent.hsizeTarget[0] == SizeTargetType.MIN ||
+                    parent.vsizeTarget[0] == SizeTargetType.MIN ||
+                    parent.backgroundColor == Color.TRANSPARENT
+                ) {
+                    if (!parent.__parent) break;
                     parent = parent.__parent;
+                }
 
                 // console.log(`add render target - ${parent.debugName}`);
                 parent.scheduleRender();
@@ -422,6 +458,7 @@ export class Control {
     activate() {
         this.__active = true;
     }
+    initialize() {}
     update(elapsed) {}
     draw(context, offset) {}
 }

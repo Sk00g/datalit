@@ -5,6 +5,8 @@ import { Events } from "../lib/datalit/events/events.js";
 import { Page } from "../lib/datalit/controls/page";
 import utils from "../lib/datalit/utils.js";
 import factory from "../lib/datalit/controlFactory.js";
+import themeMap from "../../assets/themeMap.js";
+import { Assets } from "../lib/datalit/assetManager.js";
 
 export class BudgetAnalyzerPage extends Page {
     constructor() {
@@ -26,12 +28,46 @@ export class BudgetAnalyzerPage extends Page {
 
         let main = factory.generateControl("Section", { backgroundColor: "FF0000", debugName: "main" });
         let second = factory.generateControl("Section", { backgroundColor: "00FF00", debugName: "second" });
-        let title = factory.generateControl("Label", { text: "Hello Scott" });
+        let title = factory.generateControl("Label", { text: "Hello Scott", margin: 10 });
+        let button = factory.generateControl("Button", {
+            text: "Press Me",
+            action: x => console.log("YOU DID IT"),
+            debugName: "button",
+            margin: 10
+        });
+        let button2 = factory.generateControl(
+            "Button",
+            {
+                text: "No Press Me",
+                action: x => console.log("YOU DID NOT DO IT"),
+                debugName: "button",
+                margin: 10
+            },
+            {},
+            Assets.getTheme(Assets.Themes.greenBusiness)
+        );
+        let iconButton = factory.generateControl(
+            "IconButton",
+            {
+                imagePath: "categories",
+                action: x => console.log("icon button press")
+            },
+            {},
+            Assets.getTheme(Assets.Themes.greenBusiness)
+        );
+
+        button.addStyle(ControlState.HOVERED, [["borderColor", Color.BLUE]]);
+        button.addStyle(ControlState.DEPRESSED, [["borderColor", "0000FF99"]]);
 
         main.addChild(title);
+        main.addChild(button);
+        main.addChild(button2);
+        main.addChild(iconButton);
 
         this.addSection(main);
         this.addSection(second);
+
+        this.button = button;
 
         // let main = new Section({ backgroundColor: "999d99" });
         // let combo = new ComboBox({
@@ -69,11 +105,13 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
-                // this.scrollSection.addChild(new Label(this.labelProps));
+                console.log(`this.button.text = ${this.button.text}`);
                 break;
             case "b":
-                console.log("removing?");
-                // this.scrollSection.removeChild(this.scrollSection._contentSection.children[0]);
+                this.button.text = "Hello Kevin";
+                break;
+            case "c":
+                this.button.fontSize = 8;
                 break;
         }
     }

@@ -33,6 +33,8 @@ export class Icon extends Control {
         return this._imagePath;
     }
     set imagePath(newPath) {
+        if (newPath == null) return;
+
         if (typeof newPath != "string")
             datalitError("propertySet", ["Icon.imagePath", String(newPath), "filepath STRING"]);
 

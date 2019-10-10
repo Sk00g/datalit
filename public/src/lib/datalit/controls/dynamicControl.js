@@ -28,7 +28,7 @@ export class DynamicControl extends Control {
     }
 
     _initializeDynamicStyles() {
-        // console.log(`initializing dynamic interaction for ${this.debugName}`);
+        console.log(`initializing dynamic interaction for ${this.debugName}`);
 
         // Listen for self-source events to trigger state swaps
         Events.register(this, "mouseenter", (ev, data) => this.handleMouseEnter(ev, data));
@@ -42,6 +42,9 @@ export class DynamicControl extends Control {
     }
 
     addStyle(triggerState, propertyDefinitions) {
+        if (this.__styles.findIndex(sty => sty.triggerState == ControlState.READY) == -1)
+            this._initializeDynamicStyles();
+
         let existingIndex = this.__styles.findIndex(sty => sty.triggerState == triggerState);
         if (existingIndex != -1) {
             // throw new Error(`Style for state ${triggerState} already exists`);

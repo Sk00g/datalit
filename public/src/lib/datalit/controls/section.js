@@ -33,19 +33,23 @@ export class Section extends DynamicControl {
         this.registerProperty("hsizeTarget", true, true, false, utils.compareSides);
         this.registerProperty("vsizeTarget", true, true, false, utils.compareSides);
 
-        this.background = new Rect({
-            borderThickness: this.borderThickness,
-            borderColor: this.borderColor,
-            backgroundColor: this.backgroundColor
-        });
-        this.background.activate();
-
-        // For redraw purposes
-        this.background.__parent = this;
+        // Composite control definitions
+        this.background = null;
 
         // Attach to Event system as a source for 'childrenChanged' events
         this.eventListeners.childrenChanged = [];
         Events.attachSource(this, ["childrenChanged"]);
+    }
+
+    initialize(generateControl) {
+        super.initialize(generateControl);
+
+        // This is not an official child of Section, because it does not factor into alignment, and always FILLs
+        this.background = generateControl("Rect", {
+            borderThickness: this.borderThickness,
+            borderColor: this.borderColor,
+            fillColor: this.backgroundColor
+        });
     }
 
     isParentOf(child) {
@@ -119,7 +123,7 @@ export class Section extends DynamicControl {
     }
 
     render() {
-        console.log(`rendering section '${this.debugName}' (${this.children.length})`);
+        // console.log(`rendering section '${this.debugName}' (${this.children.length})`);
         if (this.children.length < 1) {
             this.prerenderCheck(null);
             this.requiresRender = false;

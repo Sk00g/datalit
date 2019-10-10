@@ -5,7 +5,6 @@ import { Events } from "../events/events.js";
 import { Label } from "./label.js";
 import { Section } from "./section.js";
 import utils from "../utils.js";
-import factory from "../controlFactory";
 
 export class Button extends Section {
     constructor() {
@@ -21,8 +20,26 @@ export class Button extends Section {
             vsizeTarget: [SizeTargetType.FIXED, 30]
         });
 
-        // Must be built before registering properties, as they directly access this object
-        this.label = factory.generateControl("Label", {
+        // Composite control definitions
+        this.label = null;
+
+        // Unique Properties
+        this._textOffset = 0;
+        this._action = null;
+        this.registerProperty("textOffset", true);
+        this.registerProperty("action", false, false, true);
+
+        Events.attachSource(this, ["click"]);
+    }
+
+    initialize(generateControl) {
+        super.initialize(generateControl);
+
+        // Button should always wait for mouse press events, even if style events haven't been initialized
+        Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
+        Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
+
+        this.label = generateControl("Label", {
             text: "",
             margin: 0,
             halign: HAlign.CENTER,
@@ -30,16 +47,10 @@ export class Button extends Section {
         });
         this.addChild(this.label);
 
-        this._textOffset = 0;
-        this._action = null;
-        this.registerProperty("text", true, true, true);
-        this.registerProperty("fontSize", true);
-        this.registerProperty("fontColor");
-        this.registerProperty("fontType", true);
-        this.registerProperty("textOffset", true);
-        this.registerProperty("action", false, false, true);
-
-        Events.attachSource(this, ["click"]);
+        this.registerAliasProperty("text", "label", "text", true);
+        this.registerAliasProperty("fontSize", "label");
+        this.registerAliasProperty("fontColor", "label");
+        this.registerAliasProperty("fontType", "label");
     }
 
     handleMouseUp() {
@@ -69,48 +80,6 @@ export class Button extends Section {
         this._action = newAction;
         this.notifyPropertyChange("action");
     }
-    get text() {
-        return this.label.text;
-    }
-    set text(newText) {
-        if (typeof newText != "string") datalitError("propertySet", ["Button.text", String(newText), "string"]);
-
-        this.label.text = newText;
-        this.notifyPropertyChange("text");
-    }
-
-    get fontSize() {
-        return this.label.fontSize;
-    }
-    set fontSize(size) {
-        if (!Number.isInteger(size) || size < 2)
-            datalitError("propertySet", ["Button.fontSize", String(size), "int > 2"]);
-
-        this.label.fontSize = size;
-        this.notifyPropertyChange("fontSize");
-    }
-
-    get fontColor() {
-        return this.label.fontColor;
-    }
-    set fontColor(color) {
-        if (typeof utils.hexColor(color) != "string")
-            datalitError("propertySet", ["Button.fontColor", String(color), "string"]);
-
-        this.label.fontColor = color;
-        this.notifyPropertyChange("fontColor");
-    }
-
-    get fontType() {
-        return this.label.fontType;
-    }
-    set fontType(font) {
-        if (typeof font != "string") datalitError("propertySet", ["Button.fontType", String(font), "string"]);
-
-        this.label.fontType = font;
-        this.notifyPropertyChange("fontType");
-    }
-
     get textOffset() {
         return this._textOffset;
     }
