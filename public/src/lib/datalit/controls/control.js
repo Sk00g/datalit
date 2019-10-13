@@ -21,6 +21,9 @@ export class Control {
         // Used by factory to withhold property change events and their side effects until init is complete
         this.__active = false;
 
+        // Keep track of generateControl method for complex controls who generate controls dynamically
+        this._generator = null;
+
         this._state = ControlState.READY;
         this._visible = true;
         this._arrangedPosition = [0, 0];
@@ -458,7 +461,9 @@ export class Control {
     activate() {
         this.__active = true;
     }
-    initialize() {}
+    initialize(generateControl) {
+        this._generator = generateControl;
+    }
     update(elapsed) {}
     draw(context, offset) {}
 }

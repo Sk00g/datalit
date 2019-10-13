@@ -101,6 +101,18 @@ export function compareSides(sidesA, sidesB) {
     return sidesA[0] == sidesB[0] && sidesA[1] == sidesB[1] && sidesA[2] == sidesB[2] && sidesA[3] == sidesB[3];
 }
 
+export function compareSimpleLists(listA, listB) {
+    if (!listA || !listB) return listA == listB;
+
+    if (listA.length != listB.length) return false;
+
+    for (var i = 0; i < listA.length; i++) {
+        if (listA[i] != listB[i]) return false;
+    }
+
+    return true;
+}
+
 export function distanceBetweenPoints(pointA, pointB) {
     return Math.sqrt(
         (pointA[0] - pointB[0]) * (pointA[0] - pointB[0]) + (pointA[1] - pointB[1]) * (pointA[1] - pointB[1])
@@ -118,5 +130,6 @@ export default {
     formatDateFull,
     formatTimestamp,
     monthNumberToName,
-    getDescendentProperty
+    getDescendentProperty,
+    compareSimpleLists
 };

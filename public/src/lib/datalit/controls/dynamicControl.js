@@ -7,6 +7,13 @@ export class DynamicControl extends Control {
     constructor() {
         super();
 
+        // Listen for self-source events to trigger state swaps
+        Events.register(this, "mouseenter", (ev, data) => this.handleMouseEnter(ev, data));
+        Events.register(this, "mouseleave", (ev, data) => this.handleMouseLeave(ev, data));
+        Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
+        Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
+        Events.register(this, "mousemove", (ev, data) => this.handleMouseMove(ev, data));
+
         // Internal list of styles, should never be used externally
         this.__styles = [];
     }
@@ -28,14 +35,7 @@ export class DynamicControl extends Control {
     }
 
     _initializeDynamicStyles() {
-        console.log(`initializing dynamic interaction for ${this.debugName}`);
-
-        // Listen for self-source events to trigger state swaps
-        Events.register(this, "mouseenter", (ev, data) => this.handleMouseEnter(ev, data));
-        Events.register(this, "mouseleave", (ev, data) => this.handleMouseLeave(ev, data));
-        Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
-        Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
-        Events.register(this, "mousemove", (ev, data) => this.handleMouseMove(ev, data));
+        // console.log(`initializing dynamic interaction for ${this.debugName}`);
 
         // Only require a default if another style exists
         this._generateDefaultStyle();

@@ -20,7 +20,8 @@ export const Color = Object.freeze({
     WHITE: "FF",
     RED: "FF0000",
     GREEN: "00FF00",
-    BLUE: "0000FF"
+    BLUE: "0000FF",
+    GRAY: "DDDDDD"
 });
 
 export const Modifier = Object.freeze({
@@ -46,7 +47,8 @@ export const ControlState = Object.freeze({
     READY: "READY",
     HOVERED: "HOVERED",
     DEPRESSED: "DEPRESSED",
-    DRAGGED: "DRAGGED"
+    DRAGGED: "DRAGGED",
+    SELECTED: "SELECTED"
 });
 
 export const HAlign = Object.freeze({

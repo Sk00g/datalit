@@ -35,10 +35,6 @@ export class Button extends Section {
     initialize(generateControl) {
         super.initialize(generateControl);
 
-        // Button should always wait for mouse press events, even if style events haven't been initialized
-        Events.register(this, "mousedown", (ev, data) => this.handleMouseDown(ev, data));
-        Events.register(this, "mouseup", (ev, data) => this.handleMouseUp(ev, data));
-
         this.label = generateControl("Label", {
             text: "",
             margin: 0,

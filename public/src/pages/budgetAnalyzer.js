@@ -35,6 +35,8 @@ export class BudgetAnalyzerPage extends Page {
             debugName: "button",
             margin: 10
         });
+        button.addStyle(ControlState.HOVERED, [["borderColor", Color.BLUE]]);
+        button.addStyle(ControlState.DEPRESSED, [["borderColor", "0000FF99"]]);
         let button2 = factory.generateControl(
             "Button",
             {
@@ -55,14 +57,25 @@ export class BudgetAnalyzerPage extends Page {
             {},
             Assets.getTheme(Assets.Themes.greenBusiness)
         );
-
-        button.addStyle(ControlState.HOVERED, [["borderColor", Color.BLUE]]);
-        button.addStyle(ControlState.DEPRESSED, [["borderColor", "0000FF99"]]);
+        let input = factory.generateControl("TextInput", {
+            margin: 10
+        });
+        let combo = factory.generateControl("ComboBox", { margin: 10 });
+        // let listSection = factory.generateControl("ScrollSection", {
+        //     margin: 10,
+        //     backgroundColor: "bbbbbb",
+        //     verticalScrollbarVisible: false
+        // });
+        // for (var i = 0; i < 10; i++)
+        //     listSection.addChild(factory.generateControl("Label", { margin: 12, text: `Hello (${i})` }));
 
         main.addChild(title);
         main.addChild(button);
         main.addChild(button2);
         main.addChild(iconButton);
+        main.addChild(input);
+        main.addChild(combo);
+        // main.addChild(listSection);
 
         this.addSection(main);
         this.addSection(second);

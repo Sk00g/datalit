@@ -2,13 +2,15 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/10/09 11:24
+LAST UPDATE:		2019/10/12 21:57
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
 
 IMMEDIATE:
 - Drop-Down List (ComboBox)
+    * It's a struggle... lots of complicated logic.
+    * Currently trying to figure out how to get the popup to work within existing constraints. Should probably make combobox contentDirection.FREE and make sure that works, instead of the current model which doesn't work...
 
 * Ran into that stupid bug again where the default style messes with the valign properties set as initialProperties and theme...
     # Due to this, will be attempting a rework of the class generation into a factory / strategy pattern
@@ -19,6 +21,7 @@ IMMEDIATE:
         goes through the factory instead of the constructor...
 
 * Updated the initialization of composite-style controls to use an overloaded 'initialize' function, where all control creation goes. Also added registerAliasProperty, which is essentially a direct link to a child control's property, to avoid writing pointless boilerplate to access a complex control's building block control properties. The basics work but still relatively untested. Still need to update a few remaining complex controls to match this pattern, and make sure there's no hang-around code that breaks things in the new paradigm. This should happen BEFORE moving on to building combo box
+
 
 ----------
 TASK LIST

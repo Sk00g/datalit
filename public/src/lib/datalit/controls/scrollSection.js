@@ -5,7 +5,6 @@ import { Section } from "./section";
 import { Events } from "../events/events";
 import { IconButton } from "./iconButton";
 import { Rect } from "./rect";
-import factory from "../controlFactory";
 
 const WHEEL_FACTOR = 6;
 const BUTTON_CLICK_DISTANCE = 20;
@@ -35,17 +34,6 @@ export class ScrollSection extends Section {
         this._selfCanvas = document.createElement("canvas");
         this._selfContext = this._selfCanvas.getContext("2d");
 
-        // Create content section to hold the actual scrollable content
-        this._contentSection = factory.generateControl("Section", {
-            contentDirection: ContentDirection.VERTICAL,
-            debugName: "contentSection"
-        });
-        super.addChild(this._contentSection);
-
-        // Create our scroll bar(s)
-        this.verticalScrollbar = this.buildVerticalScrollbar();
-        super.addChild(this.verticalScrollbar);
-
         // Listen for scroll events and update accordingly
         Events.register(this, "wheel", (ev, data) => this.handleScroll(ev, data));
 
@@ -55,6 +43,24 @@ export class ScrollSection extends Section {
                 this._updateScrollbars();
             }
         });
+    }
+
+    initialize(generateControl) {
+        super.initialize(generateControl);
+
+        // Create content section to hold the actual scrollable content
+        this._contentSection = generateControl("Section", {
+            contentDirection: ContentDirection.VERTICAL,
+            debugName: "contentSection"
+        });
+        super.addChild(this._contentSection);
+
+        // Create our scroll bar(s)
+        this.verticalScrollbar = this.buildVerticalScrollbar(generateControl);
+        super.addChild(this.verticalScrollbar);
+
+        // Alias property definitions
+        this.registerAliasProperty("verticalScrollbarVisible", "verticalScrollbar", "visible", true);
 
         // Listen for updates to _contentSection's size, so we can match our internal Canvas' size
         Events.register(this._contentSection, "propertyChanged", (ev, data) => {
@@ -94,8 +100,8 @@ export class ScrollSection extends Section {
         // console.log(`targetMargin: ${this.verticalScrollbar.indicatorRect.margin}`);
     }
 
-    buildVerticalScrollbar() {
-        let scrollbar = factory.generateControl("Section", {
+    buildVerticalScrollbar(generateControl) {
+        let scrollbar = generateControl("Section", {
             contentDirection: ContentDirection.VERTICAL,
             halign: HAlign.RIGHT,
             hsizeTarget: [SizeTargetType.FIXED, BAR_SIZE],
@@ -106,7 +112,7 @@ export class ScrollSection extends Section {
 
         let buttonStyles = { HOVERED: [["backgroundColor", "999999"]], DEPRESSED: [["backgroundColor", "777777"]] };
 
-        let upButton = factory.generateControl(
+        let upButton = generateControl(
             "IconButton",
             {
                 imagePath: "up-filled",
@@ -124,7 +130,7 @@ export class ScrollSection extends Section {
         );
         scrollbar.addChild(upButton);
 
-        let downButton = factory.generateControl(
+        let downButton = generateControl(
             "IconButton",
             {
                 imagePath: "down-filled",
@@ -147,7 +153,7 @@ export class ScrollSection extends Section {
         );
         scrollbar.addChild(downButton);
 
-        scrollbar.indicatorRect = factory.generateControl("Section", {
+        scrollbar.indicatorRect = generateControl("Section", {
             margin: 0,
             valign: VAlign.TOP,
             vsizeTarget: [SizeTargetType.FIXED, INDICATOR_BAR_SIZE],

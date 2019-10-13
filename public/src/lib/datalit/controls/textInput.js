@@ -25,6 +25,9 @@ export class TextInput extends Section {
             contentDirection: ContentDirection.FREE,
             halign: HAlign.LEFT,
             valign: VAlign.TOP,
+            backgroundColor: Color.WHITE,
+            borderColor: Color.BLACK,
+            borderThickness: 1,
             hsizeTarget: [SizeTargetType.FIXED, 200],
             vsizeTarget: [SizeTargetType.FIXED, 30]
         });
@@ -39,14 +42,6 @@ export class TextInput extends Section {
         this._cursorBlinkRate = 500; // Timeout between on/off swaps in ms
         this._cursorPos = 0;
         this._selectPos = 0;
-
-        this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
-        this.registerProperty("cursorColor");
-        this.registerProperty("cursorSize");
-        this.registerProperty("cursorPos", false, true, true);
-        this.registerProperty("selectPos", false, true, true);
-        this.registerProperty("selectionFill");
-        this.registerProperty("focusColor", false, true, true);
 
         // Subsribe to self events for rendering
         Events.register(this, "propertyChanged", (event, data) => {
@@ -110,7 +105,15 @@ export class TextInput extends Section {
         this.renderCursor();
         this.addChild(this.cursor);
 
-        // Alias properties
+        // Alias or dependent properties
+        this.registerProperty("text", false, true, true); // Text doesn't determine arrangement
+        this.registerProperty("cursorColor");
+        this.registerProperty("cursorSize");
+        this.registerProperty("cursorPos", false, true, true);
+        this.registerProperty("selectPos", false, true, true);
+        this.registerProperty("selectionFill");
+        this.registerProperty("focusColor", false, true, true);
+
         this.registerAliasProperty("fontSize", "label");
         this.registerAliasProperty("fontColor", "label");
         this.registerAliasProperty("fontType", "label");
