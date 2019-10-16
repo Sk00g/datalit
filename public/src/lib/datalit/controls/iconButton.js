@@ -25,7 +25,7 @@ export class IconButton extends Section {
         this.icon = generateControl("Icon");
         this.addChild(this.icon);
 
-        this.registerAliasProperty("iconMargin", "icon", "margin");
+        this.registerProperty("iconMargin", true, true, false, utils.compareSides);
         this.registerAliasProperty("imagePath", "icon");
         this.registerAliasProperty("sourceRect", "icon");
     }
@@ -41,6 +41,7 @@ export class IconButton extends Section {
     }
     set size(newSize) {
         super.size = newSize;
+        console.log(`updating iconButton size to ${newSize} (${this.icon.margin})`);
         this.icon.size = [
             newSize[0] - this.icon.margin[0] - this.icon.margin[2],
             newSize[1] - this.icon.margin[1] - this.icon.margin[3]
@@ -61,5 +62,19 @@ export class IconButton extends Section {
 
         this._action = newAction;
         this.notifyPropertyChange("action");
+    }
+
+    get iconMargin() {
+        return this.icon.margin;
+    }
+    set iconMargin(newMargin) {
+        this.icon.margin = newMargin;
+
+        // Also update icon size as this is affected by the icon's margin
+        this.icon.size = [
+            this.size[0] - this.icon.margin[0] - this.icon.margin[2],
+            this.size[1] - this.icon.margin[1] - this.icon.margin[3]
+        ];
+        this.notifyPropertyChange("iconMargin");
     }
 }

@@ -107,7 +107,10 @@ export function generateControl(controlClass, initialProperties = {}, styles = {
     newControl.initialize(generateControl);
 
     // Apply theme before customized properties
-    if (theme) newControl.applyTheme(controlClass, theme);
+    if (theme) {
+        console.log("applying theme: " + theme.name);
+        newControl.applyTheme(controlClass, theme);
+    }
 
     // Apply custom (non-theme, non-style) initial properties
     newControl.updateProperties(initialProperties);

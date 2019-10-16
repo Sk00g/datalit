@@ -15,7 +15,8 @@ export class ComboBox extends Section {
 
         super.updateProperties({
             isFocusable: true,
-            contentDirection: ContentDirection.HORIZONTAL,
+            contentDirection: ContentDirection.FREE,
+            // contentDirection: ContentDirection.HORIZONTAL,
             borderThickness: [1, 1, 0, 1],
             borderColor: Color.BLACK,
             backgroundColor: Color.WHITE,
@@ -80,30 +81,31 @@ export class ComboBox extends Section {
         super.initialize(generateControl);
 
         // Create building block controls
-        this.toggleButton = generateControl(
-            "IconButton",
-            {
-                imagePath: "down-filled",
-                action: btn => this._handleTogglePress(),
-                halign: HAlign.RIGHT,
-                valign: null,
-                margin: 0,
-                hsizeTarget: [SizeTargetType.FIXED, BUTTON_SIZE],
-                vsizeTarget: [SizeTargetType.FILL, null],
-                iconMargin: 10,
-                borderThickness: [0, 1, 1, 1],
-                borderColor: Color.BLACK,
-                backgroundColor: Color.WHITE,
-                debugName: "toggleButton"
-            },
-            null,
-            null
-        );
+        this.toggleButton = generateControl("IconButton", {
+            imagePath: "down-filled",
+            action: btn => this._handleTogglePress(),
+            // halign: HAlign.RIGHT,
+            // valign: null,
+            // hsizeTarget: [SizeTargetType.FIXED, BUTTON_SIZE],
+            // vsizeTarget: [SizeTargetType.FILL, null],
+            margin: 0,
+            localPosition: [200 - BUTTON_SIZE, 0],
+            size: [BUTTON_SIZE, 30],
+            iconMargin: 10,
+            borderThickness: [0, 1, 1, 1],
+            borderColor: Color.BLACK,
+            backgroundColor: Color.WHITE,
+            debugName: "toggleButton"
+        });
         super.addChild(this.toggleButton);
 
+        // this.selectionLabel = generateControl("Label", {
+        //     halign: HAlign.LEFT,
+        //     valign: VAlign.CENTER,
+        //     debugName: "selectionLabel"
+        // });
         this.selectionLabel = generateControl("Label", {
-            halign: HAlign.LEFT,
-            valign: VAlign.CENTER,
+            localPosition: [8, 8],
             debugName: "selectionLabel"
         });
         super.addChild(this.selectionLabel);
@@ -126,14 +128,9 @@ export class ComboBox extends Section {
     updatePopup() {
         console.log("updating popup");
 
-        var popupSize = [this.width, this.visibleOptionCount * this._optionProperties.vsizeTarget[1]];
-
         this.popupSection = this._generator("Section", {
             contentDirection: ContentDirection.VERTICAL,
-            halign: null,
-            hsizeTarget: [SizeTargetType.FIXED, popupSize[0]],
-            valign: null,
-            vsizeTarget: [SizeTargetType.FIXED, popupSize[1]],
+            size: [this.width, this.visibleOptionCount * this._optionProperties.vsizeTarget[1]],
             borderColor: Color.BLACK,
             borderThickness: 1
         });

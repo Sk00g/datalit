@@ -37,26 +37,26 @@ export class BudgetAnalyzerPage extends Page {
         });
         button.addStyle(ControlState.HOVERED, [["borderColor", Color.BLUE]]);
         button.addStyle(ControlState.DEPRESSED, [["borderColor", "0000FF99"]]);
-        let button2 = factory.generateControl(
-            "Button",
-            {
-                text: "No Press Me",
-                action: x => console.log("YOU DID NOT DO IT"),
-                debugName: "button",
-                margin: 10
-            },
-            {},
-            Assets.getTheme(Assets.Themes.greenBusiness)
-        );
-        let iconButton = factory.generateControl(
-            "IconButton",
-            {
-                imagePath: "categories",
-                action: x => console.log("icon button press")
-            },
-            {},
-            Assets.getTheme(Assets.Themes.greenBusiness)
-        );
+        // let button2 = factory.generateControl(
+        //     "Button",
+        //     {
+        //         text: "No Press Me",
+        //         action: x => console.log("YOU DID NOT DO IT"),
+        //         debugName: "button",
+        //         margin: 10
+        //     },
+        //     {},
+        //     Assets.getTheme(Assets.Themes.greenBusiness)
+        // );
+        // let iconButton = factory.generateControl(
+        //     "IconButton",
+        //     {
+        //         imagePath: "categories",
+        //         action: x => console.log("icon button press")
+        //     },
+        //     {},
+        //     Assets.getTheme(Assets.Themes.greenBusiness)
+        // );
         let input = factory.generateControl("TextInput", {
             margin: 10
         });
@@ -71,8 +71,8 @@ export class BudgetAnalyzerPage extends Page {
 
         main.addChild(title);
         main.addChild(button);
-        main.addChild(button2);
-        main.addChild(iconButton);
+        // main.addChild(button2);
+        // main.addChild(iconButton);
         main.addChild(input);
         main.addChild(combo);
         // main.addChild(listSection);
@@ -81,6 +81,7 @@ export class BudgetAnalyzerPage extends Page {
         this.addSection(second);
 
         this.button = button;
+        this.combo = combo;
 
         // let main = new Section({ backgroundColor: "999d99" });
         // let combo = new ComboBox({
@@ -118,7 +119,10 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
-                console.log(`this.button.text = ${this.button.text}`);
+                console.log(
+                    `this.combo.toggleButton = ${this.combo.toggleButton.size}, ${this.combo.toggleButton.localPosition}`
+                );
+                console.log(`this.combo.toggleButton.icon = ${this.combo.toggleButton.icon.size}`);
                 break;
             case "b":
                 this.button.text = "Hello Kevin";
