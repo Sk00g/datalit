@@ -2,41 +2,29 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/10/12 21:57
+LAST UPDATE:		2019/10/26 22:45
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
 
 IMMEDIATE:
-- Drop-Down List (ComboBox)
-    * It's a struggle... lots of complicated logic.
-    * Currently trying to figure out how to get the popup to work within existing constraints. Should probably make combobox contentDirection.FREE and make sure that works, instead of the current model which doesn't work...
+* Get data binding working
 
-* Ran into that stupid bug again where the default style messes with the valign properties set as initialProperties and theme...
-    # Due to this, will be attempting a rework of the class generation into a factory / strategy pattern
-    # Need some sort of solution for applying themes across parent classes. Because currently the theme is only applied to the youngest child, is this what we want?
-    # Basics are working, but major design consideration remains on how to do composite control composition for complex controls like button / combobox / etc. Can't use factory
-        because that creates circular references. Obvious but possibly crappy solution is for complex objects to handle their own internal object initialization, but I would rather
-        not. Another thought would be to have the actual control instantiation somewhere other than the factory, to avoid the circular referencing, but all creation logic still
-        goes through the factory instead of the constructor...
-
-* Updated the initialization of composite-style controls to use an overloaded 'initialize' function, where all control creation goes. Also added registerAliasProperty, which is essentially a direct link to a child control's property, to avoid writing pointless boilerplate to access a complex control's building block control properties. The basics work but still relatively untested. Still need to update a few remaining complex controls to match this pattern, and make sure there's no hang-around code that breaks things in the new paradigm. This should happen BEFORE moving on to building combo box
+2019/10/26 - Currently prototyping the data binding concepts I've been designing for the last few weeks. Working with the most basic possible for every facet: validation, data source, binding declaration in markup, etc. Goal is to scaffold the overall structure and see if it will work. In the middle of figuring out what sort of data paths should be put into markup to declare bindings, and how they will connect up with the data source. May have to write some basic interface structure for data sources...
 
 
 ----------
 TASK LIST
 ----------
 
+* Ensure basic scaffold prototyping is going to work
+* Consolidate and document ALL UI work to date before moving forward
 
 ----------
 COMPLETED
 ----------
 
-* Ran into arrangement problems, so reworking the system now on a new branch
-* Did another side-adventure to optimize a lot of the code and try to debug the stupid memory leak issue
-    # Haven't solved the problem, but did optimize a bunch of code, specifically events severly needed a rework...
-    # Gone through almost 100% of the code that I could possible imagine is causing the leak. Haven't found it but definitely have things running smoother
-* Scroll section is essentially working for vertical scroll only. I'm sure further testing could be done, but core functionality is there and working and appears to be reasonably efficient. Have only been working with a very simple contentSection though, so will start working with a more complicated view within the scroll section, like a account card or profile editor, etc. 
+
 
 --------------------
 DIVERTED OR DROPPED

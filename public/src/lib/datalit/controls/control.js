@@ -40,7 +40,7 @@ export class Control {
         // Members used for property event functions
         this.propertyMetadata = {};
         this.registerProperty("state", false, false, true);
-        this.registerProperty("visible", false, true);
+        this.registerProperty("visible", false, true, true);
         this.registerProperty("size", true, true, true, utils.comparePoints);
         this.registerProperty("margin", true, true, true, utils.compareSides);
         this.registerProperty("halign", true);

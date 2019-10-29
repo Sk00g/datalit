@@ -2,7 +2,7 @@
     "name": "Green Business",
     "version": "v1.01.190909",
     "description": "Business-serious but still lightweight green theme. No bold strokes",
-    "isBase": false,
+    "isBase": true,
     "colors": {
         "light": "E8E9E5",
         "dark": "5E5E5E",

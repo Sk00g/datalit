@@ -67,7 +67,7 @@ export class Rect extends Control {
             this._arrangedPosition[0] + this.margin[0] + offset[0],
             this._arrangedPosition[1] + this.margin[1] + offset[1]
         ];
-        // console.log(`drawing rect at ${truePosition} (${this.size})`);
+        // console.log(`drawing rect at ${truePosition} (${this.size}) - ${this.fillColor}`);
         context.fillRect(...truePosition, ...this.size);
 
         if (!this.borderColor) return;

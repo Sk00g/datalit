@@ -38,7 +38,7 @@ class EventManager {
 
     unregister(targetSource, eventType, cbUID) {
         let key = `${targetSource.__GUID}.${eventType}`;
-        console.log(`key: ${key}`);
+        console.log(`unregister key: ${key}`);
         let match = this._registrations[key].find(reg => reg.UID == cbUID);
         if (match) this._registrations[key].splice(this._registrations[key].indexOf(match), 1);
     }

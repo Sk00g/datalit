@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = 9080;
-// const sharedFunc = require("./tools/sharedFunc");
+const Expense = require("./sharedModel/expense.js");
 const mongodb = require("mongodb");
 var WebSocketServer = require("websocket").server;
 
@@ -12,6 +12,12 @@ const mongoString = "mongodb://localhost:27017";
 /* SETUP HTTP SERVER TO SERVE WEBPAGE */
 app.use(cors());
 app.use(express.static("public"));
+
+var data = new Expense({ amount: 24.23, note: "Test Expense" });
+
+// console.log(data);
+// console.log(data.validate());
+// console.log(data.validate({ amount: -10.23 }));
 
 app.get("/", (req, res) => res.redirect("index.html"));
 

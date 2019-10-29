@@ -1,5 +1,6 @@
 import { App } from "../lib/datalit/app.js";
 import { BindingContext } from "../lib/datalit/binding/bindingContext.js";
+import { BudgetAnalyzerData } from "../dataProviders/budgetAnalyzerData.js";
 import { ContentDirection, ControlState, HAlign, VAlign, MIN_SIZE, SizeTargetType, Color } from "../lib/datalit/enums";
 import { Events } from "../lib/datalit/events/events.js";
 import { Page } from "../lib/datalit/controls/page";
@@ -8,93 +9,44 @@ import factory from "../lib/datalit/controlFactory.js";
 import themeMap from "../../assets/themeMap.js";
 import { Assets } from "../lib/datalit/assetManager.js";
 
+var Expense = require("../../../sharedModel/expense.js");
+
 export class BudgetAnalyzerPage extends Page {
     constructor() {
         super();
+
+        var data = new Expense({ amount: 24.23, note: "Test Expense" });
+
+        // console.log(data);
+        // console.log(data.validate());
+        // console.log(data.validate({ amount: -10.23 }));
 
         this.debugName = "budgetAnalyzerPage";
         this.backgroundColor = "999d99";
         this.contentDirection = ContentDirection.VERTICAL;
 
-        let bindingContext = new BindingContext(this, {
-            navigateCommand: btn => this.handleNavigateButton(btn)
-        });
+        let bindingContext = new BindingContext(
+            this,
+            {
+                navigateCommand: btn => this.handleNavigateButton(btn)
+            },
+            {
+                coreData: new BudgetAnalyzerData()
+            }
+        );
 
-        // this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
-        // this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
+        this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);
+        this.enterExpenseSection = factory.generateMarkupObjects("budgetAnalyzer.enterExpenseSection", bindingContext);
 
-        // this.addSection(this.navbar);
-        // this.addSection(this.enterExpenseSection);
+        // DEBUG FOR NOW
+        this.enterExpenseSection.mainSection.totalSection.totalExpenseValue.text = "316";
+        // -------------
 
-        let main = factory.generateControl("Section", { backgroundColor: "FF0000", debugName: "main" });
-        let second = factory.generateControl("Section", { backgroundColor: "00FF00", debugName: "second" });
-        let title = factory.generateControl("Label", { text: "Hello Scott", margin: 10 });
-        let button = factory.generateControl("Button", {
-            text: "Press Me",
-            action: x => console.log("YOU DID IT"),
-            debugName: "button",
-            margin: 10
-        });
-        button.addStyle(ControlState.HOVERED, [["borderColor", Color.BLUE]]);
-        button.addStyle(ControlState.DEPRESSED, [["borderColor", "0000FF99"]]);
-        // let button2 = factory.generateControl(
-        //     "Button",
-        //     {
-        //         text: "No Press Me",
-        //         action: x => console.log("YOU DID NOT DO IT"),
-        //         debugName: "button",
-        //         margin: 10
-        //     },
-        //     {},
-        //     Assets.getTheme(Assets.Themes.greenBusiness)
-        // );
-        // let iconButton = factory.generateControl(
-        //     "IconButton",
-        //     {
-        //         imagePath: "categories",
-        //         action: x => console.log("icon button press")
-        //     },
-        //     {},
-        //     Assets.getTheme(Assets.Themes.greenBusiness)
-        // );
-        let input = factory.generateControl("TextInput", {
-            margin: 10
-        });
-        let combo = factory.generateControl("ComboBox", { margin: 10 });
-        // let listSection = factory.generateControl("ScrollSection", {
-        //     margin: 10,
-        //     backgroundColor: "bbbbbb",
-        //     verticalScrollbarVisible: false
-        // });
-        // for (var i = 0; i < 10; i++)
-        //     listSection.addChild(factory.generateControl("Label", { margin: 12, text: `Hello (${i})` }));
+        this.addSection(this.navbar);
+        this.addSection(this.enterExpenseSection);
 
-        main.addChild(title);
-        main.addChild(button);
-        // main.addChild(button2);
-        // main.addChild(iconButton);
-        main.addChild(input);
-        main.addChild(combo);
-        // main.addChild(listSection);
-
-        this.addSection(main);
-        this.addSection(second);
-
-        this.button = button;
-        this.combo = combo;
-
-        // let main = new Section({ backgroundColor: "999d99" });
-        // let combo = new ComboBox({
-        //     margin: 20,
-        //     halign: HAlign.CENTER,
-        //     valign: VAlign.CENTER,
-        //     backgroundColor: "dddddd"
-        // });
-        // main.addChild(combo);
-        // this.addSection(main);
-
-        // this.updateTime();
-        // setInterval(() => this.updateTime(), 5000);
+        this.updateTime();
+        setInterval(() => this.updateTime(), 5000);
 
         // Apply bindings
         bindingContext.initializeBindings();
@@ -119,16 +71,10 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
-                console.log(
-                    `this.combo.toggleButton = ${this.combo.toggleButton.size}, ${this.combo.toggleButton.localPosition}`
-                );
-                console.log(`this.combo.toggleButton.icon = ${this.combo.toggleButton.icon.size}`);
                 break;
             case "b":
-                this.button.text = "Hello Kevin";
                 break;
             case "c":
-                this.button.fontSize = 8;
                 break;
         }
     }

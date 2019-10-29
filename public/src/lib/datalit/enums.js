@@ -1,3 +1,16 @@
+export const BindingType = Object.freeze({
+    READ_ONLY: "READ_ONLY",
+    TWO_WAY: "TWO_WAY",
+    WRITE_ONLY: "WRITE_ONLY"
+});
+
+export const BindingState = Object.freeze({
+    INACTIVE: "INACTIVE",
+    INVALID: "INVALID",
+    MISMATCHED: "MISMATCHED",
+    MATCHED: "MATCHED"
+});
+
 export const SizeTargetType = Object.freeze({
     MIN: "MIN", // Requires alignment
     FILL: "FILL", // Ignores alignment
@@ -196,5 +209,7 @@ export default {
     EventSourceType,
     MouseButton,
     Modifier,
-    SizeTargetType
+    SizeTargetType,
+    BindingState,
+    BindingType
 };

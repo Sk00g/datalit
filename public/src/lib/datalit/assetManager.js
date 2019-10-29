@@ -5,6 +5,7 @@ import markupMap from "../../../assets/markupMap.js";
 import enums from "./enums.js";
 import utils from "./utils.js";
 import { CommandBinding } from "./binding/commandBinding.js";
+import { DataBindingMetadata } from "./binding/dataBindingMetadata.js";
 
 // Handles all assets for the application.
 class AssetManager {
@@ -97,6 +98,7 @@ class AssetManager {
             e - Enum from enums.js                      Ex/ $e=HAlign.CENTER
             t - Theme data specified by resource path   Ex/ $t=default.colors.BackgroundMain
             c - Command binding                         Ex/ $c=backAction
+            d - Data binding                            Ex/ $d=CoreData:lastExpenseReport.title       ([DATA_SOURCE]:[DATA_PATH])
         */
         jsonString = jsonString.replace(/\$e=[^"]{1,}/g, (str, offset, input) => {
             let tokens = str.substr(3, str.length - 3).split(".");
@@ -111,8 +113,7 @@ class AssetManager {
 
         let markupObject = JSON.parse(jsonString);
 
-        /* Traverse parsed object and create binding objects specified by the markup
-         */
+        /* Traverse parsed object and create command bindings specified by the markup */
         let commandBindings = [];
         for (var [key, value, path, idPath] of this.traverse(markupObject)) {
             // console.log(`KEY: ${key} | VALUE: ${value} | PATH: ${path} | ID PATH: ${idPath}`);
@@ -120,12 +121,20 @@ class AssetManager {
                 commandBindings.push(new CommandBinding(value.substr(3), idPath, key));
         }
 
+        /* Traverse parsed object and generate data binding shells specified by markup */
+        let dataBindings = [];
+        for (var [key, value, path, idPath] of this.traverse(markupObject)) {
+            if (typeof value === "string" && value.startsWith("$d=")) {
+                dataBindings.push(new DataBindingMetadata(idPath, key, value.substr(3)));
+            }
+        }
+
         // Remove binding strings and replace with null for object creation
-        jsonString = jsonString.replace(/"\$c=[^"]{1,}"/g, (str, offset, input) => {
+        jsonString = jsonString.replace(/"\$[cd]=[^"]{1,}"/g, (str, offset, input) => {
             return "null";
         });
 
-        return { object: JSON.parse(jsonString), commandBindings: commandBindings };
+        return { object: JSON.parse(jsonString), commandBindings: commandBindings, dataBindingMetadatas: dataBindings };
     }
 
     getImage(name) {

@@ -16,6 +16,35 @@
             },
             "children": [
                 {
+                    "type": "Section",
+                    "id": "totalSection",
+                    "properties": {
+                        "contentDirection": "HORIZONTAL",
+                        "halign": "LEFT",
+                        "valign": "TOP",
+                        "hsizeTarget": ["MIN", null],
+                        "vsizeTarget": ["MIN", null]
+                    },
+                    "children": [
+                        {
+                            "type": "Label",
+                            "properties": {
+                                "text": "Total Expenses: ",
+                                "fontSize": 14
+                            }
+                        },
+                        {
+                            "type": "Label",
+                            "id": "totalExpenseValue",
+                            "properties": {
+                                "fontSize": 14,
+                                "fontColor": "aaccaa",
+                                "text": "$d=coreData:totalExpenseCount"
+                            }
+                        }
+                    ]
+                },
+                {
                     "type": "Label",
                     "properties": {
                         "text": "Name:",

@@ -17,6 +17,8 @@ class DatalitApp {
             Clipboard: ""
         };
 
+        this._popupSections = [];
+
         // Specify the alpha resolution strategy
         this.Context.globalCompositeOperation = "destination-over";
 
@@ -36,7 +38,22 @@ class DatalitApp {
         INSTANCE = this;
     }
 
+    getPopups() {
+        return this._popupSections;
+    }
+
+    addPopup(popup) {
+        this._popupSections.push(popup);
+    }
+
+    removePopup(popup) {
+        this._popupSections.splice(this._popupSections.indexOf(popup), 1);
+    }
+
     addDrawTarget(dirtySection) {
+        // Don't add invisible sections
+        if (!dirtySection.visible) return;
+
         // Don't add duplicates
         if (this.GlobalState.DirtySections.indexOf(dirtySection) != -1) return;
 

@@ -50,6 +50,9 @@ export class Section extends DynamicControl {
             borderColor: this.borderColor,
             fillColor: this.backgroundColor
         });
+
+        // Ensures background isn't drawn twice
+        this.background.__parent = this;
     }
 
     isParentOf(child) {
@@ -566,7 +569,6 @@ export class Section extends DynamicControl {
     }
 
     draw(context = App.Context, offset = [0, 0]) {
-        // console.log(`drawing section ${this.debugName}`);
         if (this.background) this.background.draw(context, offset);
 
         for (let child of this.orderedChildren) {

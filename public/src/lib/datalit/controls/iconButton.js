@@ -41,7 +41,7 @@ export class IconButton extends Section {
     }
     set size(newSize) {
         super.size = newSize;
-        console.log(`updating iconButton size to ${newSize} (${this.icon.margin})`);
+        // console.log(`updating iconButton size to ${newSize} (${this.icon.margin})`);
         this.icon.size = [
             newSize[0] - this.icon.margin[0] - this.icon.margin[2],
             newSize[1] - this.icon.margin[1] - this.icon.margin[3]

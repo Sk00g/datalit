@@ -1,3 +1,5 @@
+import { App } from "../app";
+
 export class ControlEventLayer {
     constructor(manager) {
         this.manager = manager;
@@ -62,7 +64,7 @@ export class ControlEventLayer {
         if (this.manager.activePage == null) return;
 
         let targetControls = [];
-        for (let section of this.manager.activePage.children) {
+        for (let section of [...this.manager.activePage.children, ...App.getPopups()]) {
             if (section.isPointWithin(position)) {
                 targetControls.push(section);
                 targetControls = targetControls.concat(this._gatherHitChildren(section, position));

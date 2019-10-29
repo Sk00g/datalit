@@ -70,8 +70,9 @@ export function generateMarkupObjects(name, bindingContext = null) {
     // Load in dynamic class object list
     if (!CONTROL_CLASSES) loadClasses();
 
-    let { object, commandBindings } = Assets.getMarkup(name);
+    let { object, commandBindings, dataBindingMetadatas } = Assets.getMarkup(name);
     if (bindingContext) bindingContext.addCommandBindings(commandBindings);
+    if (bindingContext) bindingContext.addDataBindingMetadatas(dataBindingMetadatas);
 
     // console.log(JSON.stringify(object));
 
@@ -116,7 +117,7 @@ export function generateControl(controlClass, initialProperties = {}, styles = {
     newControl.updateProperties(initialProperties);
 
     // Add custom (non-theme) styles if present
-    if (styles && styles.length > 0) {
+    if (styles) {
         for (const [key, value] of Object.entries(styles)) {
             let propertyDefinitions = [];
             for (const [propKey, propValue] of Object.entries(value)) propertyDefinitions.push([propKey, propValue]);

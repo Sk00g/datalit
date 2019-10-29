@@ -16,7 +16,6 @@ export class ComboBox extends Section {
         super.updateProperties({
             isFocusable: true,
             contentDirection: ContentDirection.FREE,
-            // contentDirection: ContentDirection.HORIZONTAL,
             borderThickness: [1, 1, 0, 1],
             borderColor: Color.BLACK,
             backgroundColor: Color.WHITE,
@@ -47,14 +46,17 @@ export class ComboBox extends Section {
         this._defaultOption = null;
         this._allowNullSelection = false;
         this._optionProperties = {
+            valign: VAlign.TOP,
+            halign: null,
             vsizeTarget: [SizeTargetType.FIXED, 30],
+            hsizeTarget: [SizeTargetType.FILL, null],
             backgroundColor: Color.WHITE,
-            borderColor: Color.GRAY,
-            borderThickness: [0, 1, 0, 1]
+            borderColor: Color.BLACK,
+            borderThickness: [1, 0, 1, 1]
         };
         this._optionStyles = {
-            HOVERED: { borderColor: Color.BLACK },
-            SELECTED: { backgroundColor: Color.GRAY }
+            HOVERED: { backgroundColor: Color.GRAY },
+            SELECTED: { backgroundColor: "bbbbee" }
         };
         this.registerProperty("selectionOptions", true, true, true, utils.compareSimpleLists);
         this.registerProperty("visibleOptionCount");
@@ -73,8 +75,9 @@ export class ComboBox extends Section {
 
         Events.register(this, "mouseup", (event, data) => {
             console.log("mouse click");
-            this.popupSection.visible = true;
         });
+
+        Events.register(this, "keydown", (event, data) => this.handleKeyDown(event, data));
     }
 
     initialize(generateControl) {
@@ -84,10 +87,6 @@ export class ComboBox extends Section {
         this.toggleButton = generateControl("IconButton", {
             imagePath: "down-filled",
             action: btn => this._handleTogglePress(),
-            // halign: HAlign.RIGHT,
-            // valign: null,
-            // hsizeTarget: [SizeTargetType.FIXED, BUTTON_SIZE],
-            // vsizeTarget: [SizeTargetType.FILL, null],
             margin: 0,
             localPosition: [200 - BUTTON_SIZE, 0],
             size: [BUTTON_SIZE, 30],
@@ -99,11 +98,6 @@ export class ComboBox extends Section {
         });
         super.addChild(this.toggleButton);
 
-        // this.selectionLabel = generateControl("Label", {
-        //     halign: HAlign.LEFT,
-        //     valign: VAlign.CENTER,
-        //     debugName: "selectionLabel"
-        // });
         this.selectionLabel = generateControl("Label", {
             localPosition: [8, 8],
             debugName: "selectionLabel"
@@ -113,9 +107,25 @@ export class ComboBox extends Section {
         // Alias properties
         this.registerAliasProperty("toggleImagePath", "toggleButton", "imagePath", false);
         this.registerAliasProperty("selectedText", "selectionLabel", "text", true);
+    }
+
+    handleKeyDown(event, data) {
+        console.log(JSON.stringify(data));
+
+        if (data.code === "Escape") this.focused = false;
+    }
+
+    activate() {
+        super.activate();
 
         // Ensure popup is updated from initial creation
         this.updatePopup();
+
+        // Add defaultOption as selected if present
+        if (this.defaultOption) {
+            this.selectedText = this.defaultOption;
+            this._selectedIndex = this.selectionOptions.indexOf(this.selectedText);
+        }
     }
 
     updatePopupPosition() {
@@ -128,20 +138,51 @@ export class ComboBox extends Section {
     updatePopup() {
         console.log("updating popup");
 
+        if (this.popupSection) {
+            super.removeChild(this.popupSection);
+            App.removePopup(this.popupSection);
+        }
+
         this.popupSection = this._generator("Section", {
             contentDirection: ContentDirection.VERTICAL,
-            size: [this.width, this.visibleOptionCount * this._optionProperties.vsizeTarget[1]],
+            size: [200, this.visibleOptionCount * this._optionProperties.vsizeTarget[1]],
+            localPosition: [0, 30],
             borderColor: Color.BLACK,
-            borderThickness: 1
+            borderThickness: 1,
+            backgroundColor: Color.WHITE,
+            debugName: "comboboxPopupSection"
         });
+
+        for (var i = 0; i < this.selectionOptions.length; i++) {
+            var optionSection = this._generator(
+                "Section",
+                { ...this._optionProperties, debugName: `option ${i}` },
+                this._optionStyles
+            );
+            optionSection.label = this._generator("Label", {
+                text: this.selectionOptions[i],
+                margin: [10, 0, 10, 0],
+                valign: VAlign.CENTER
+            });
+            optionSection.addChild(optionSection.label);
+            this.popupSection.addChild(optionSection);
+        }
+
         this.updatePopupPosition();
+
+        // Record as a popup, so mouse events still hit it, despite it being outside the bounds of its parent Section
+        // App.addPopup(this.popupSection);
     }
 
     handleFocusChange() {
         console.log("focus changed to " + this.focused);
 
-        if (this.popupSection) {
-            this.popupSection.visible = true;
+        if (this.focused) {
+            super.addChild(this.popupSection);
+            App.addPopup(this.popupSection);
+        } else {
+            super.removeChild(this.popupSection);
+            App.removePopup(this.popupSection);
         }
     }
 
@@ -155,15 +196,6 @@ export class ComboBox extends Section {
 
     _handleTogglePress(btn) {
         console.log("toggle button pressed");
-    }
-
-    draw(context = App.Context, offset = [0, 0]) {
-        super.draw(context, offset);
-
-        if (this.popupSection && this.popupSection.visible) {
-            console.log("drawing popup section");
-            this.popupSection.draw(context, offset);
-        }
     }
     // -----------------
 

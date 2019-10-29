@@ -8,7 +8,7 @@
     },
     "scripts": {
         "build-assets": "cd public && python ../tools/asset_loader.py assets",
-        "build": "cd public && webpack --mode=development"
+        "build": "browserify sharedModel/expense.js -o public/dist/shared.js && cd public && webpack --mode=development"
     },
     "repository": {
         "type": "git",

@@ -53,6 +53,13 @@ First Test Run (Special Controls): 2019/08/26
 * Even a basic GUI with content generation is taking an exorbitant amount of of memory, the CPU usage is reasonable but tough to tell because my computer is awesome
 
 
+Further Core Library Rework (Special Controls): 2019/10/26
+
+* Reworked arrangement system due to more issues
+* Attempted to debug memory leak, memory usage way down after optimization, seems the leak was actually coming from the developer tools
+* Scroll section is essentially working for vertical scroll only, needs further testing
+* Reworked entire control creation to a factory pattern, now the only legal way to generate controls
+
 --------------------
 DIVERTED OR DROPPED
 --------------------
@@ -64,3 +71,7 @@ DIVERTED OR DROPPED
 * Design and implement dynamic ordering of focus (for tab stack), either customizable, based on section direction, or based on Y coordinate, etc.
 * ScrollSection (waiting until the rest of the system is more stabilized, as I realized this is actually a major undertaking)
 * TextEdit (Started doing a few changes then realized need a proper design phase before even attempting this)
+* Popup stuff finally working, but the entire combo box design is so crappy I'm giving up. Need to consolidate a lot more stuff... development is too slow, not enough documentation considering I can only work on this every once in a while. Each control and process is so riddled with errors every addition to anything is extremely time consuming... re-evaluating state of affairs. May take a fresh look and build horizontally before going further. NEED DOCUMENTATION
+* Drop-Down List (ComboBox)
+    # It's a struggle... lots of complicated logic.
+    # Currently trying to figure out how to get the popup to work within existing constraints. Should probably make combobox contentDirection.FREE and make sure that works, instead of the current model which doesn't work...
