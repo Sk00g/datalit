@@ -7,23 +7,27 @@ export class BudgetAnalyzerData extends DataProviderBase {
         super("budgetAnalyzerDataProvider");
 
         this.total = 315;
+        this.name = "NEW EXPENSE";
     }
 
     hasEndpoint(key) {
         console.log(`checking endpoint ${key} in ${this.title}`);
 
-        return key === "totalExpenseCount";
+        return key === "totalExpenseCount" || key === "newExpenseName";
     }
 
     getEndpointType(key) {
         console.log(`checking endpoint ${key} type in ${this.title}`);
 
         if (key === "totalExpenseCount") return BindingType.READ_ONLY;
+        else if (key === "newExpenseName") return BindingType.TWO_WAY;
     }
 
     initializeEndpoint(key) {
         if (key === "totalExpenseCount") {
-            this.dispatchEvent("dataUpdated", { value: `${this.total}` });
+            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: `${this.total}` });
+        } else if (key === "newExpenseName") {
+            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: this.name });
         }
     }
 }

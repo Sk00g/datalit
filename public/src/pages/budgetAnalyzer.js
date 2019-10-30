@@ -71,6 +71,7 @@ export class BudgetAnalyzerPage extends Page {
     handleKeypress(data) {
         switch (data.key) {
             case "a":
+                this.enterExpenseSection.mainSection.totalSection.totalExpenseValue.text = "311";
                 break;
             case "b":
                 break;

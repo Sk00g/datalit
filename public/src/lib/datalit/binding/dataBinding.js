@@ -11,6 +11,9 @@ export class DataBinding {
         this._dataProvider = dataProvider;
         this._dataPath = dataPath;
 
+        // Rapid flag toggle to prevent cyclic event raising
+        this._dataDrivenEvent = false;
+
         // Subscribe to data provider updates
         Events.register(this._dataProvider, "dataUpdated", (event, data) => this.handleProviderUpdate(event, data));
 
@@ -21,14 +24,25 @@ export class DataBinding {
     }
 
     handleProviderUpdate(event, data) {
-        console.log(`Handle data update from ${this._dataProvider.title}.${this._dataPath}`);
+        if (data.endpoint === this._dataPath) {
+            console.log(`Handle data update from ${this._dataProvider.title}.${this._dataPath}`);
 
-        this._control[this._property] = data.value;
+            this._dataDrivenEvent = true;
+            this._control[this._property] = data.newValue;
+
+            // In case there is no change and propertyChanged event is not fired
+            this._dataDrivenEvent = false;
+        }
     }
 
     handlePropertyUpdate(event, data) {
         if (data.property === this._property) {
-            console.log(`Handle property update from ${this._control.debugName}.${this._property}`);
+            if (this._dataDrivenEvent) {
+                this._dataDrivenEvent = false;
+                return;
+            }
+
+            console.log(`Handle property update from ${this._control.debugName}.${this._property} -> ${data.newValue}`);
         }
     }
 }

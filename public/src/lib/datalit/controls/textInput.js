@@ -168,12 +168,12 @@ export class TextInput extends Section {
             case "Delete":
                 if (this._hasSelection()) this._removeSelection();
                 else if (this.cursorPos < text.length)
-                    this.label.text = text.slice(0, this.cursorPos) + text.slice(this.cursorPos + 1);
+                    this.text = text.slice(0, this.cursorPos) + text.slice(this.cursorPos + 1);
                 break;
             case "Backspace":
                 if (this._hasSelection()) this._removeSelection();
                 else if (this.cursorPos > 0) {
-                    this.label.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
+                    this.text = text.slice(0, this.cursorPos - 1) + text.slice(this.cursorPos);
                     this.selectPos = this.cursorPos - 1;
                     this.cursorPos--;
                 }
@@ -221,8 +221,8 @@ export class TextInput extends Section {
 
         let text = this.label.text;
 
-        if (this.cursorPos == text.length) this.label.text += newText;
-        else this.label.text = text.slice(0, this.cursorPos) + newText + text.slice(this.cursorPos);
+        if (this.cursorPos == text.length) this.text += newText;
+        else this.text = text.slice(0, this.cursorPos) + newText + text.slice(this.cursorPos);
 
         this.selectPos = this.cursorPos + newText.length;
         this.cursorPos = this.selectPos;
@@ -272,7 +272,7 @@ export class TextInput extends Section {
         let text = this.label.text;
         let firstText = text.substr(0, Math.min(this.selectPos, this.cursorPos));
         let secondText = text.substr(Math.max(this.selectPos, this.cursorPos));
-        this.label.text = firstText + secondText;
+        this.text = firstText + secondText;
         this.selectPos = Math.min(this.selectPos, this.cursorPos);
         this.cursorPos = this.selectPos;
         // Trigger selection if cursor didn't change values, as propertyChanged handler won't catch it
@@ -285,8 +285,8 @@ export class TextInput extends Section {
 
     _getSelection() {
         if (this.selectPos == this.cursorPos) return null;
-        else if (this.selectPos < this.cursorPos) return this.label.text.slice(this.selectPos, this.cursorPos);
-        else return this.label.text.slice(this.cursorPos, this.selectPos);
+        else if (this.selectPos < this.cursorPos) return this.text.slice(this.selectPos, this.cursorPos);
+        else return this.text.slice(this.cursorPos, this.selectPos);
     }
 
     _getTextIndexFromPosition(point) {

@@ -54,7 +54,9 @@
                 {
                     "type": "TextInput",
                     "id": "nameInput",
-                    "properties": {}
+                    "properties": {
+                        "text": "$d=coreData:newExpenseName"
+                    }
                 },
                 {
                     "type": "Label",
