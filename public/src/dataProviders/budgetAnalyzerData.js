@@ -10,6 +10,14 @@ export class BudgetAnalyzerData extends DataProviderBase {
         this.name = "NEW EXPENSE";
     }
 
+    initializeEndpoint(key) {
+        if (key === "totalExpenseCount") {
+            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: `${this.total}` });
+        } else if (key === "newExpenseName") {
+            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: this.name });
+        }
+    }
+
     hasEndpoint(key) {
         console.log(`checking endpoint ${key} in ${this.title}`);
 
@@ -23,13 +31,12 @@ export class BudgetAnalyzerData extends DataProviderBase {
         else if (key === "newExpenseName") return BindingType.TWO_WAY;
     }
 
-    initializeEndpoint(key) {
-        if (key === "totalExpenseCount") {
-            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: `${this.total}` });
-        } else if (key === "newExpenseName") {
-            this.dispatchEvent("dataUpdated", { endpoint: key, newValue: this.name });
+    persistEndpoint(key, data) {
+        if (key == "newExpenseName") {
         }
     }
+
+    validateEndpoint(key, data) {}
 }
 
 //             http://api.openweathermap.org/data/2.5/weather?id=5931800&APPID=4cb795818fcbf849f23882cc0947031b

@@ -2,13 +2,13 @@ import utils from "../utils";
 import { DataBinding } from "./dataBinding";
 
 export class BindingContext {
-    constructor(host, commandDefinitions = {}, dataSources = {}) {
+    constructor(host, commandDefinitions = {}, dataProviders = {}) {
         this._host = host;
         this._commands = commandDefinitions;
         this._commandBindings = [];
         this._dataBindingMetadatas = [];
 
-        this._dataSources = dataSources;
+        this._dataProviders = dataProviders;
         this._dataBindings = [];
     }
 
@@ -40,16 +40,16 @@ export class BindingContext {
         for (let bind of this._dataBindingMetadatas) {
             let sourceKey = bind.dataPath.split(":")[0];
             let sourcePath = bind.dataPath.split(":")[1];
-            let keyMatch = Object.keys(this._dataSources).find(key => key === sourceKey);
+            let keyMatch = Object.keys(this._dataProviders).find(key => key === sourceKey);
 
-            if (!keyMatch || !this._dataSources[keyMatch].hasEndpoint(sourcePath)) {
+            if (!keyMatch || !this._dataProviders[keyMatch].hasEndpoint(sourcePath)) {
                 console.log(
                     `no match found for data binding ${bind.controlPath}.${bind.controlProperty} -> ${bind.dataPath}`
                 );
                 continue;
             }
 
-            let sourceMatch = this._dataSources[keyMatch];
+            let sourceMatch = this._dataProviders[keyMatch];
 
             let targetControl = utils.getDescendentProperty(this._host, bind.controlPath);
             if (!targetControl || targetControl[bind.controlProperty] === undefined) {

@@ -2,7 +2,7 @@
 CURRENT ACTIVITY REPORT
 -----------------------
 
-LAST UPDATE:		2019/10/26 22:45
+LAST UPDATE:		2019/10/29
 SYSTEM:				
 (Design -> Research -> Prototype -> Write -> Test -> Document)
 STAGE:				Prototype
@@ -11,6 +11,8 @@ IMMEDIATE:
 * Get data binding working
 
 2019/10/26 - Currently prototyping the data binding concepts I've been designing for the last few weeks. Working with the most basic possible for every facet: validation, data source, binding declaration in markup, etc. Goal is to scaffold the overall structure and see if it will work. In the middle of figuring out what sort of data paths should be put into markup to declare bindings, and how they will connect up with the data source. May have to write some basic interface structure for data sources...
+
+2019/10/29 - Continued prototyping data binding, made a basic text binding connection, with hardcoded values in the data provider. Big question currently facing is where to put the data binding behavioural logic? Will want a mix of built-in and custom functionality, while somehow also avoiding the 'mysterious defaults' issue. For the sake of staying sane, I am assuming that business logic goes in the data provider or data source, and all presentation logic goes in the Page subclass. Binding context needs to receive the binding behaviour somehow, either from A) Markup defines Binding objects instead of text values (advanced parsing) or B) Bindings are declared in JS when instantiating the binding context. I guess there is also C) OOP approach of subclassing BindingContext to add in custom logic and Binding declaration / object generation. I don't really like this approach because it's annoying to have to subclass classes you didn't write... Although it does follow the subclass Page pattern, and also the subclass DataProvider pattern. So I'm not sure. Could still make DataProvider an interface instead of a base class, then the only mandatory polymorphic constructs will be subclassing Page to create a new view... We'll see
 
 
 ----------

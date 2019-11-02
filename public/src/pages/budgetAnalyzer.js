@@ -25,14 +25,14 @@ export class BudgetAnalyzerPage extends Page {
         this.backgroundColor = "999d99";
         this.contentDirection = ContentDirection.VERTICAL;
 
+        let dataProvider = new BudgetAnalyzerData();
         let bindingContext = new BindingContext(
             this,
             {
-                navigateCommand: btn => this.handleNavigateButton(btn)
+                navigateCommand: btn => this.handleNavigateButton(btn),
+                saveCommand: btn => dataProvider.persistEndpoint("newExpenseName")
             },
-            {
-                coreData: new BudgetAnalyzerData()
-            }
+            { coreData: dataProvider }
         );
 
         this.navbar = factory.generateMarkupObjects("budgetAnalyzer.navbar", bindingContext);

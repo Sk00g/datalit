@@ -11,14 +11,16 @@ export class DataBinding {
         this._dataProvider = dataProvider;
         this._dataPath = dataPath;
 
-        // Rapid flag toggle to prevent cyclic event raising
+        // Rapid flag toggles to prevent cyclic event raising
         this._dataDrivenEvent = false;
 
         // Subscribe to data provider updates
-        Events.register(this._dataProvider, "dataUpdated", (event, data) => this.handleProviderUpdate(event, data));
+        if (this._type == BindingType.READ_ONLY || this._type == BindingType.TWO_WAY)
+            Events.register(this._dataProvider, "dataUpdated", (event, data) => this.handleProviderUpdate(event, data));
 
         // Subscribe to control propertyChanged updates
-        Events.register(this._control, "propertyChanged", (event, data) => this.handlePropertyUpdate(event, data));
+        if (this._type == BindingType.WRITE_ONLY || this._type == BindingType.TWO_WAY)
+            Events.register(this._control, "propertyChanged", (event, data) => this.handlePropertyUpdate(event, data));
 
         this._dataProvider.initializeEndpoint(dataPath);
     }
@@ -43,6 +45,8 @@ export class DataBinding {
             }
 
             console.log(`Handle property update from ${this._control.debugName}.${this._property} -> ${data.newValue}`);
+
+            
         }
     }
 }

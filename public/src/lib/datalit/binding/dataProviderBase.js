@@ -24,11 +24,23 @@ export class DataProviderBase {
     }
 
     // Override these
+    initializeEndpoint(key) {
+        throw new Error("'initializeEndpoint' must be implemented in all DataProvider classes'");
+    }
+
     hasEndpoint(key) {
         throw new Error("'hasEndpoint' must be implemented in all DataProvider classes'");
     }
 
     getEndpointType(key) {
         throw new Error("'getEndpointType' must be implemented in all DataProvider classes'");
+    }
+
+    persistEndpoint(key, data) {
+        throw new Error("'persistEndpoint' must be implemented in all DataProvider classes");
+    }
+
+    validateEndpoint(key, data) {
+        throw new Error("'validateEndpoint' must be implemented in all DataProvider classes");
     }
 }

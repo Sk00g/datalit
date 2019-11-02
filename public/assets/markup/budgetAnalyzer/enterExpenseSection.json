@@ -55,7 +55,13 @@
                     "type": "TextInput",
                     "id": "nameInput",
                     "properties": {
-                        "text": "$d=coreData:newExpenseName"
+                        "text": "$d=coreData:newExpenseName",
+                        "text2": {
+                            "path": "coreData:newExpenseName",
+                            "mode": "TWO_WAY",
+                            "authority": "USER",
+                            "persist": "EXPLICIT"
+                        }
                     }
                 },
                 {
@@ -81,6 +87,16 @@
                     "type": "TextInput",
                     "id": "categoryInput",
                     "properties": {}
+                },
+                {
+                    "type": "Button",
+                    "id": "saveButton",
+                    "properties": {
+                        "text": "SAVE",
+                        "action": "$c=saveCommand",
+                        "hsizeTarget": ["FIXED", 120],
+                        "vsizeTarget": ["FIXED", 32]
+                    }
                 }
             ]
         }
