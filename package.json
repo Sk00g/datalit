@@ -27,7 +27,7 @@
     "homepage": "https://github.com/Sk00g/datalit#readme",
     "dependencies": {
         "cors": "^2.8.5",
-        "express": "^4.17.1",
+        "express": "^4.17.3",
         "lodash": "^4.17.11",
         "mongodb": "^3.3.0",
         "webpack": "^4.30.0",
